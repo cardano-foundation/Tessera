@@ -1,8 +1,9 @@
 node_modules/
 *.sqlite
 *.sqlite-*
-.env
-# Exactly `.vercel`: `vercel link` appends it unless this line is present.
+# Exactly these two: `vercel link` appends each unless the line is present.
 .vercel
+.env*
+!.env*.example
 *.tsbuildinfo
 .DS_Store
