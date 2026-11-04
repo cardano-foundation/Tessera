@@ -190,8 +190,7 @@ Payloads use the `cip-179/tally` JSON-safe wire form (bytes → hex under
 `$bytes`, big integers → decimal strings under `$bigint`) so they round-trip
 losslessly to the browser. The `/api/*` routes send permissive CORS headers
 (the data is public and cookieless), so the browser app can read them
-cross-origin. Bodies are compressed when the client accepts it (hex-heavy JSON
-shrinks ~4×).
+cross-origin.
 
 ## Use from the app
 

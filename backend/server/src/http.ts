@@ -35,9 +35,8 @@
  * moves every ~20 s anyway. `/api/pparams` is keyed by epoch instead, because
  * that is when protocol parameters can change at all.
  *
- * Transfer economics: responses are compressed (hex-heavy JSON shrinks several
- * fold), and every snapshot-derived route carries an `ETag` versioned by
- * `fetchedAt` — the body only changes when a refresh lands, so a browser
+ * Transfer economics: every snapshot-derived route carries an `ETag` versioned
+ * by `fetchedAt` — the body only changes when a refresh lands, so a browser
  * revalidation between refreshes is a 304 with no body. Each route reads only
  * the rows it serves: the refresh materializes the snapshot into `survey_index`
  * and `response` rows, so no request cost scales with the whole corpus.
@@ -48,7 +47,6 @@
 
 import { Hono } from "hono";
 import type { Context } from "hono";
-import { compress } from "hono/compress";
 import { cors } from "hono/cors";
 
 import type {
@@ -295,9 +293,6 @@ export function createApp(config: ServerConfig, store: BackendStore): Hono {
   // against its own before trusting the snapshot.
   app.use("/api/*", cors());
   app.use("/health", cors());
-  // Compress bodies when the client accepts it. The snapshot is hex-string-heavy
-  // JSON, which deflates several fold.
-  app.use(compress());
   // Passthroughs to Koios. `tip`/`pparams` carry the operator's Koios identity
   // (`config.app.koiosToken`) — the memos above cap them at one upstream call
   // per window and per epoch respectively, so they can't burn quota even though
