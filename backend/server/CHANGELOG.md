@@ -15,7 +15,7 @@ no dual-serving. A consumer compares majors and refuses a mismatch; it may warn
 on a minor it does not know. Every bump has a line here, and the README's
 Endpoints section changes in the same commit.
 
-## [Unreleased]
+## [2.2] - 2026-11-03
 
 `2.2`. Removing `quotas.subrequestsPerInvocation` is a major by this
 changelog's rule, but only Tessera's own app reads `/api/health`, and a major
