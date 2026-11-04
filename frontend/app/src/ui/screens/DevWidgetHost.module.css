@@ -41,7 +41,7 @@
   flex: none;
   font-family: var(--mono);
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: 0.08em;
   color: #fff;
   background: var(--accent);
@@ -123,6 +123,12 @@
   padding: 18px 20px;
 }
 
+.widgetFrame tessera-respond {
+  --tessera-sans: var(--sans);
+  --tessera-mono: var(--mono);
+  --tessera-serif: var(--serif);
+}
+
 .connectPrompt {
   color: var(--muted);
   font-size: 14px;
@@ -181,7 +187,7 @@
 .logLabel {
   font-family: var(--mono);
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--accent);
   margin-bottom: 4px;
 }
