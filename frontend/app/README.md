@@ -181,8 +181,7 @@ Content-Security-Policy:
   browsers (Eternl iOS) inject their CIP-30 provider through eval in the page's
   context, so without it they never appear on `window.cardano`.
   `'wasm-unsafe-eval'` is not enough. Desktop extensions are unaffected.
-- `style-src` allows `'unsafe-inline'` (component style attributes and the
-  Google Fonts stylesheet) and the Google Fonts CSS origin.
+- `style-src` allows `'unsafe-inline'` for component style attributes.
 - `connect-src` and `img-src` allow any `https:`, because external-content
   survey anchors and IPFS CIDs can resolve to arbitrary gateways and hosts
   (Koios, drand, ipfs.io, dweb.link, blockfrost, pinata, nmkr, plus user

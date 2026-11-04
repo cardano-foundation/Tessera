@@ -5,9 +5,9 @@
  */
 :root {
   /* ===== TYPE ===== */
-  --sans: "Hanken Grotesk", system-ui, sans-serif;
+  --sans: "Hanken Grotesk Variable", system-ui, sans-serif;
   --mono: "IBM Plex Mono", monospace;
-  --serif: "Newsreader", Georgia, serif;
+  --serif: "Newsreader Variable", Georgia, serif;
   /* ===== INK + TEXT (warm) ===== */
   --ink: #23201a;
   --body: #3a352b;
