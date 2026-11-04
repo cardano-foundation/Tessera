@@ -75,12 +75,6 @@
   margin: 10px 2px 0;
 }
 
-/* Hint inside the success Note — drops its trailing margin. */
-.hintNoBottom {
-  composes: hint from "../components/LinkAnchorSection.module.css";
-  margin-bottom: 0;
-}
-
 /* "Proposal submitted ✓" heading inside the success Note (tighter gap). */
 .submittedTitle {
   font-weight: 700;

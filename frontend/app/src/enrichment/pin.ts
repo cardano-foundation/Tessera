@@ -11,8 +11,8 @@
  * in `cip-179/content`.
  *
  * Best-effort + browser-dependent: provider APIs must allow authenticated CORS
- * uploads. Failures are collected per-provider, not thrown, as long as one pin
- * lands. Lazy-loaded (its own chunk) — only pulled in when a user actually pins.
+ * uploads. One landed pin is enough; only when every provider fails does it
+ * throw, naming each failure. Lazy-loaded (its own chunk) — only pulled in when a user actually pins.
  */
 
 import { blake2b256 } from "cip-179/content";
@@ -28,11 +28,8 @@ export interface PinResult {
   readonly uri: string;
   /** blake2b-256 of the exact bytes pinned — the anchor hash. */
   readonly hash: Uint8Array;
-  readonly cid: string;
-  /** Providers holding the pin under exactly {@link cid} — the ones that make `uri` resolvable. */
+  /** Providers holding the pin under exactly the CID in `uri` — the ones that make it resolvable. */
   readonly pinnedBy: ProviderId[];
-  /** Providers that failed (non-fatal as long as `pinnedBy` is non-empty). */
-  readonly failures: ReadonlyArray<{ id: ProviderId; error: string }>;
 }
 
 const enc = new TextEncoder();
@@ -91,18 +88,10 @@ export async function pinBytes(
   // Two CIDs for the same bytes name *different blocks* (CID version, chunker,
   // raw-leaves all feed the hash), so a provider that pinned under another CID
   // does not make `cid` resolvable — crediting it would overstate redundancy.
-  const pinnedBy: ProviderId[] = [];
-  for (const a of accepted) {
-    if (a.cid === cid) pinnedBy.push(a.id);
-    else
-      failures.push({ id: a.id, error: `pinned a different CID (${a.cid})` });
-  }
   return {
     uri: `ipfs://${cid}`,
     hash: blake2b256(bytes),
-    cid,
-    pinnedBy,
-    failures,
+    pinnedBy: accepted.filter((a) => a.cid === cid).map((a) => a.id),
   };
 }
 

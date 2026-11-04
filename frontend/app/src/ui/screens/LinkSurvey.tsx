@@ -488,7 +488,7 @@ export const LinkSurvey: Component = () => {
                       <div class={css.txLine}>
                         <TxLink hash={h()} color="var(--ok)" />
                       </div>
-                      <p class={css.hintNoBottom}>
+                      <p class={linkCss.hint}>
                         {t("linkSurvey.submittedHint")}
                       </p>
                     </Note>

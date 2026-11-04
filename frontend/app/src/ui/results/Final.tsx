@@ -23,7 +23,7 @@ import {
 import { artifactResults, type Weighting } from "~/domain/results";
 import { fileRef, formatAda, roleLabel } from "~/ui/format";
 import { TxNotice } from "~/ui/components/TxNotice";
-import { downloadCsv, downloadJson } from "~/util/csv";
+import { downloadCsv, downloadJson } from "~/util/download";
 import { t, n } from "~/i18n";
 import { responsesCsv, type CsvEntry } from "./export";
 import { InfoNote } from "./Card";

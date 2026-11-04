@@ -29,6 +29,7 @@ import { IPFS_PROVIDERS, type ProviderId } from "~/enrichment/providers";
 import { CopyButton } from "~/ui/components/CopyButton";
 import { Note } from "~/ui/components/Note";
 import { isSafeAnchorUri } from "~/ui/format";
+import { download } from "~/util/download";
 import { t } from "~/i18n";
 import css from "./LinkAnchorSection.module.css";
 
@@ -131,17 +132,6 @@ export const LinkAnchorSection: Component<LinkAnchorSectionProps> = (props) => {
     }
   };
 
-  const download = () => {
-    const a = props.anchor;
-    const blob = new Blob([a.bytes], { type: "application/ld+json" });
-    const href = URL.createObjectURL(blob);
-    const el = document.createElement("a");
-    el.href = href;
-    el.download = a.fileName;
-    el.click();
-    URL.revokeObjectURL(href);
-  };
-
   return (
     <>
       <div class={css.stepHead}>{t("linkSurvey.step2Head")}</div>
@@ -200,7 +190,13 @@ export const LinkAnchorSection: Component<LinkAnchorSectionProps> = (props) => {
             </button>
           </Show>
           <button
-            onClick={download}
+            onClick={() =>
+              download(
+                props.anchor.fileName,
+                props.anchor.bytes,
+                "application/ld+json",
+              )
+            }
             classList={{
               [css.btn]: hasPinning(),
               [css.btnPrimary]: !hasPinning(),

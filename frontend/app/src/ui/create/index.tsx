@@ -40,7 +40,7 @@ import { OnchainPreview } from "~/ui/components/OnchainPreview";
 import { ErrorBox, ProblemList } from "~/ui/components/Feedback";
 import { PublishLocked, QueuedNote } from "~/ui/components/CartDrawer";
 import { networkMismatch } from "~/ui/format";
-import { downloadJson } from "~/util/csv";
+import { downloadJson } from "~/util/download";
 import type { Action } from "~/wallet/action";
 import type { WalletIdentity } from "~/wallet/types";
 import { t } from "~/i18n";

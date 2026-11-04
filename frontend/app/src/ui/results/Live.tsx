@@ -29,7 +29,7 @@ import {
   type RoleResults,
 } from "~/domain/results";
 import { fileRef, roleLabel } from "~/ui/format";
-import { downloadCsv } from "~/util/csv";
+import { downloadCsv } from "~/util/download";
 import { t, n } from "~/i18n";
 import { responsesCsv, type CsvEntry } from "./export";
 import { InfoNote } from "./Card";

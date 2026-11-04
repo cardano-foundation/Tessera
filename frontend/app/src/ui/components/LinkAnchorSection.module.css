@@ -1,7 +1,7 @@
 /*
  * Co-located styles for LinkAnchorSection.tsx — the hosting half of the link
  * tool. Also the home of the gov-tinted step layout primitives (stepHead /
- * card / hint / btn), which the LinkSurvey screen composes or imports for its
+ * card / hint / btn), which the LinkSurvey screen imports for its
  * own steps.
  */
 
