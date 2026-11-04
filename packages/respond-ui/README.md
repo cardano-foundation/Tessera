@@ -2,11 +2,11 @@
 
 The shared SolidJS answering UI for CIP-179 surveys: one implementation of the
 question card and its per-question body components (single choice, multi
-select, ranking, numeric range, points allocation, rating, custom) **and** of
-the reactive state behind them (`createResponseDraft` — role choice, drafts,
-the prior-response stash and the reseed on identity change), consumed by
-**both** the Tessera app and the `<tessera-respond>` widget so their answering
-behavior cannot drift.
+select, ranking, numeric range, points allocation, rating, custom), of the
+header, banners and notices around them, **and** of the reactive state behind
+them (`createResponseDraft` — role choice, drafts, the prior-response stash and
+the reseed on identity change), consumed by **both** the Tessera app and the
+`<tessera-respond>` widget so their answering behavior cannot drift.
 
 The behavior-free logic (drafts, validation, eligibility) lives in
 `cardano-tessera-respond-core`; this package is the behavior-bearing view layer on top

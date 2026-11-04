@@ -3,9 +3,10 @@
  *
  * One implementation of the question card and its per-question body components
  * — and of the reactive state behind them ({@link createResponseDraft}), of
- * finishing the form ({@link createFinish}), and of the progress squares
- * ({@link ProgressSquares}) — consumed by both the Tessera app and the `<tessera-respond>` widget so their
- * answering behavior cannot drift. The two host-specific deltas are injected
+ * finishing the form ({@link createFinish}), of the progress squares
+ * ({@link ProgressSquares}), and of the header, banners and notices around
+ * them ({@link SurveyHeader}) — consumed by both the Tessera app and the
+ * `<tessera-respond>` widget so their answering behavior cannot drift. The two host-specific deltas are injected
  * via context:
  *
  * - {@link I18nContext} — an `I18n` accessor (strings, numbers, dates). Both
@@ -27,6 +28,13 @@ export { createFinish } from "./finish";
 export type { Finish } from "./finish";
 export { LeftNote, SkipConfirm } from "./finish-bar";
 export { ProgressSquares } from "./squares";
+export {
+  Ineligible,
+  Notice,
+  RespondedBanner,
+  SealedBanner,
+  SurveyHeader,
+} from "./chrome";
 export type {
   DraftStash,
   Left,

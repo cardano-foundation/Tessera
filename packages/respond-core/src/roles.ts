@@ -1,6 +1,7 @@
 /**
- * What a CIP-179 role is called, what explains it, and whether a browser can
- * ever claim it — the facts about roles that every host states the same way.
+ * What a CIP-179 role is called, what explains it, its chip colors, and
+ * whether a browser can ever claim it — the facts about roles that every host
+ * states the same way.
  *
  * Labels are proper nouns from the spec, not prose, so they are not in the
  * message catalog. Descriptions are: this exposes the catalog *key* rather than
@@ -28,8 +29,27 @@ const DESCRIPTION_KEY = {
   [Role.Keyholder]: "roles.keyholder",
 } as const satisfies Record<number, MsgKey>;
 
+/** [text color, background] per role — the `--tessera-role-*` theme tokens. */
+const COLORS: Record<number, readonly [string, string]> = {
+  [Role.DRep]: ["var(--tessera-role-drep)", "var(--tessera-role-drep-bg)"],
+  [Role.SPO]: ["var(--tessera-role-spo)", "var(--tessera-role-spo-bg)"],
+  [Role.CC]: ["var(--tessera-role-cc)", "var(--tessera-role-cc-bg)"],
+  [Role.Stakeholder]: [
+    "var(--tessera-role-stakeholder)",
+    "var(--tessera-role-stakeholder-bg)",
+  ],
+  [Role.Keyholder]: [
+    "var(--tessera-role-keyholder)",
+    "var(--tessera-role-keyholder-bg)",
+  ],
+};
+
 export function roleLabel(role: number): string {
   return LABEL[role] ?? `Role ${role}`;
+}
+
+export function roleColors(role: number): readonly [string, string] {
+  return COLORS[role] ?? ["var(--tessera-muted)", "var(--tessera-surface3)"];
 }
 
 /** Catalog key for a role's one-line explanation; undefined for an unknown role. */

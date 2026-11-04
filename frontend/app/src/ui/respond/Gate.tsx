@@ -4,20 +4,13 @@
  * warnings — so a voter meets one shape whatever turned them away.
  */
 
-import { For, Show, type Component, type JSX } from "solid-js";
-import type { Role, SurveyDefinition } from "cip-179";
+import { Show, type Component, type JSX } from "solid-js";
+import type { Role } from "cip-179";
 import type { SurveyAggregate } from "cip-179/domain";
+import { Ineligible, Notice } from "cardano-tessera-respond-ui";
 
-import {
-  roleBrowserClaimable,
-  roleColors,
-  roleDescription,
-  roleLabel,
-  viewStatus,
-} from "~/ui/format";
+import { viewStatus } from "~/ui/format";
 import { t } from "~/i18n";
-import body from "./body.module.css";
-import css from "./respond.module.css";
 
 /** Renders the form (children) only when open, public, connected, and eligible. */
 export const FormGate: Component<{
@@ -73,52 +66,4 @@ const ConnectPrompt: Component = () => (
     title={t("respond.connectTitle")}
     body={t("respond.connectBody")}
   />
-);
-
-const Ineligible: Component<{ def: SurveyDefinition }> = (props) => (
-  <div class={body.card}>
-    <h3 class={css.ineligibleTitle}>{t("respond.ineligibleTitle")}</h3>
-    <p class={css.ineligibleLead}>{t("respond.ineligibleLead")}</p>
-    <div class={css.ineligibleList}>
-      <For each={props.def.eligibleRoles}>
-        {(r) => {
-          const [color, bg] = roleColors(r);
-          return (
-            <div class={css.ineligibleRow}>
-              <span class={css.roleChip} style={{ color, background: bg }}>
-                {roleLabel(r)}
-              </span>
-              <span class={css.roleDesc}>
-                {roleDescription(r)}
-                <Show when={!roleBrowserClaimable(r)}>
-                  <span class={css.notClaimable}>
-                    {t("respond.notClaimable")}
-                  </span>
-                </Show>
-              </span>
-            </div>
-          );
-        }}
-      </For>
-    </div>
-  </div>
-);
-
-export const Notice: Component<{
-  tone: "warn" | "muted";
-  title: string;
-  body: string;
-}> = (props) => (
-  <div
-    class={css.notice}
-    classList={{ [css.noticeWarn]: props.tone === "warn" }}
-  >
-    <div
-      class={css.noticeTitle}
-      classList={{ [css.noticeTitleWarn]: props.tone === "warn" }}
-    >
-      {props.title}
-    </div>
-    <p class={css.noticeBody}>{props.body}</p>
-  </div>
 );

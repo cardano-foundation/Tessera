@@ -13,6 +13,10 @@ import { useApp } from "~/state";
 import { dedupeResponses, findSurvey, refKey } from "cip-179/domain";
 import type { Responder } from "cardano-tessera-respond-core";
 import {
+  Notice,
+  RespondedBanner,
+  SealedBanner,
+  SurveyHeader,
   createFinish,
   createResponseDraft,
   focusPrompt,
@@ -20,6 +24,7 @@ import {
 import { walletResponder } from "~/domain/roles";
 import { usePresentation } from "~/enrichment/usePresentation";
 import { Empty } from "~/ui/components/Empty";
+import { SurveyRef } from "~/ui/components/SurveyRef";
 import { OnchainPreview } from "~/ui/components/OnchainPreview";
 import { ErrorBox, ProblemList } from "~/ui/components/Feedback";
 import { PublishLocked, QueuedNote } from "~/ui/components/CartDrawer";
@@ -27,16 +32,10 @@ import { SubmitProgressModal } from "~/ui/components/SubmitProgress";
 import { networkMismatch, viewStatus } from "~/ui/format";
 import type { WalletIdentity } from "~/wallet/types";
 import { t } from "~/i18n";
-import { FormGate, Notice } from "./Gate";
+import { FormGate } from "./Gate";
 import { responseDrafts } from "./draft";
-import {
-  LabelsAbsentBanner,
-  RespondedBanner,
-  RestoredBanner,
-  SealedBanner,
-  SurveyHeader,
-} from "./Header";
-import { QuestionList } from "./Question";
+import { LabelsAbsentBanner, RestoredBanner } from "./Header";
+import { QuestionList, RespondContexts } from "./Question";
 import { RationaleSection, createRationale } from "./Rationale";
 import { SubmitBar, SubmittedPanel } from "./Submit";
 import { createDeadline } from "./deadline";
@@ -174,167 +173,176 @@ export const Respond: Component = () => {
       class={css.main}
       style={{ "--submit-bar-height": `${barHeight()}px` }}
     >
-      <A href={`/survey/${encodeURIComponent(key())}`} class={css.backLink}>
-        <span class={css.backArrow}>←</span> {t("respond.backToResults")}
-      </A>
+      <RespondContexts>
+        <A href={`/survey/${encodeURIComponent(key())}`} class={css.backLink}>
+          <span class={css.backArrow}>←</span> {t("respond.backToResults")}
+        </A>
 
-      <Show when={submission.submitting() && submission.steps().length > 1}>
-        <SubmitProgressModal
-          title={
-            sealedMode()
-              ? t("respond.progressTitleSealed")
-              : t("respond.progressTitlePublic")
-          }
-          steps={submission.steps()}
-          currentKey={submission.stepKey()}
-        />
-      </Show>
-
-      <Show
-        when={survey()}
-        fallback={
-          <Empty
-            loading={found.loading()}
-            error={found.error()}
-            onRetry={() => app.reload()}
-            text={{
-              loading: t("respond.loading"),
-              notFound: t("respond.notFound"),
-              error: t("respond.loadError"),
-              retry: t("respond.retry"),
-            }}
-          />
-        }
-      >
-        {(s) => (
-          <Show
-            when={!sent()}
-            fallback={
-              <Show when={submission.txHash()} fallback={<QueuedNote />}>
-                {(hash) => <SubmittedPanel hash={hash()} surveyKey={key()} />}
-              </Show>
-            }
-          >
-            <SurveyHeader
-              s={s()}
-              def={definition() ?? s().record.definition}
-              pro={app.ui.pro}
-              role={draft.role()}
-              respondable={draft.respondable()}
-              // Per-survey choice only — must not rewrite the app-wide active
-              // role used by other screens (e.g. the "mine" Explore filter).
-              onPickRole={draft.pickRole}
-            />
-
-            <Show when={s().cancellationClaimed}>
-              <div class={css.cancelClaim}>
-                <strong>{t("respond.cancelClaimLead")}</strong>{" "}
-                {t("respond.cancelClaimBody")}
-              </div>
-            </Show>
-
-            <FormGate
-              s={s()}
-              connected={identity() !== null}
-              respondable={draft.respondable()}
-            >
-              {/* The actual form (open + eligible) */}
-              <Show when={draft.prior()}>
-                <RespondedBanner role={draft.role()} />
-              </Show>
-              <Show
-                when={draft.restored() || (app.ui.pro && rationaleRestored())}
-              >
-                <RestoredBanner onDiscard={discard} />
-              </Show>
-              <Show when={sealedMode()}>
-                {(m) => <SealedBanner round={m().round} />}
-              </Show>
-              <Show when={sealedUnsupported()}>
-                <Notice
-                  tone="warn"
-                  title={t("respond.sealedUnsupportedTitle")}
-                  body={t("respond.sealedUnsupportedBody")}
-                />
-              </Show>
-              <Show when={pres.external() && pres.unavailable()}>
-                <LabelsAbsentBanner keyStr={key()} />
-              </Show>
-
-              <QuestionList
-                questions={(definition() ?? s().record.definition).questions}
-                drafts={draft.drafts}
-                prompts={prompts}
-                onChange={draft.setValue}
-                onSkip={draft.setSkipped}
-                onSeen={draft.markSeen}
-                pastLast={finish.pastLast}
-              />
-
-              <Show when={app.ui.pro}>
-                <RationaleSection r={rationale} />
-              </Show>
-
-              <Show when={submission.problems().length > 0}>
-                <ProblemList
-                  title={t("respond.problemsTitle")}
-                  problems={submission.problems()}
-                />
-              </Show>
-              <Show when={submission.error()}>
-                <ErrorBox message={submission.error()!} />
-              </Show>
-
-              <Show when={app.ui.pro}>
-                <OnchainPreview
-                  payload={preview.payload()}
-                  sealed={sealedMode() !== null}
-                  paddingSize={preview.paddingSize()}
-                  onchainSize={preview.onchainSize()}
-                />
-              </Show>
-            </FormGate>
-          </Show>
-        )}
-      </Show>
-
-      {/* sticky submit bar — only when an open, eligible form is showing */}
-      <Show
-        when={
-          survey() &&
-          !sent() &&
-          (viewStatus(survey()!) === "public" ||
-            viewStatus(survey()!) === "sealed") &&
-          draft.role() !== null
-        }
-      >
-        <Show when={!app.cartLocked()} fallback={<PublishLocked />}>
-          <SubmitBar
-            progress={draft.progress()}
-            drafts={draft.drafts}
-            left={draft.left()}
-            answered={draft.answered()}
-            finish={finish}
-            replacing={draft.prior() !== undefined}
-            submitting={submission.submitting()}
-            mismatch={mismatch()}
-            blocked={submitBlocked()}
-            warning={deadline.warning()}
-            network={app.config.network}
-            idleText={
+        <Show when={submission.submitting() && submission.steps().length > 1}>
+          <SubmitProgressModal
+            title={
               sealedMode()
-                ? t("respond.encryptAndSubmit")
-                : t("respond.signAndSubmit")
+                ? t("respond.progressTitleSealed")
+                : t("respond.progressTitlePublic")
             }
-            busyText={submission.busyText()}
-            queueing={submission.queueing()}
-            onSubmit={() => void submit(false)}
-            onQueue={() => void submit(true)}
-            submitRef={(el) => (submitButton = el)}
-            onHeight={setBarHeight}
+            steps={submission.steps()}
+            currentKey={submission.stepKey()}
           />
         </Show>
-      </Show>
+
+        <Show
+          when={survey()}
+          fallback={
+            <Empty
+              loading={found.loading()}
+              error={found.error()}
+              onRetry={() => app.reload()}
+              text={{
+                loading: t("respond.loading"),
+                notFound: t("respond.notFound"),
+                error: t("respond.loadError"),
+                retry: t("respond.retry"),
+              }}
+            />
+          }
+        >
+          {(s) => (
+            <Show
+              when={!sent()}
+              fallback={
+                <Show when={submission.txHash()} fallback={<QueuedNote />}>
+                  {(hash) => <SubmittedPanel hash={hash()} surveyKey={key()} />}
+                </Show>
+              }
+            >
+              <SurveyHeader
+                def={definition() ?? s().record.definition}
+                role={draft.role()}
+                respondable={draft.respondable()}
+                // Per-survey choice only — must not rewrite the app-wide active
+                // role used by other screens (e.g. the "mine" Explore filter).
+                onPickRole={draft.pickRole}
+              >
+                <div class={css.headerTop}>
+                  <span class={css.respondLabel}>
+                    {t("respond.respondLabel")}
+                  </span>
+                  <Show when={app.ui.pro}>
+                    <SurveyRef keyStr={s().key} />
+                  </Show>
+                </div>
+              </SurveyHeader>
+
+              <Show when={s().cancellationClaimed}>
+                <div class={css.cancelClaim}>
+                  <strong>{t("respond.cancelClaimLead")}</strong>{" "}
+                  {t("respond.cancelClaimBody")}
+                </div>
+              </Show>
+
+              <FormGate
+                s={s()}
+                connected={identity() !== null}
+                respondable={draft.respondable()}
+              >
+                {/* The actual form (open + eligible) */}
+                <Show when={draft.prior()}>
+                  <RespondedBanner role={draft.role()} />
+                </Show>
+                <Show
+                  when={draft.restored() || (app.ui.pro && rationaleRestored())}
+                >
+                  <RestoredBanner onDiscard={discard} />
+                </Show>
+                <Show when={sealedMode()}>
+                  {(m) => <SealedBanner round={m().round} />}
+                </Show>
+                <Show when={sealedUnsupported()}>
+                  <Notice
+                    tone="warn"
+                    title={t("respond.sealedUnsupportedTitle")}
+                    body={t("respond.sealedUnsupportedBody")}
+                  />
+                </Show>
+                <Show when={pres.external() && pres.unavailable()}>
+                  <LabelsAbsentBanner keyStr={key()} />
+                </Show>
+
+                <QuestionList
+                  questions={(definition() ?? s().record.definition).questions}
+                  drafts={draft.drafts}
+                  prompts={prompts}
+                  onChange={draft.setValue}
+                  onSkip={draft.setSkipped}
+                  onSeen={draft.markSeen}
+                  pastLast={finish.pastLast}
+                />
+
+                <Show when={app.ui.pro}>
+                  <RationaleSection r={rationale} />
+                </Show>
+
+                <Show when={submission.problems().length > 0}>
+                  <ProblemList
+                    title={t("respond.problemsTitle")}
+                    problems={submission.problems()}
+                  />
+                </Show>
+                <Show when={submission.error()}>
+                  <ErrorBox message={submission.error()!} />
+                </Show>
+
+                <Show when={app.ui.pro}>
+                  <OnchainPreview
+                    payload={preview.payload()}
+                    sealed={sealedMode() !== null}
+                    paddingSize={preview.paddingSize()}
+                    onchainSize={preview.onchainSize()}
+                  />
+                </Show>
+              </FormGate>
+            </Show>
+          )}
+        </Show>
+
+        {/* sticky submit bar — only when an open, eligible form is showing */}
+        <Show
+          when={
+            survey() &&
+            !sent() &&
+            (viewStatus(survey()!) === "public" ||
+              viewStatus(survey()!) === "sealed") &&
+            draft.role() !== null
+          }
+        >
+          <Show when={!app.cartLocked()} fallback={<PublishLocked />}>
+            <SubmitBar
+              progress={draft.progress()}
+              drafts={draft.drafts}
+              left={draft.left()}
+              answered={draft.answered()}
+              finish={finish}
+              replacing={draft.prior() !== undefined}
+              submitting={submission.submitting()}
+              mismatch={mismatch()}
+              blocked={submitBlocked()}
+              warning={deadline.warning()}
+              network={app.config.network}
+              idleText={
+                sealedMode()
+                  ? t("respond.encryptAndSubmit")
+                  : t("respond.signAndSubmit")
+              }
+              busyText={submission.busyText()}
+              queueing={submission.queueing()}
+              onSubmit={() => void submit(false)}
+              onQueue={() => void submit(true)}
+              submitRef={(el) => (submitButton = el)}
+              onHeight={setBarHeight}
+            />
+          </Show>
+        </Show>
+      </RespondContexts>
     </main>
   );
 };

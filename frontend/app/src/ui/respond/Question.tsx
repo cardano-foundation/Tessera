@@ -1,5 +1,5 @@
 /**
- * The answerable body of the screen: one card per question, wrapped in the two
+ * The answerable body of the screen, one card per question, and the two
  * contexts respond-ui's components read from.
  */
 
@@ -16,7 +16,6 @@ import {
 
 import { t, n, d } from "~/i18n";
 import body from "./body.module.css";
-import css from "./respond.module.css";
 
 /**
  * respond-ui renders class names through {@link ClassesContext}, styled by its
@@ -33,7 +32,7 @@ const bodyClasses = body as BodyClasses;
  */
 const bodiesI18n: I18n = { t, n, d };
 
-/** The contexts respond-ui's components read from. */
+/** The contexts respond-ui's components read from, around the whole screen. */
 export const RespondContexts: ParentComponent = (props) => (
   <I18nContext.Provider value={() => bodiesI18n}>
     <ClassesContext.Provider value={bodyClasses}>
@@ -58,24 +57,22 @@ export const QuestionList: Component<{
     else props.pastLast();
   };
   return (
-    <RespondContexts>
-      <div class={css.questionList}>
-        <For each={props.questions}>
-          {(q, i) => (
-            <QuestionCard
-              q={q}
-              index={i()}
-              draft={props.drafts[i()]}
-              onChange={(v) => props.onChange(i(), v)}
-              onSkip={(sk) => props.onSkip(i(), sk)}
-              onNext={() => next(i())}
-              onPrev={() => i() > 0 && focusPrompt(props.prompts[i() - 1])}
-              promptRef={(el) => (props.prompts[i()] = el)}
-              onSeen={() => props.onSeen(i())}
-            />
-          )}
-        </For>
-      </div>
-    </RespondContexts>
+    <div class={bodyClasses.questionList}>
+      <For each={props.questions}>
+        {(q, i) => (
+          <QuestionCard
+            q={q}
+            index={i()}
+            draft={props.drafts[i()]}
+            onChange={(v) => props.onChange(i(), v)}
+            onSkip={(sk) => props.onSkip(i(), sk)}
+            onNext={() => next(i())}
+            onPrev={() => i() > 0 && focusPrompt(props.prompts[i() - 1])}
+            promptRef={(el) => (props.prompts[i()] = el)}
+            onSeen={() => props.onSeen(i())}
+          />
+        )}
+      </For>
+    </div>
   );
 };

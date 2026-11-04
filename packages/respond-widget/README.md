@@ -752,7 +752,7 @@ Each demo/test surface covers a different failure mode:
 | `dev/`                  | Vite dev harness — `RespondRoot` in a shadow root, real workspace source, all samples/locales/themes.                 |
 | `demo/index.html`       | Plain-HTML host for the **built** bundle, fully offline. Shows the sealed chunks lazy-loading in the network tab.     |
 | `test/artifact.test.ts` | The automated twin of `demo/` — mounts the built artifact in happy-dom, offline, asserts the whole prop → event loop. |
-| `test/tokens.test.ts`   | Gate: every `--tessera-*` referenced in the CSS is defined in `theme.css`, and vice-versa.                            |
+| `test/tokens.test.ts`   | Gate on the shipped sheet: tokens used ⇔ defined, no literal colors or fonts.                                         |
 | `examples/*`            | React and Svelte host apps (repo root), built in CI so a framework-compat regression fails the build.                 |
 
 What the examples' build does **not** prove is declarative prop-setting: real
@@ -767,16 +767,17 @@ with no build step.
 
 ## Source layout
 
-| Path              | Purpose                                                                   |
-| :---------------- | :------------------------------------------------------------------------ |
-| `src/element.tsx` | `customElement("tessera-respond", …)` registration + prop reflection.     |
-| `src/Respond.tsx` | The trimmed answering component (props in → `tessera:*` events out).      |
-| `src/roles.ts`    | Role label/color/keyKind presentation over the injected catalog + tokens. |
-| `src/theme.css`   | The `--tessera-*` design-token defaults on `:host`.                       |
-| `src/styles/`     | Component CSS, shadow-scoped plain CSS delivered via `?inline`.           |
-| `src/types.ts`    | The public prop/event TypeScript contract.                                |
+| Path              | Purpose                                                               |
+| :---------------- | :-------------------------------------------------------------------- |
+| `src/element.tsx` | `customElement("tessera-respond", …)` registration + prop reflection. |
+| `src/Respond.tsx` | The trimmed answering component (props in → `tessera:*` events out).  |
+| `src/roles.ts`    | Which key proves each role, for `required_signers`.                   |
+| `src/theme.css`   | The `--tessera-*` design-token defaults on `:host`.                   |
+| `src/styles/`     | Component CSS, shadow-scoped plain CSS delivered via `?inline`.       |
+| `src/types.ts`    | The public prop/event TypeScript contract.                            |
 
-The question card and its per-question body components live in
+The question card, its per-question body components, and the header, banners
+and notices around them live in
 [`cardano-tessera-respond-ui`](../respond-ui/README.md), shared with the app; see
 [`cardano-tessera-respond-core`](../respond-core/README.md) for the pure logic both
 share.

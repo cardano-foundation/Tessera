@@ -11,8 +11,12 @@ import { roleDescriptionKey } from "cardano-tessera-respond-core";
 import { expectedNetworkId, type Network } from "~/config";
 import { d, t, n } from "~/i18n";
 
-/** Role naming and browser-claimability are shared with the widget. */
-export { roleLabel, roleBrowserClaimable } from "cardano-tessera-respond-core";
+/** Role naming, colors and browser-claimability are shared with the widget. */
+export {
+  roleLabel,
+  roleBrowserClaimable,
+  roleColors,
+} from "cardano-tessera-respond-core";
 
 /**
  * Link to a transaction on the Cardano Explorer aggregator. Mainnet lives at
@@ -83,19 +87,6 @@ const ROLE_ABBR: Record<number, string> = {
   [Role.Keyholder]: "Key",
 };
 
-/**
- * [text color, background] per role, mirroring the mockup palette. Not shared
- * with the widget the way labels are: its role colors are `--tessera-role-*`
- * tokens a host can re-skin. Same concept, deliberately different values.
- */
-const ROLE_COLORS: Record<number, readonly [string, string]> = {
-  [Role.DRep]: ["var(--accent)", "var(--accent-bg)"],
-  [Role.SPO]: ["#2E6B5E", "#E4EFEB"],
-  [Role.CC]: ["#6B4FA0", "#ECE7F4"],
-  [Role.Stakeholder]: ["#4F7A3A", "#E8F1E0"],
-  [Role.Keyholder]: ["#9A6B1E", "#F6EDD9"],
-};
-
 export function roleDescription(role: number): string {
   const key = roleDescriptionKey(role);
   return key ? t(key) : "";
@@ -103,10 +94,6 @@ export function roleDescription(role: number): string {
 
 export function roleAbbr(role: number): string {
   return ROLE_ABBR[role] ?? `R${role}`;
-}
-
-export function roleColors(role: number): readonly [string, string] {
-  return ROLE_COLORS[role] ?? ["var(--muted)", "var(--surface3)"];
 }
 
 /**

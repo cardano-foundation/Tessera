@@ -1,106 +1,59 @@
 /**
- * The token gate: the widget's public theming surface is the
- * --tessera-* custom-property namespace, with every default in src/theme.css.
- * Runs as part of `pnpm -r test`, so CI enforces it.
- *
- * - the component CSS carries no literal colors — every color routes through a
- *   token a host can override (via CSS or the `theme` prop);
- * - every custom property referenced anywhere in src/ is --tessera-* and is
- *   defined in theme.css (no typos, no leftovers from the app's global names);
- * - every token theme.css defines is consumed somewhere (no dead API surface).
+ * The theming gate, over the stylesheet the widget ships: a host re-skins it
+ * through the --tessera-* tokens, whose defaults are theme.css, so the rules
+ * outside theme.css name no color or font family of their own, every token
+ * they use is defined, and every token defined is used — by the sheet or by
+ * the role chips' colors. A misspelt token fails silently in a browser.
  */
 
-import { readFileSync, readdirSync } from "node:fs";
-import { dirname, join, relative } from "node:path";
-import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
+import { Role } from "cip-179";
+import { roleColors } from "cardano-tessera-respond-core";
 
-const SRC = join(dirname(fileURLToPath(import.meta.url)), "../src");
-/** respond-ui's components' styles, which the widget's sheet carries. */
-const BODY_CSS = join(SRC, "../../respond-ui/src/body.css");
+import { cssText } from "../src/styles";
+import themeCss from "../src/theme.css?inline";
 
-function walk(dir: string): string[] {
-  return readdirSync(dir, { withFileTypes: true }).flatMap((entry) =>
-    entry.isDirectory() ? walk(join(dir, entry.name)) : [join(dir, entry.name)],
-  );
-}
-
-/** Drop block and line comments so prose mentioning tokens doesn't count. */
-function stripComments(text: string): string {
-  return text.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|\s)\/\/.*$/gm, "");
-}
-
-const files = [
-  ...walk(SRC).filter((f) => /\.(css|tsx?)$/.test(f)),
-  BODY_CSS,
-].map((f) => ({
-  path: relative(SRC, f),
-  text: stripComments(readFileSync(f, "utf8")),
-}));
-
-const themeCss = files.find((f) => f.path === "theme.css")!;
-
-/** Tokens theme.css declares (`--tessera-x: value;`). */
+const strip = (css: string) => css.replace(/\/\*[\s\S]*?\*\//g, "");
+const sheet = strip(cssText);
+const rules = strip(cssText.replace(themeCss, ""));
 const defined = new Set(
-  [...themeCss.text.matchAll(/^\s*(--[\w-]+):/gm)].map((m) => m[1]!),
+  [...strip(themeCss).matchAll(/^\s*(--[\w-]+):/gm)].map((m) => m[1]!),
+);
+const used = new Set(
+  [sheet, ...Object.values(Role).flatMap(roleColors)].flatMap((s) =>
+    [...s.matchAll(/var\(\s*(--[\w-]+)/g)].map((m) => m[1]!),
+  ),
 );
 
-/** Custom properties referenced (`var(--x`) per file. */
-const references = files.map((f) => ({
-  path: f.path,
-  vars: [...f.text.matchAll(/var\(\s*(--[\w-]+)/g)].map((m) => m[1]!),
-}));
-
 describe("theming tokens", () => {
-  it("theme.css declares only --tessera-* custom properties", () => {
-    for (const name of defined) {
-      expect(name, "declared in theme.css").toMatch(/^--tessera-/);
+  it("the sheet is the theme plus the rules", () => {
+    expect(cssText).toContain(themeCss);
+    expect(rules.length).toBeGreaterThan(0);
+  });
+
+  it("every custom property used is a --tessera-* token theme.css defines", () => {
+    for (const name of [...defined, ...used]) {
+      expect(name).toMatch(/^--tessera-/);
+    }
+    for (const name of used) {
+      expect(defined.has(name), `${name} is not defined`).toBe(true);
     }
   });
 
-  it("the component CSS has no literal colors — tokens only", () => {
-    for (const f of files) {
-      if (!f.path.endsWith(".css") || f.path === "theme.css") continue;
-      const hexes = f.text.match(/#[0-9a-fA-F]{3,8}\b/g) ?? [];
-      expect(hexes, `literal colors in ${f.path}`).toEqual([]);
-    }
+  it("every token theme.css defines is used", () => {
+    expect([...defined].filter((name) => !used.has(name))).toEqual([]);
   });
 
-  it("every custom property referenced in src/ is a defined --tessera-* token", () => {
-    for (const f of references) {
-      for (const name of f.vars) {
-        expect(name, `referenced in ${f.path}`).toMatch(/^--tessera-/);
-        expect(
-          defined.has(name),
-          `${name} referenced in ${f.path} but not defined in theme.css`,
-        ).toBe(true);
-      }
-    }
+  it("the rules carry no literal color", () => {
+    expect(rules.match(/#[0-9a-fA-F]{3,8}\b/g) ?? []).toEqual([]);
   });
 
-  it("fonts route through tokens: no literal families, no @font-face", () => {
-    // Font families are themeable exactly like colors: the three
-    // --tessera-{sans,mono,serif} tokens (defaults in theme.css) are the only
-    // place a family may be named. Component rules either reference a token or
-    // `inherit` (needed on native controls, which don't inherit fonts).
-    // `@font-face` is banned everywhere: it doesn't register inside a shadow
-    // root, so loading webfonts is the host page's job by design.
-    for (const f of files) {
-      if (!f.path.endsWith(".css")) continue;
-      expect(f.text, `@font-face in ${f.path}`).not.toMatch(/@font-face/);
-      if (f.path === "theme.css") continue;
-      for (const m of f.text.matchAll(/font(?:-family)?\s*:\s*([^;]+);/g)) {
-        expect(m[1]!.trim(), `literal font in ${f.path}`).toMatch(
-          /^(inherit|var\(--tessera-[\w-]+\))$/,
-        );
-      }
-    }
-  });
-
-  it("every defined token is referenced somewhere in src/", () => {
-    const used = new Set(references.flatMap((f) => f.vars));
-    for (const name of defined) {
-      expect(used.has(name), `${name} defined but never referenced`).toBe(true);
+  // `@font-face` doesn't register inside a shadow root: loading webfonts is
+  // the host's job. Native controls don't inherit fonts, hence `inherit`.
+  it("fonts route through tokens, and none is loaded", () => {
+    expect(sheet).not.toMatch(/@font-face/);
+    for (const m of rules.matchAll(/font(?:-family)?\s*:\s*([^;]+);/g)) {
+      expect(m[1]!.trim()).toMatch(/^(inherit|var\(--tessera-[\w-]+\))$/);
     }
   });
 });

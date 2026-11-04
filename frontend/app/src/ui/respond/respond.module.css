@@ -47,76 +47,14 @@
   line-height: 1.45;
 }
 
-/* --- Question list column ------------------------------------------------- */
-
-.questionList {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-top: 12px;
-}
-
-/* --- Ineligible panel ----------------------------------------------------- */
-
-.ineligibleTitle {
-  font-size: 17px;
-  font-weight: 800;
-  margin: 0;
-  letter-spacing: -0.01em;
-}
-
-.ineligibleLead {
-  font-size: 13.5px;
-  color: var(--muted);
-  line-height: 1.55;
-  margin: 7px 0 0;
-}
-
-.ineligibleList {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-top: 14px;
-}
-
-.ineligibleRow {
-  display: flex;
-  gap: 10px;
-  align-items: flex-start;
-}
-
-.roleChip {
-  font-size: 12px;
-  font-weight: 700;
-  border-radius: 6px;
-  padding: 3px 9px;
-  flex: none;
-}
-
-.roleDesc {
-  font-size: 12.5px;
-  color: var(--muted);
-  line-height: 1.5;
-}
-
-.notClaimable {
-  color: var(--warn);
-  font-weight: 600;
-}
-
 /* --- Survey header -------------------------------------------------------- */
-
-.header {
-  border-bottom: 1px solid #e7dfce;
-  padding: 14px 2px 20px;
-  margin-top: 6px;
-}
 
 .headerTop {
   display: flex;
   align-items: center;
   gap: 10px;
   flex-wrap: wrap;
+  margin-bottom: 12px;
 }
 
 .respondLabel {
@@ -141,134 +79,11 @@
   color: var(--muted);
 }
 
-.headerTitle {
-  font-size: 26px;
-  font-weight: 700;
-  letter-spacing: -0.018em;
-  line-height: 1.16;
-  margin: 12px 0 0;
-  color: var(--ink);
-}
+/* --- Banners (restored / labels-absent) ---------------------------------- */
 
-.headerDesc {
-  font-size: 14.5px;
-  color: var(--muted);
-  line-height: 1.55;
-  margin: 8px 0 0;
-}
-
-.roleRow {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-top: 16px;
-  flex-wrap: wrap;
-}
-
-.roleRowLabel {
-  font-family: var(--mono);
-  font-size: 10px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--dim);
-}
-
-.rolePick {
-  font-family: inherit;
-  font-size: 12.5px;
-  font-weight: 600;
-  cursor: pointer;
-  border-radius: 8px;
-  padding: 6px 12px;
-  border: 1px solid var(--line);
-  background: #f2ecde;
-  color: #6b6356;
-}
-
-.rolePickOn {
-  font-weight: 700;
-  border: 1px solid var(--accent);
-  background: var(--accent);
-  color: #fbf8f1;
-}
-
-/* --- Banners (responded / sealed / labels-absent) ------------------------- */
-
-.banner {
-  display: flex;
-  align-items: flex-start;
-  gap: 11px;
-  border-radius: 13px;
-  padding: 13px 16px;
-  margin-top: 14px;
-}
-
-.respondedBanner {
-  composes: banner;
-  background: #f0faf3;
-  border: 1px solid var(--ok-line);
-}
-
-.respondedCheck {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: var(--ok);
-  color: #fff;
-  font-size: 12px;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex: none;
-  margin-top: 1px;
-}
-
-.bannerBody {
-  flex: 1;
-}
-
-.respondedTitle {
-  font-size: 13.5px;
-  font-weight: 700;
-  color: var(--ok);
-}
-
-.respondedText {
-  font-size: 12.5px;
-  color: #3f7a55;
-  line-height: 1.45;
-  margin-top: 3px;
-}
-
-.cardBanner {
-  composes: banner;
-  background: var(--card-bg);
-  border: 1px solid var(--card-line);
-}
-
-.restoredBanner {
-  composes: cardBanner;
-  align-items: center;
-}
-
-.bannerIcon {
-  font-size: 15px;
-  color: var(--warn);
-  margin-top: 1px;
-}
-
-.bannerTitle {
-  font-size: 13.5px;
-  font-weight: 700;
-  color: var(--label);
-}
-
-.bannerText {
-  font-size: 12.5px;
-  color: var(--label);
-  line-height: 1.5;
-  margin-top: 3px;
+/* Centred against the taller discard button beside it. */
+.restoredBody {
+  align-self: center;
 }
 
 .refInline {
@@ -378,85 +193,6 @@
   align-items: center;
   gap: 16px;
   flex-wrap: wrap;
-}
-
-.submitStatus {
-  flex: 1 1 16rem;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.replacesNote {
-  font-family: var(--mono);
-  font-size: 11px;
-  color: var(--ok);
-}
-
-.mismatchNote {
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--danger);
-}
-
-.submitBtn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 9px;
-  background: var(--line2);
-  color: var(--dim);
-  border: none;
-  border-radius: var(--r-md);
-  padding: 14px 22px;
-  font-family: inherit;
-  font-size: 14.5px;
-  font-weight: 700;
-  cursor: not-allowed;
-}
-
-.submitBtnEnabled {
-  background: var(--accent);
-  color: #fff;
-  cursor: pointer;
-}
-
-.submitArrow {
-  font-size: 15px;
-}
-
-/* --- Notice / Empty ------------------------------------------------------- */
-
-.notice {
-  background: #fff;
-  border: 1px solid var(--line);
-  border-radius: var(--r-card);
-  padding: 26px 24px;
-  margin-top: 16px;
-  text-align: center;
-}
-
-.noticeWarn {
-  border: 1px solid var(--warn-line);
-}
-
-.noticeTitle {
-  font-size: 16px;
-  font-weight: 800;
-  color: var(--ink);
-}
-
-.noticeTitleWarn {
-  color: var(--warn);
-}
-
-.noticeBody {
-  font-size: 13.5px;
-  color: var(--muted);
-  line-height: 1.55;
-  margin: 8px auto 0;
-  max-width: 460px;
 }
 
 .submitActions {

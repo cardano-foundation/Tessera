@@ -17,7 +17,7 @@ import {
 
 import { SubmissionReceipt } from "~/ui/components/SubmissionReceipt";
 import { t } from "~/i18n";
-import { RespondContexts } from "./Question";
+import body from "./body.module.css";
 import css from "./respond.module.css";
 
 export const SubmitBar: Component<{
@@ -65,86 +65,84 @@ export const SubmitBar: Component<{
   return (
     <div ref={bar} class={css.submitBar}>
       <div class={css.submitInner}>
-        <RespondContexts>
-          <ProgressSquares
-            progress={props.progress}
-            drafts={props.drafts}
-            onGoTo={props.finish.goTo}
-            scroll
-          />
-          <Show
-            when={props.finish.asking() === "skip"}
-            fallback={
-              <>
-                <div class={css.submitStatus}>
-                  <LeftNote
-                    left={props.left}
-                    answered={props.answered}
-                    calling={props.finish.asking() === "answerOne"}
-                    onGoTo={props.finish.goTo}
-                  />
-                  <Show when={props.replacing}>
-                    <span class={css.replacesNote}>
-                      {t("respond.replacesNote")}
-                    </span>
-                  </Show>
-                  <Show when={props.mismatch}>
-                    <span class={css.mismatchNote}>
-                      {t("respond.switchNetwork", { network: props.network })}
-                    </span>
-                  </Show>
-                  <Show when={props.blocked}>
-                    {(note) => <span class={css.mismatchNote}>{note()}</span>}
-                  </Show>
-                  <Show when={props.warning}>
-                    {(note) => <span class={css.mismatchNote}>{note()}</span>}
-                  </Show>
-                </div>
-                <div class={css.submitActions}>
-                  <Show when={!props.queueing}>
-                    <button
-                      onClick={() => props.finish.finish(props.onQueue)}
-                      disabled={!enabled()}
-                      class={css.queueBtn}
-                    >
-                      {t("cart.addToCart")}
-                    </button>
-                  </Show>
+        <ProgressSquares
+          progress={props.progress}
+          drafts={props.drafts}
+          onGoTo={props.finish.goTo}
+          scroll
+        />
+        <Show
+          when={props.finish.asking() === "skip"}
+          fallback={
+            <>
+              <div class={body.submitStatus}>
+                <LeftNote
+                  left={props.left}
+                  answered={props.answered}
+                  calling={props.finish.asking() === "answerOne"}
+                  onGoTo={props.finish.goTo}
+                />
+                <Show when={props.replacing}>
+                  <span class={body.replacesNote}>
+                    {t("respond.replacesNote")}
+                  </span>
+                </Show>
+                <Show when={props.mismatch}>
+                  <span class={body.mismatchNote}>
+                    {t("respond.switchNetwork", { network: props.network })}
+                  </span>
+                </Show>
+                <Show when={props.blocked}>
+                  {(note) => <span class={body.mismatchNote}>{note()}</span>}
+                </Show>
+                <Show when={props.warning}>
+                  {(note) => <span class={body.mismatchNote}>{note()}</span>}
+                </Show>
+              </div>
+              <div class={css.submitActions}>
+                <Show when={!props.queueing}>
                   <button
-                    ref={(el) => {
-                      button = el;
-                      props.submitRef(el);
-                    }}
-                    onClick={() =>
-                      props.finish.finish(
-                        props.queueing ? props.onQueue : props.onSubmit,
-                      )
-                    }
+                    onClick={() => props.finish.finish(props.onQueue)}
                     disabled={!enabled()}
-                    class={css.submitBtn}
-                    classList={{ [css.submitBtnEnabled]: enabled() }}
+                    class={css.queueBtn}
                   >
-                    {props.submitting
-                      ? props.busyText
-                      : props.queueing
-                        ? t("cart.addToCart")
-                        : props.idleText}{" "}
-                    <span class={css.submitArrow}>→</span>
+                    {t("cart.addToCart")}
                   </button>
-                </div>
-              </>
-            }
-          >
-            <SkipConfirm
-              unanswered={props.left.unanswered}
-              onSkip={() => {
-                props.finish.skipAndFinish();
-                button?.focus();
-              }}
-              onGoTo={props.finish.goTo}
-            />
-          </Show>
-        </RespondContexts>
+                </Show>
+                <button
+                  ref={(el) => {
+                    button = el;
+                    props.submitRef(el);
+                  }}
+                  onClick={() =>
+                    props.finish.finish(
+                      props.queueing ? props.onQueue : props.onSubmit,
+                    )
+                  }
+                  disabled={!enabled()}
+                  class={body.submitBtn}
+                  classList={{ [body.submitBtnEnabled]: enabled() }}
+                >
+                  {props.submitting
+                    ? props.busyText
+                    : props.queueing
+                      ? t("cart.addToCart")
+                      : props.idleText}{" "}
+                  <span class={body.submitArrow}>→</span>
+                </button>
+              </div>
+            </>
+          }
+        >
+          <SkipConfirm
+            unanswered={props.left.unanswered}
+            onSkip={() => {
+              props.finish.skipAndFinish();
+              button?.focus();
+            }}
+            onGoTo={props.finish.goTo}
+          />
+        </Show>
       </div>
     </div>
   );

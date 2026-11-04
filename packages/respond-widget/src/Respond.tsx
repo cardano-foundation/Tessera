@@ -34,14 +34,8 @@ import {
   type Component,
 } from "solid-js";
 
-import {
-  Role,
-  encodePayload,
-  validateResponse,
-  type SurveyDefinition,
-} from "cip-179";
+import { encodePayload, validateResponse } from "cip-179";
 import { isSealedUnsupported, refKey, surveyStatus } from "cip-179/domain";
-import { unixTimeForRound } from "cip-179/tlock";
 
 import {
   buildResponse,
@@ -54,18 +48,21 @@ import {
   readNoneLabels,
   readTranslations,
   renderProblem,
-  roleBrowserClaimable,
-  roleLabel,
   sealResponse,
   type I18n,
 } from "cardano-tessera-respond-core";
 
 import {
   I18nContext,
+  Ineligible,
   LeftNote,
+  Notice,
   ProgressSquares,
   QuestionCard,
+  RespondedBanner,
+  SealedBanner,
   SkipConfirm,
+  SurveyHeader,
   createFinish,
   createResponseDraft,
   focusPrompt,
@@ -73,7 +70,7 @@ import {
   type Finish,
   type Left,
 } from "cardano-tessera-respond-ui";
-import { keyKindForRole, roleColors, roleDescription } from "./roles";
+import { keyKindForRole } from "./roles";
 import {
   RESPOND_EVENTS,
   type CredentialProof,
@@ -381,14 +378,27 @@ export const RespondRoot: Component<TesseraRespondProps> = (props) => {
         <SurveyHeader
           def={shown()}
           role={role()}
-          respondable={respondable()}
-          showRole={props.showRole !== false}
+          respondable={props.showRole !== false ? respondable() : []}
           onPickRole={pickRole}
         />
 
         <Show
           when={open()}
-          fallback={<ClosedNotice cancelled={view() === "cancelled"} />}
+          fallback={
+            <Notice
+              tone="muted"
+              title={i18n().t(
+                view() === "cancelled"
+                  ? "respond.closedCancelledTitle"
+                  : "respond.closedTitle",
+              )}
+              body={i18n().t(
+                view() === "cancelled"
+                  ? "respond.closedCancelledBody"
+                  : "respond.closedBody",
+              )}
+            />
+          }
         >
           <Show
             when={respondable().length > 0}
@@ -401,10 +411,18 @@ export const RespondRoot: Component<TesseraRespondProps> = (props) => {
               {(m) => <SealedBanner round={m().round} />}
             </Show>
             <Show when={sealedUnsupported()}>
-              <SealedUnsupportedNotice />
+              <Notice
+                tone="warn"
+                title={i18n().t("respond.sealedUnsupportedTitle")}
+                body={i18n().t("respond.sealedUnsupportedBody")}
+              />
             </Show>
             <Show when={conditionsIgnored()}>
-              <ConditionsIgnoredNotice />
+              <Notice
+                tone="warn"
+                title={i18n().t("respond.conditionsIgnoredTitle")}
+                body={i18n().t("respond.conditionsIgnoredBody")}
+              />
             </Show>
 
             <Show
@@ -523,172 +541,6 @@ export const RespondRoot: Component<TesseraRespondProps> = (props) => {
         </Show>
       </div>
     </I18nContext.Provider>
-  );
-};
-
-// ----------------------------------------------------------------------------
-// Header (title + role selector)
-// ----------------------------------------------------------------------------
-
-const SurveyHeader: Component<{
-  def: SurveyDefinition;
-  role: Role | null;
-  respondable: Role[];
-  showRole: boolean;
-  onPickRole: (r: Role) => void;
-}> = (props) => {
-  const i18n = useI18n();
-  return (
-    <div class="header">
-      <h1 class="headerTitle">
-        {props.def.title || i18n.t("respond.untitledSurvey")}
-      </h1>
-      <Show when={props.def.description}>
-        <p class="headerDesc">{props.def.description}</p>
-      </Show>
-
-      <Show when={props.showRole && props.respondable.length > 0}>
-        <div class="roleRow">
-          <span class="roleRowLabel">{i18n.t("respond.respondingAs")}</span>
-          <For each={props.respondable}>
-            {(r) => (
-              <button
-                onClick={() => props.onPickRole(r)}
-                class="rolePick"
-                classList={{ rolePickOn: r === props.role }}
-              >
-                {roleLabel(r)}
-              </button>
-            )}
-          </For>
-        </div>
-      </Show>
-    </div>
-  );
-};
-
-// ----------------------------------------------------------------------------
-// Notices / banners
-// ----------------------------------------------------------------------------
-
-const ClosedNotice: Component<{ cancelled: boolean }> = (props) => {
-  const i18n = useI18n();
-  return (
-    <div class="notice">
-      <div class="noticeTitle">
-        {props.cancelled
-          ? i18n.t("respond.closedCancelledTitle")
-          : i18n.t("respond.closedTitle")}
-      </div>
-      <p class="noticeBody">
-        {props.cancelled
-          ? i18n.t("respond.closedCancelledBody")
-          : i18n.t("respond.closedBody")}
-      </p>
-    </div>
-  );
-};
-
-const SealedUnsupportedNotice: Component = () => {
-  const i18n = useI18n();
-  return (
-    <div class="notice noticeWarn">
-      <div class="noticeTitle noticeTitleWarn">
-        {i18n.t("respond.sealedUnsupportedTitle")}
-      </div>
-      <p class="noticeBody">{i18n.t("respond.sealedUnsupportedBody")}</p>
-    </div>
-  );
-};
-
-const ConditionsIgnoredNotice: Component = () => {
-  const i18n = useI18n();
-  return (
-    <div class="notice noticeWarn">
-      <div class="noticeTitle noticeTitleWarn">
-        {i18n.t("respond.conditionsIgnoredTitle")}
-      </div>
-      <p class="noticeBody">{i18n.t("respond.conditionsIgnoredBody")}</p>
-    </div>
-  );
-};
-
-const Ineligible: Component<{ def: SurveyDefinition }> = (props) => {
-  const i18n = useI18n();
-  return (
-    <div class="card">
-      <h3 class="ineligibleTitle">{i18n.t("respond.ineligibleTitle")}</h3>
-      <p class="ineligibleLead">{i18n.t("respond.ineligibleLead")}</p>
-      <div class="ineligibleList">
-        <For each={props.def.eligibleRoles}>
-          {(r) => {
-            const [color, bg] = roleColors(r);
-            return (
-              <div class="ineligibleRow">
-                <span class="roleChip" style={{ color, background: bg }}>
-                  {roleLabel(r)}
-                </span>
-                <span class="roleDesc">
-                  {roleDescription(i18n, r)}
-                  <Show when={!roleBrowserClaimable(r)}>
-                    <span class="notClaimable">
-                      {i18n.t("respond.notClaimable")}
-                    </span>
-                  </Show>
-                </span>
-              </div>
-            );
-          }}
-        </For>
-      </div>
-    </div>
-  );
-};
-
-const RespondedBanner: Component<{ role: Role | null }> = (props) => {
-  const i18n = useI18n();
-  return (
-    <div class="respondedBanner">
-      <span class="respondedCheck">✓</span>
-      <div class="bannerBody">
-        <div class="respondedTitle">
-          {i18n.t("respond.alreadyResponded", {
-            role:
-              props.role !== null
-                ? roleLabel(props.role)
-                : i18n.t("respond.alreadyRespondedRoleFallback"),
-          })}
-        </div>
-        <div class="respondedText">
-          {i18n.t("respond.alreadyRespondedText")}
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const SealedBanner: Component<{ round: number }> = (props) => {
-  const i18n = useI18n();
-  return (
-    <div class="cardBanner">
-      <span class="bannerIcon">◆</span>
-      <div class="bannerBody">
-        <div class="bannerTitle">{i18n.t("respond.sealedTitle")}</div>
-        <div class="bannerText">
-          {i18n.t("respond.sealedTextBefore")}
-          <b>{i18n.t("respond.sealedNoOne")}</b>
-          {i18n.t("respond.sealedTextAfter", {
-            reveal: i18n.d(unixTimeForRound(props.round), {
-              year: "numeric",
-              month: "short",
-              day: "numeric",
-              hour: "2-digit",
-              minute: "2-digit",
-            }),
-          })}
-        </div>
-      </div>
-    </div>
   );
 };
 

@@ -1,7 +1,7 @@
 /**
  * Solid context carrying the class-name map respond-ui's components render
- * with: the question card, its bodies, the finish line and confirmation, and
- * the progress squares.
+ * with: the question card, its bodies, the finish line and confirmation, the
+ * progress squares, and the header, banners and notices around them.
  *
  * `body.css` styles them for both consumers: the widget's shadow DOM uses the
  * literal class names, while the app looks the same names up in a CSS module
@@ -12,7 +12,7 @@
 
 import { createContext, useContext, type Context } from "solid-js";
 
-/** Every class name respond-ui's components render. */
+/** Every class name `body.css` styles: respond-ui's components', and the few the hosts' own markup shares. */
 export const BODY_CLASS_NAMES = [
   // question card
   "card",
@@ -112,6 +112,46 @@ export const BODY_CLASS_NAMES = [
   "sqHidden",
   // a number of three digits
   "sqLong",
+  // survey header and role picker
+  "header",
+  "headerTitle",
+  "headerDesc",
+  "roleRow",
+  "roleRowLabel",
+  "rolePick",
+  "rolePickOn",
+  // banners
+  "respondedBanner",
+  "respondedCheck",
+  "respondedTitle",
+  "respondedText",
+  "cardBanner",
+  "bannerIcon",
+  "bannerBody",
+  "bannerTitle",
+  "bannerText",
+  // notice
+  "notice",
+  "noticeWarn",
+  "noticeTitle",
+  "noticeTitleWarn",
+  "noticeBody",
+  // ineligible panel
+  "ineligibleTitle",
+  "ineligibleLead",
+  "ineligibleList",
+  "ineligibleRow",
+  "roleChip",
+  "roleDesc",
+  "notClaimable",
+  // the hosts' question column and submit row
+  "questionList",
+  "submitStatus",
+  "replacesNote",
+  "mismatchNote",
+  "submitBtn",
+  "submitBtnEnabled",
+  "submitArrow",
 ] as const;
 
 export type BodyClassName = (typeof BODY_CLASS_NAMES)[number];
