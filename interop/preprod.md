@@ -70,9 +70,10 @@ epoch 308. It carries one response — transaction
 DRep key credential `3982112c16446e50a58cdff82a8b48689a7d893759bc7e30a1e4e86d`,
 option 0 — which Tessera has validated (`verdicts` reports `true`) and counts.
 Its pair is not in `preprod-fixtures.json` yet: pinning it means adding both
-transactions to `generate-fixtures.mjs` and regenerating. Finalization has not
-run for it, since the survey closes at the end of epoch 308; that run is the
-first time DRep weights are fetched for a live survey.
+transactions to `generate-fixtures.mjs` and regenerating. Its artifact,
+`61c9e4e6…`, counts that DRep at weight 0: it registered in epoch 307 and
+nothing was delegated to it until epoch 316. The verifier reproduces the
+artifact from Koios.
 
 A fourth survey exercises the governance linkage end to end: `Example survey`,
 `49389974ab55f52219255a80a20aaf398af3bdd4ea24d19cf18442cbc861d70c#0`
@@ -87,7 +88,8 @@ survey bundle's `govLinks` reports the link, and an external DRep tool
 recognizes the action and renders its anchor — so this pair is the live case
 for the `govLinks` claim in the host contract below. It is not a
 `preprod-fixtures.json` entry: that file pins label-17 metadata, and link
-discovery reads the action's anchor, not label 17.
+discovery reads the action's anchor, not label 17. Its artifact, `28ad3c51…`,
+weighs two delegated DReps, and the verifier reproduces it from Koios.
 
 ## Minimal host contract
 

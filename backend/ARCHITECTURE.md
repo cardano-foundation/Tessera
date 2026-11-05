@@ -874,15 +874,14 @@ outside the hash, so the verdict ignores them.
 - **CC (committee) role** — weighting + membership semantics. Deferred
   (artifacts pin covered roles {DRep, Stakeholder, Keyholder} in their ruleset).
 - **SPO role** — specified, not exercised until non-browser responders / Tier 2.
-- **End-to-end closure of the paths chain timing has not yet exercised** — the
-  preprod fixtures recorded in `interop/` have driven public and sealed
-  Stakeholder surveys from response to artifact (a sealed reveal and its
-  provenance included), and a DRep-eligible preprod survey now carries a
-  validated DRep response, so proof validation has run for that role. DRep
-  weights have still never been fetched for a live survey: that survey closes at
-  the end of epoch 308 and finalization is what calls them, so the batched
-  `drepWeights` (§6.1) is unexercised outside unit tests. Mechanism-B
-  (governance-vote) proof is in the same position, implemented and unit-tested.
+- **Mechanism-B (governance-vote) proof has not run on a live survey** — it is
+  implemented and unit-tested only. Every other path has closed end to end on
+  the preprod surveys recorded in `interop/`: public and sealed Stakeholder
+  surveys (a sealed reveal and its provenance included) and two DRep surveys,
+  whose artifacts the verifier reproduces from Koios. Between them the batched
+  `drepWeights` (§6.1) has read a registered DRep with nothing delegated, worth
+  0 through the registration read, and two delegated DReps at their power in
+  the end-of-epoch distribution.
 - **Full-text search** — `/api/surveys?q=` matches `haystack LIKE` against every
   survey row, so it is the one per-request cost that still grows with the archive,
   and one of the two places §0's invariant does not hold. Deliberate for now: the
