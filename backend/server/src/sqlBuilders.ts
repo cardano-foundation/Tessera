@@ -15,6 +15,7 @@
 
 import {
   MIN_KEY_TERM_LENGTH,
+  isOpenSection,
   type ResponseCursor,
   type SurveyCursor,
 } from "cardano-tessera-core";
@@ -160,7 +161,7 @@ function sectionSortKeySql(q: SurveySectionQuery, section: number): SqlQuery {
   // `+slot` keeps the planner off `survey_index_slot`: walking it in order
   // reads closed rows until enough open ones turn up, where
   // `survey_index_end_epoch` reads only the rows not ended yet.
-  if (section % 2 === 0) return { sql: "+slot", params: [] };
+  if (isOpenSection(section)) return { sql: "+slot", params: [] };
   return {
     sql: `CASE WHEN cancelled = 1 OR talliable = 0 THEN slot
                ELSE ? + (end_epoch + 1 - ?) * ? END`,
@@ -170,8 +171,8 @@ function sectionSortKeySql(q: SurveySectionQuery, section: number): SqlQuery {
 
 /**
  * One section's rows after `cursor` (or from the top), in its order, `limit`
- * of them; `total` adds the section's row count, which the window takes
- * before the limit applies.
+ * of them for an open section and `closedLimit` for a closed one; `total` adds
+ * the section's row count, which the window takes before the limit applies.
  */
 function sectionSql(
   q: SurveySectionQuery,
@@ -206,12 +207,12 @@ function sectionSql(
       ...filter.params,
       q.tipEpoch,
       ...after.params,
-      q.limit,
+      isOpenSection(section) ? q.limit : q.closedLimit,
     ],
   };
 }
 
-/** The first `limit` rows of every section, each with its section's `total`. */
+/** The first page of every section, each with its section's `total`. */
 export function surveySectionHeadsSql(q: SurveySectionQuery): SqlQuery {
   const arms = [0, 1, 2, 3].map((section) =>
     sectionSql(q, section, null, true),
@@ -222,7 +223,7 @@ export function surveySectionHeadsSql(q: SurveySectionQuery): SqlQuery {
   };
 }
 
-/** The `limit` rows of `cursor`'s section after it. */
+/** The page of `cursor`'s section after it. */
 export const surveySectionPageSql = (
   q: SurveySectionQuery,
   cursor: SurveyCursor,

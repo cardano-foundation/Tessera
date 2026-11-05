@@ -227,6 +227,34 @@ describe("pageSurveySections", () => {
     expect(seen).toEqual([lc1, lc3, lc2].map(keyOf));
   });
 
+  it("reads 10 rows per open section and 5 per closed one by default", () => {
+    const open = Array.from({ length: 12 }, (_, i) => survey(20 + i, 1000 + i));
+    const closed = Array.from({ length: 7 }, (_, i) =>
+      survey(40 + i, 2000 + i, { endEpoch: 5 }),
+    );
+    const many = payload([...open, ...closed], []);
+    const head = pageSurveySections(many, { sections: true }, "preview");
+    expect(head.sections?.open.keys).toHaveLength(10);
+    expect(head.sections?.closed.keys).toHaveLength(5);
+    const rest = pageSurveySections(
+      many,
+      {
+        sections: true,
+        cursor: head.sections?.closed.nextCursor ?? undefined,
+      },
+      "preview",
+    );
+    expect(rest.surveys).toHaveLength(2);
+    expect(rest.nextCursor).toBeNull();
+    const asked = pageSurveySections(
+      many,
+      { sections: true, limit: 3 },
+      "preview",
+    );
+    expect(asked.sections?.open.keys).toHaveLength(3);
+    expect(asked.sections?.closed.keys).toHaveLength(3);
+  });
+
   it("applies the filter to every section", () => {
     const head = sections({ filter: "active" });
     expect(head.sections?.linkedClosed.total).toBe(0);
