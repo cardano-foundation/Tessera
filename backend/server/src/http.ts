@@ -58,6 +58,7 @@ import type {
 import { toJsonSafe, type JsonSafe } from "cip-179/tally";
 import {
   API_VERSION,
+  DEFAULT_CLOSED_SECTION_LIMIT,
   DEFAULT_PAGE_LIMIT,
   DEFAULT_SECTION_LIMIT,
   MAX_CREDENTIALS,
@@ -81,6 +82,7 @@ import {
 import {
   encodeResponseCursor,
   encodeSurveyCursor,
+  isOpenSection,
   parseResponseCursor,
   parseSurveyCursor,
   searchTermsOf,
@@ -206,15 +208,13 @@ function sinceOf(raw: string): ChangesCursor | null {
 }
 
 /**
- * The `limit=` query parameter, rows per section with `sections`, or null
- * when malformed (the caller answers 400).
+ * The `limit=` query parameter, rows per section with `sections`; undefined
+ * when absent, null when malformed (the caller answers 400).
  */
-function limitOf(c: Context): number | null {
-  const fallback =
-    c.req.query("sections") === undefined
-      ? DEFAULT_PAGE_LIMIT
-      : DEFAULT_SECTION_LIMIT;
-  const limit = Number(c.req.query("limit") ?? fallback);
+function limitOf(c: Context): number | undefined | null {
+  const raw = c.req.query("limit");
+  if (raw === undefined) return undefined;
+  const limit = Number(raw);
   return Number.isInteger(limit) && limit >= 1 && limit <= MAX_PAGE_LIMIT
     ? limit
     : null;
@@ -470,8 +470,9 @@ export function createApp(config: ServerConfig, store: BackendStore): Hono {
       return c.json(surveyListBody(await store.surveyRowsByKeys(keys), meta));
     }
 
-    const limit = limitOf(c);
-    if (limit === null) return c.json({ error: "malformed limit" }, 400);
+    const asked = limitOf(c);
+    if (asked === null) return c.json({ error: "malformed limit" }, 400);
+    const limit = asked ?? DEFAULT_PAGE_LIMIT;
 
     // The third selection: what changed since a position — one this server
     // minted (`changes`), or one the caller names (`since=<unix seconds>`).
@@ -575,6 +576,8 @@ export function createApp(config: ServerConfig, store: BackendStore): Hono {
     // one answer, or one section's next page from its cursor (without counts,
     // which the first answer already gave).
     if (c.req.query("sections") !== undefined) {
+      const openLimit = asked ?? DEFAULT_SECTION_LIMIT;
+      const closedLimit = asked ?? DEFAULT_CLOSED_SECTION_LIMIT;
       const q = {
         tipEpoch: tip.epoch,
         filter,
@@ -583,9 +586,11 @@ export function createApp(config: ServerConfig, store: BackendStore): Hono {
         epochStartSlot: firstSlot(config.app.network, tip.epoch),
         epochLength: SECONDS_PER_EPOCH[config.app.network],
         // One extra row a section decides its `nextCursor`.
-        limit: limit + 1,
+        limit: openLimit + 1,
+        closedLimit: closedLimit + 1,
       };
-      const pageOf = (rows: readonly SurveySectionRow[]) => {
+      const pageOf = (section: number, rows: readonly SurveySectionRow[]) => {
+        const limit = isOpenSection(section) ? openLimit : closedLimit;
         const page = rows.slice(0, limit);
         const last = page[page.length - 1];
         return {
@@ -603,6 +608,7 @@ export function createApp(config: ServerConfig, store: BackendStore): Hono {
       };
       if (cursor) {
         const { page, nextCursor } = pageOf(
+          cursor.bucket,
           await store.surveySectionPage(q, cursor),
         );
         const body: JsonSafe<SurveyListPayload> = {
@@ -618,7 +624,10 @@ export function createApp(config: ServerConfig, store: BackendStore): Hono {
       ]);
       const heads = SURVEY_SECTIONS.map((_, section) => {
         const inSection = rows.filter((r) => r.bucket === section);
-        return { ...pageOf(inSection), total: inSection[0]?.total ?? 0 };
+        return {
+          ...pageOf(section, inSection),
+          total: inSection[0]?.total ?? 0,
+        };
       });
       const body: JsonSafe<SurveyListPayload> = {
         ...surveyListBody(

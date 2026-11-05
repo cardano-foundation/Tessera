@@ -25,7 +25,7 @@ import type { Settling } from "./network.js";
  * and refuses a mismatch; it may warn on a minor it does not know. Every
  * change is a line in the backend's `CHANGELOG.md`.
  */
-export const API_VERSION = "2.2";
+export const API_VERSION = "2.3";
 
 /** The major of a `major.minor` contract version — the part a consumer must match. */
 export const apiMajor = (version: string): string =>
@@ -42,8 +42,17 @@ export { SURVEY_KEY_RE } from "cip-179/domain";
 /** Page size of `GET /api/surveys` when `limit` is not given. */
 export const DEFAULT_PAGE_LIMIT = 50;
 
-/** Rows per section of `GET /api/surveys?sections` when `limit` is not given. */
+/**
+ * Rows per open section (`linkedOpen`, `open`) of `GET /api/surveys?sections`
+ * when `limit` is not given.
+ */
 export const DEFAULT_SECTION_LIMIT = 10;
+
+/**
+ * Rows per closed section (`linkedClosed`, `closed`) of
+ * `GET /api/surveys?sections` when `limit` is not given.
+ */
+export const DEFAULT_CLOSED_SECTION_LIMIT = 5;
 
 /**
  * Largest `limit` the paged list accepts, and the most references one
@@ -141,7 +150,9 @@ export interface SurveySectionHead {
 export interface SurveyListParams {
   /**
    * Page size, 1 to {@link MAX_PAGE_LIMIT}; {@link DEFAULT_PAGE_LIMIT} when
-   * absent, or with `sections` rows per section, {@link DEFAULT_SECTION_LIMIT}.
+   * absent. With `sections`, rows per section, every section alike; when
+   * absent, {@link DEFAULT_SECTION_LIMIT} per open section and
+   * {@link DEFAULT_CLOSED_SECTION_LIMIT} per closed one.
    */
   readonly limit?: number | undefined;
   /**

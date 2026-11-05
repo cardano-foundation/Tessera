@@ -106,7 +106,8 @@ and the answers of `/api/responded` and `/api/responses`.
   the whole list at this snapshot continues with the change selection below.
 - `GET /api/surveys?sections` — the same selection paged by Explore section
   (linked open, linked closed, open, closed), each on its own, with `limit`
-  rows per section, 10 by default. Without `cursor`: every section's first
+  rows per section; by default 10 per open section and 5 per closed one, on
+  a section's first page and on each next page. Without `cursor`: every section's first
   page in one answer, its keys, total and `nextCursor` under `sections`, with
   the counts. With a section's cursor: that section's next page and
   `nextCursor`, without counts. Open sections list the newest first, closed

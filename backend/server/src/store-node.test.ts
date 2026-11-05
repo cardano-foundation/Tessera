@@ -549,6 +549,7 @@ describe("store-node survey_index paging SQL", () => {
       epochStartSlot: 500_000,
       epochLength: 1000,
       limit: 2,
+      closedLimit: 1,
     };
 
     const heads = await store.surveySectionHeads(q);
@@ -560,7 +561,6 @@ describe("store-node survey_index paging SQL", () => {
       ["cb:0", 2, 500, 3],
       ["cc:0", 2, 500, 3],
       ["dd:0", 3, 500_000, 4],
-      ["dg:0", 3, 495_000, 4],
     ]);
 
     const next = await store.surveySectionPage(q, {
@@ -570,8 +570,13 @@ describe("store-node survey_index paging SQL", () => {
     });
     expect(next.map((r) => [r.surveyKey, r.sortKey])).toEqual([
       ["de:0", 490_000],
-      ["df:0", 481_000],
     ]);
+    const nextOpen = await store.surveySectionPage(q, {
+      bucket: 2,
+      slot: 99_999_999,
+      key: "",
+    });
+    expect(nextOpen.map((r) => r.surveyKey)).toEqual(["cb:0", "cc:0"]);
   });
 });
 

@@ -987,6 +987,8 @@ export interface SurveyPageQuery {
 
 /** A sections query against the survey index (see core's `pageSurveySections`). */
 export interface SurveySectionQuery extends Omit<SurveyPageQuery, "cursor"> {
+  /** Rows a closed section reads; `limit` is an open section's. */
+  readonly closedLimit: number;
   /** The first slot of the tip's epoch: with `epochLength`, when an epoch ends. */
   readonly epochStartSlot: number;
   readonly epochLength: number;
@@ -1052,13 +1054,14 @@ export interface SnapshotStore {
     q: SurveyPageQuery,
   ): Promise<(SurveyIndexRow & { bucket: number })[]>;
   /**
-   * The first `q.limit` rows of each Explore section, in section order, each
-   * with its section's row count (`total`).
+   * The first `q.limit` rows of each open Explore section and `q.closedLimit`
+   * of each closed one, in section order, each with its section's row count
+   * (`total`).
    */
   surveySectionHeads(
     q: SurveySectionQuery,
   ): Promise<(SurveySectionRow & { readonly total: number })[]>;
-  /** The `q.limit` rows of `cursor`'s section after it. */
+  /** The rows of `cursor`'s section after it, as many as that section reads. */
   surveySectionPage(
     q: SurveySectionQuery,
     cursor: import("cardano-tessera-core").SurveyCursor,

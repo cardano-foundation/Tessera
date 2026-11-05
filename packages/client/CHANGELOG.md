@@ -9,6 +9,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 This package follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html);
 while `< 1.0.0`, breaking changes bump the **minor** version.
 
+## [Unreleased]
+
+Speaks contract `2.3`.
+
+### Added
+
+- `DEFAULT_CLOSED_SECTION_LIMIT` (5): rows per closed section of a `sections`
+  answer when `limit` is not given. `DEFAULT_SECTION_LIMIT` (10) is now the
+  open sections' default only.
+
 ## [0.6.0] - 2026-11-04
 
 Speaks contract `2.2`.

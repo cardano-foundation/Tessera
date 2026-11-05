@@ -48,6 +48,7 @@ import {
 } from "cip-179/domain";
 
 import {
+  DEFAULT_CLOSED_SECTION_LIMIT,
   DEFAULT_PAGE_LIMIT,
   DEFAULT_SECTION_LIMIT,
   SURVEY_SECTIONS,
@@ -209,6 +210,9 @@ function surveyListBucket(a: SurveyAggregate): number {
 function surveySection(a: SurveyAggregate): number {
   return (a.govLinks.length > 0 ? 0 : 2) + (isOpen(a) ? 0 : 1);
 }
+
+/** Whether a section, by its index in `SURVEY_SECTIONS`, lists open surveys. */
+export const isOpenSection = (section: number): boolean => section % 2 === 0;
 
 /**
  * A survey's place in its section, larger first: an open survey's creation
@@ -412,7 +416,11 @@ export function pageSurveySections(
   network: Network,
 ): SurveyListPayload {
   const { counts, matching, cursor, staleCursor } = selectRows(full, params);
-  const limit = params.limit ?? DEFAULT_SECTION_LIMIT;
+  const limitOf = (section: number): number =>
+    params.limit ??
+    (isOpenSection(section)
+      ? DEFAULT_SECTION_LIMIT
+      : DEFAULT_CLOSED_SECTION_LIMIT);
   const sections = SURVEY_SECTIONS.map((_, section) =>
     matching
       .filter((r) => surveySection(r.a) === section)
@@ -420,6 +428,7 @@ export function pageSurveySections(
       .sort((x, y) => y.sortKey - x.sortKey || byKey(x, y)),
   );
   const pageOf = (section: number, rows: (typeof sections)[number]) => {
+    const limit = limitOf(section);
     const page = rows.slice(0, limit);
     const last = page[page.length - 1];
     return {
