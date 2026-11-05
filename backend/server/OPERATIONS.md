@@ -35,8 +35,9 @@ branch it runs on.
 
 To try a PR on a testnet, forks included, someone with write access comments
 `/deploy preview` or `/deploy preprod` on it; the command is the approval, and
-anyone else's is ignored. The reply names the commit being deployed, the PR's
-head at that moment, and links the run. That commit then replaces the
+anyone else's is ignored. The PR's head at that moment is deployed, and its
+`deploy/<network>` status in the PR's checks follows the run. That commit
+then replaces the
 testnet's deployment, migrations included, until the next deploy from `main`.
 The command runs `main`'s workflow, so a change to the workflow itself is
 tried with a manual run from its branch instead.

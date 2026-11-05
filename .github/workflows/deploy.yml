@@ -5,7 +5,8 @@ name: Deploy
 # of this file. A manual run deploys from the chosen branch with that branch's
 # version, which is how a change to this file is tried before merging. Mainnet
 # deploys from main only: the target job drops it for anything else, and the
-# production environment refuses other branches.
+# production environment refuses other branches. Every deploy leaves a
+# `deploy/<network>` status on the commit it deployed, so a PR shows it.
 #
 # Each network migrates its database and deploys its backend before its app,
 # so an app never reaches users ahead of the backend it reads.
@@ -45,6 +46,7 @@ jobs:
     timeout-minutes: 5
     permissions:
       pull-requests: write
+      statuses: write
     outputs:
       networks: ${{ steps.target.outputs.networks }}
       sha: ${{ steps.target.outputs.sha }}
@@ -90,11 +92,13 @@ jobs:
             if [ "$GITHUB_EVENT_NAME" = issue_comment ]; then gh pr comment "$PR" --repo "$GITHUB_REPOSITORY" --body "$msg"; fi
             exit 1
           fi
-          if [ "$GITHUB_EVENT_NAME" = issue_comment ]; then
-            run="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
-            gh pr comment "$PR" --repo "$GITHUB_REPOSITORY" \
-              --body "Deploying $sha to ${networks[*]}: $run"
-          fi
+          # A status on the deployed commit shows the deploy on that commit's
+          # PR, whichever event started it; the report job settles it.
+          for net in "${networks[@]}"; do
+            gh api -X POST "repos/$GITHUB_REPOSITORY/statuses/$sha" --silent \
+              -f state=pending -f context="deploy/$net" -f description=Deploying \
+              -f target_url="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+          done
           json=$(jq -cn '$ARGS.positional' --args "${networks[@]}")
           echo "$json"
           echo "networks=$json" >> "$GITHUB_OUTPUT"
@@ -114,7 +118,7 @@ jobs:
     env:
       VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
     steps:
-      # The commit the target job announced on the PR, even if its branch has
+      # The commit the target job put its status on, even if the branch has
       # moved since.
       - uses: actions/checkout@v7
         with:
@@ -157,3 +161,33 @@ jobs:
           vercel pull --yes --environment production
           vercel build --prod
           vercel deploy --prebuilt --prod
+
+  # Apart from the deploy jobs, so the job running the deployed code never
+  # holds a token that can write statuses.
+  report:
+    needs: [target, deploy]
+    if: always() && needs.target.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      actions: read
+      statuses: write
+    steps:
+      - env:
+          GH_TOKEN: ${{ github.token }}
+          SHA: ${{ needs.target.outputs.sha }}
+          NETWORKS: ${{ needs.target.outputs.networks }}
+        run: |
+          run="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+          jobs=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/attempts/$GITHUB_RUN_ATTEMPT/jobs?per_page=100")
+          for net in $(jq -r '.[]' <<< "$NETWORKS"); do
+            conclusion=$(jq -r --arg name "deploy ($net)" '.jobs[] | select(.name == $name) | .conclusion' <<< "$jobs")
+            case "$conclusion" in
+              success) state=success description=Deployed ;;
+              failure) state=failure description="Deploy failed" ;;
+              *) state=error description="Deploy ${conclusion:-did not run}" ;;
+            esac
+            gh api -X POST "repos/$GITHUB_REPOSITORY/statuses/$SHA" --silent \
+              -f state="$state" -f context="deploy/$net" \
+              -f description="$description" -f target_url="$run"
+          done
