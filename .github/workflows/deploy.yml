@@ -1,75 +1,100 @@
 name: Deploy
 
-# A merge to main deploys the Vercel projects it affects. A manual run deploys
-# them all, for what pnpm cannot attribute to a package: a lockfile-only
-# update, this workflow, or a changed Vercel environment variable.
+# A merge to main deploys every network. A `deploy:<testnet>` label deploys a
+# PR to that testnet. A manual run deploys from the chosen branch with that
+# branch's version of this file, which is how a change to it is tried before
+# merging. Mainnet deploys from main only: the target job drops it for anything
+# else, and the production environment refuses other branches.
 #
-# Backends go first: each migrates its database, then deploys. The apps follow
-# unless a backend failed, so an app never reaches users ahead of the backend
-# it reads.
+# Each network migrates its database and deploys its backend before its app,
+# so an app never reaches users ahead of the backend it reads.
 on:
   push:
     branches: [main]
+  pull_request_target:
+    types: [labeled]
   workflow_dispatch:
+    inputs:
+      network:
+        description: Network to deploy; mainnet is skipped outside main
+        type: choice
+        options: [all, preview, preprod]
+        default: all
 
-# Deploys run one at a time in merge order; a newer one never cancels an upload.
+# Runs from one branch or PR go one at a time, and a newer one never cancels an
+# upload. Main's runs queue apart from PRs', so a PR never displaces a pending
+# deploy of main; a PR deploy and a main deploy can then overlap on a testnet.
 concurrency:
-  group: deploy-production
+  group: deploy-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: false
 
-permissions:
-  contents: read
-
-env:
-  VERCEL_CLI: vercel@64.7.0
+permissions: {}
 
 jobs:
-  affected:
+  target:
+    if: github.event_name != 'pull_request_target' || startsWith(github.event.label.name, 'deploy:')
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    permissions:
+      pull-requests: write
     outputs:
-      app: ${{ steps.affected.outputs.app }}
-      backend: ${{ steps.affected.outputs.backend }}
+      networks: ${{ steps.target.outputs.networks }}
     steps:
-      - uses: actions/checkout@v7
-        with:
-          fetch-depth: 0
-      - uses: pnpm/action-setup@v6
-      - id: affected
+      # First, so no other workflow acts on the label and adding it again
+      # deploys again.
+      - if: github.event_name == 'pull_request_target'
         env:
-          BEFORE: ${{ github.event.before }}
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+          LABEL: ${{ github.event.label.name }}
+        run: gh pr edit "$PR" --repo "$GITHUB_REPOSITORY" --remove-label "$LABEL"
+      - id: target
+        env:
+          LABEL: ${{ github.event.label.name }}
+          INPUT: ${{ inputs.network }}
         run: |
-          if [ "$GITHUB_EVENT_NAME" = workflow_dispatch ]; then
-            echo app=true >> "$GITHUB_OUTPUT"
-            echo backend=true >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-          names=$(pnpm ls -r --depth -1 --json --filter "...[$BEFORE]" | jq -r '.[].name')
-          echo "$names"
-          for pkg in app:tessera-app backend:cardano-tessera-backend; do
-            if grep -qx "${pkg#*:}" <<< "$names"; then v=true; else v=false; fi
-            echo "${pkg%%:*}=$v" >> "$GITHUB_OUTPUT"
+          # Preprod and mainnet still run on Cloudflare.
+          on_vercel=(preview)
+          case "$GITHUB_EVENT_NAME" in
+            pull_request_target) wanted=("${LABEL#deploy:}") ;;
+            workflow_dispatch) if [ "$INPUT" = all ]; then wanted=("${on_vercel[@]}"); else wanted=("$INPUT"); fi ;;
+            *) wanted=("${on_vercel[@]}") ;;
+          esac
+          from_main=false
+          if [ "$GITHUB_EVENT_NAME" != pull_request_target ] && [ "$GITHUB_REF" = refs/heads/main ]; then from_main=true; fi
+          networks=()
+          for net in "${wanted[@]}"; do
+            if [ "$net" = mainnet ] && [ "$from_main" != true ]; then continue; fi
+            if printf '%s\n' "${on_vercel[@]}" | grep -qx -- "$net"; then networks+=("$net"); fi
           done
+          if [ ${#networks[@]} -eq 0 ]; then
+            echo "::error::Nothing to deploy for '${wanted[*]}' from $GITHUB_REF"
+            exit 1
+          fi
+          json=$(jq -cn '$ARGS.positional' --args "${networks[@]}")
+          echo "$json"
+          echo "networks=$json" >> "$GITHUB_OUTPUT"
 
-  backend:
-    needs: affected
-    if: needs.affected.outputs.backend == 'true'
+  deploy:
+    needs: target
     runs-on: ubuntu-latest
-    timeout-minutes: 15
-    environment: production
+    timeout-minutes: 20
+    environment: ${{ matrix.network == 'mainnet' && 'production' || 'testnets' }}
+    permissions:
+      contents: read
     strategy:
       fail-fast: false
       matrix:
-        # Preprod and mainnet still run on Cloudflare.
-        network: [preview]
+        network: ${{ fromJSON(needs.target.outputs.networks) }}
     env:
-      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-      NETWORK: ${{ matrix.network }}
-    defaults:
-      run:
-        working-directory: backend/server
+      VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
     steps:
+      # A label run deploys the commit reviewed when the label was added, not
+      # whatever the PR's branch holds by the time the run is approved.
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
       - uses: pnpm/action-setup@v6
       - uses: actions/setup-node@v7
         with:
@@ -77,43 +102,33 @@ jobs:
           cache: pnpm
           cache-dependency-path: pnpm-lock.yaml
       - run: pnpm install --frozen-lockfile
-      - run: npm install --global "$VERCEL_CLI"
-      - run: vercel link --yes --project "tessera-backend-$NETWORK" --team "${{ vars.VERCEL_TEAM }}"
-      - run: pnpm build:vercel
-      - run: pnpm migrate
+      - run: npm install --global vercel@64.7.0
+
+      - name: Build backend
+        working-directory: backend/server
+        env:
+          NETWORK: ${{ matrix.network }}
+        run: pnpm build:vercel
+      - name: Migrate database
+        working-directory: backend/server
         env:
           TURSO_DATABASE_URL: ${{ vars[format('TURSO_DATABASE_URL_{0}', matrix.network)] }}
           TURSO_AUTH_TOKEN: ${{ secrets[format('TURSO_AUTH_TOKEN_{0}', matrix.network)] }}
-      - run: vercel deploy --prebuilt --prod
+        run: pnpm migrate
+      - name: Deploy backend
+        working-directory: backend/server
+        env:
+          VERCEL_PROJECT_ID: ${{ vars[format('VERCEL_PROJECT_ID_BACKEND_{0}', matrix.network)] }}
+          VERCEL_TOKEN: ${{ secrets[format('VERCEL_TOKEN_BACKEND_{0}', matrix.network)] }}
+        run: vercel deploy --prebuilt --prod
 
-  app:
-    needs: [affected, backend]
-    if: ${{ !cancelled() && needs.affected.outputs.app == 'true' && needs.backend.result != 'failure' }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    environment: production
-    strategy:
-      fail-fast: false
-      matrix:
-        # Preprod and mainnet still run on Cloudflare.
-        network: [preview]
-    env:
-      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-      TESSERA_NETWORK: ${{ matrix.network }}
-    defaults:
-      run:
+      - name: Build and deploy app
         working-directory: frontend/app
-    steps:
-      - uses: actions/checkout@v7
-      - uses: pnpm/action-setup@v6
-      - uses: actions/setup-node@v7
-        with:
-          node-version: 24
-          cache: pnpm
-          cache-dependency-path: pnpm-lock.yaml
-      - run: pnpm install --frozen-lockfile
-      - run: npm install --global "$VERCEL_CLI"
-      - run: vercel link --yes --project "tessera-$TESSERA_NETWORK" --team "${{ vars.VERCEL_TEAM }}"
-      - run: vercel pull --yes --environment production
-      - run: vercel build --prod
-      - run: vercel deploy --prebuilt --prod
+        env:
+          TESSERA_NETWORK: ${{ matrix.network }}
+          VERCEL_PROJECT_ID: ${{ vars[format('VERCEL_PROJECT_ID_APP_{0}', matrix.network)] }}
+          VERCEL_TOKEN: ${{ secrets[format('VERCEL_TOKEN_APP_{0}', matrix.network)] }}
+        run: |
+          vercel pull --yes --environment production
+          vercel build --prod
+          vercel deploy --prebuilt --prod

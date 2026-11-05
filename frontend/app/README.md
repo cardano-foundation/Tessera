@@ -130,12 +130,10 @@ so cross-package edits are live in the dev server with no build step.
 
 ## Deploy
 
-Vercel, one project per network, `tessera-<net>`. GitHub Actions deploys the
-networks listed in the app job's matrix (`.github/workflows/deploy.yml`): a
-merge to `main` that affects the app deploys each of them, and a manual run of
-the workflow deploys them regardless. Each job links its project from
-`frontend/app`, pulls the project's environment variables, then runs
-`vercel build` and `vercel deploy --prebuilt`. `vercel.json` holds the build
+Vercel, one project per network, `tessera-<net>`. GitHub Actions deploys it
+after the network's backend (`.github/workflows/deploy.yml`, which also covers
+deploying a PR to a testnet). From `frontend/app`, the job pulls the project's
+environment variables, then runs `vercel build` and `vercel deploy --prebuilt`. `vercel.json` holds the build
 command (`vite build --mode $TESSERA_NETWORK`, the network set by the job),
 the fallback of unknown paths to `index.html`, and the response headers.
 
@@ -156,9 +154,8 @@ the workflow manually.
 
 One-time setup: create the three projects without connecting a Git repository
 (the workflow deploys, not Vercel), turn Deployment Protection off, and set the
-variables above. The workflow runs in the `production` GitHub environment,
-restricted to `main`, which holds the `VERCEL_TOKEN` secret and the
-`VERCEL_TEAM` variable (the team slug).
+variables above. The GitHub side, a project-scoped token and the project's ID
+per network, is in `backend/server/OPERATIONS.md`.
 
 A build reads the payload shapes it was built against, so a backend release
 that renames or drops a field wants the app redeployed in the same window. Each

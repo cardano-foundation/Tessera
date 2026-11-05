@@ -19,14 +19,29 @@ named after it (`<net>` is `preview`, `preprod` or `mainnet`).
    `KOIOS_DAILY_LIMIT` and `SINCE`. Leave `NETWORK` and `GIT_COMMIT` out: the
    build bakes both in. Create the app's project `tessera-<net>` the same way,
    with the variables listed in `frontend/app/README.md`.
-3. **GitHub:** in the `production` environment, set the variable
-   `TURSO_DATABASE_URL_<NET>` and the secret `TURSO_AUTH_TOKEN_<NET>` (upper
-   case), which the deploy workflow migrates with, and add `<net>` to the
-   backend and app jobs' matrices in `.github/workflows/deploy.yml`.
+   Create one Vercel token per project, scoped to that project.
+3. **GitHub:** the network's environment is `production` for mainnet and
+   `testnets` for preview and preprod. `testnets` accepts any branch but needs
+   a maintainer's approval; `production` accepts `main` only. In it, set the
+   secrets `VERCEL_TOKEN_BACKEND_<NET>`, `VERCEL_TOKEN_APP_<NET>` and
+   `TURSO_AUTH_TOKEN_<NET>`, and the variables `VERCEL_PROJECT_ID_BACKEND_<NET>`,
+   `VERCEL_PROJECT_ID_APP_<NET>`, `TURSO_DATABASE_URL_<NET>` and
+   `VERCEL_ORG_ID` (upper case `<NET>`). Then add `<net>` to `on_vercel` in
+   `.github/workflows/deploy.yml`.
 
-A merge to `main` that touches the backend then builds, migrates and deploys
-it; a manual run of the workflow deploys every project. By hand, from
-`backend/server`:
+A merge to `main` then migrates the database and deploys the backend, then the
+app, on every network. A manual run deploys the networks it is given, from the
+branch it runs on.
+
+To try a PR on a testnet, a maintainer adds the label `deploy:preview` or
+`deploy:preprod` and approves the run. The PR's commit then replaces that
+testnet's deployment, migrations included, until the next deploy from `main`.
+If it leaves the database in a state `main` cannot run on, empty the database
+and run the workflow from `main`: the refreshes rebuild it from the chain. The
+PR's code runs with the testnet's credentials, so review it before approving,
+and rotate them if it may have leaked them.
+
+By hand, from `backend/server`:
 
 ```sh
 vercel link --project tessera-backend-<net>
