@@ -13,6 +13,10 @@ come before type-check because the widget's test script builds the rolled-up
 the backend's Vercel functions. Match the existing code style; Prettier is the
 source of truth for formatting (`pnpm format`).
 
+A maintainer can deploy a PR, from a fork too, to the preview or preprod
+network by commenting `/deploy preview` or `/deploy preprod` on it, so a change
+can be tried there before it merges.
+
 ## Versions and changelogs
 
 Two surfaces have consumers outside this repository. A change to either lands

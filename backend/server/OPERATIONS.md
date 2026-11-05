@@ -21,8 +21,8 @@ named after it (`<net>` is `preview`, `preprod` or `mainnet`).
    with the variables listed in `frontend/app/README.md`.
    Create one Vercel token per project, scoped to that project.
 3. **GitHub:** the network's environment is `production` for mainnet and
-   `testnets` for preview and preprod. `testnets` accepts any branch but needs
-   a maintainer's approval; `production` accepts `main` only. In it, set the
+   `testnets` for preview and preprod. `testnets` accepts any branch;
+   `production` accepts `main` only. In it, set the
    secrets `VERCEL_TOKEN_BACKEND_<NET>`, `VERCEL_TOKEN_APP_<NET>` and
    `TURSO_AUTH_TOKEN_<NET>`, and the variables `VERCEL_PROJECT_ID_BACKEND_<NET>`,
    `VERCEL_PROJECT_ID_APP_<NET>`, `TURSO_DATABASE_URL_<NET>` and
@@ -33,13 +33,19 @@ A merge to `main` then migrates the database and deploys the backend, then the
 app, on every network. A manual run deploys the networks it is given, from the
 branch it runs on.
 
-To try a PR on a testnet, a maintainer adds the label `deploy:preview` or
-`deploy:preprod` and approves the run. The PR's commit then replaces that
+To try a PR on a testnet, forks included, someone with write access comments
+`/deploy preview` or `/deploy preprod` on it; the command is the approval, and
+anyone else's is ignored. The reply names the commit being deployed, the PR's
+head at that moment, and links the run. That commit then replaces the
 testnet's deployment, migrations included, until the next deploy from `main`.
-If it leaves the database in a state `main` cannot run on, empty the database
-and run the workflow from `main`: the refreshes rebuild it from the chain. The
-PR's code runs with the testnet's credentials, so review it before approving,
-and rotate them if it may have leaked them.
+The command runs `main`'s workflow, so a change to the workflow itself is
+tried with a manual run from its branch instead.
+
+If a PR leaves the database in a state `main` cannot run on, empty the
+database and run the workflow from `main`: the refreshes rebuild it from the
+chain. The PR's code runs with the testnet's credentials, so read it,
+`package.json` and lockfile included, before commenting, and rotate them if it
+may have leaked them.
 
 By hand, from `backend/server`:
 
