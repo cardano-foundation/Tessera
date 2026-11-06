@@ -59,8 +59,8 @@ jobs:
           ACTOR: ${{ github.event.comment.user.login }}
           PR: ${{ github.event.issue.number }}
         run: |
-          # Preprod and mainnet still run on Cloudflare.
-          on_vercel=(preview)
+          # Mainnet still runs on Cloudflare.
+          on_vercel=(preview preprod)
           sha=$GITHUB_SHA
           from_main=false
           case "$GITHUB_EVENT_NAME" in
