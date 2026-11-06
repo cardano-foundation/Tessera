@@ -60,6 +60,11 @@ export default defineConfig(({ command, mode }) => {
       // slip in (breaking context/ownership). Force a single instance.
       dedupe: ["solid-js", "solid-element"],
     },
+    // A font inlined as a data: URI is refused by the CSP's `font-src 'self'`.
+    build: {
+      assetsInlineLimit: (file: string) =>
+        /\.woff2?$/.test(file) ? false : undefined,
+    },
     // Bind IPv4 loopback so `localhost` (which many browsers resolve to
     // 127.0.0.1) connects — Vite's default binds IPv6 `::1` only.
     server: { host: "127.0.0.1", port: 3000 },

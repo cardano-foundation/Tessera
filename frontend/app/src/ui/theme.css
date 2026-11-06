@@ -1,145 +1,17 @@
-/*
- * Design tokens for Tessera — lifted verbatim from the Tessera.dc.html mockup
- * (:root block). Warm paper surfaces, clay accent for the human/survey actions,
- * slate-blue reserved strictly for on-chain governance linkage.
- */
-:root {
-  /* ===== TYPE ===== */
-  --sans: "Hanken Grotesk Variable", system-ui, sans-serif;
-  --mono: "IBM Plex Mono", monospace;
-  --serif: "Newsreader Variable", Georgia, serif;
-  /* ===== INK + TEXT (warm) ===== */
-  --ink: #23201a;
-  --body: #3a352b;
-  --muted: #6b6356;
-  --faint: #9a8f79;
-  --dim: #a79c88;
-  --pale: #b8ae99;
-  --arrow: #cfc6b4;
-  /* ===== LINES + SURFACES (warm paper) ===== */
-  --line: #e7e0d0;
-  --line2: #ede6d7;
-  --hair: #f2ecde;
-  --track: #efe9db;
-  --surface: #f4efe3;
-  --surface2: #fbf8f1;
-  --surface3: #f2ecde;
-  --border-strong: #d8cdb6;
-  /* ===== CARD (inner panels: warm near-white surface, hairline, label ink) ===== */
-  --card-bg: #fbfaf6;
-  --card-line: #f0ebd8;
-  --label: #7a6a45;
-  /* ===== ACCENT (clay = people / the human survey — primary action) ===== */
-  --accent: #bc5b33;
-  --accent-hover: #a54e2b;
-  --accent-2: #cf6b40;
-  --accent-tint: #d89b7e;
-  --accent-bg: #f7ece3;
-  --accent-bg-soft: #fbf4ee;
-  --accent-line: #ead3c4;
-  --accent-shadow: rgba(188, 91, 51, 0.5);
-  --accent-shadow-soft: rgba(188, 91, 51, 0.4);
-  /* ===== SEMANTICS ===== */
-  --ok: #4f7a3a;
-  --ok-bg: #eaf1e3;
-  --ok-line: #d4e4c8;
-  --warn: #9a6b1e;
-  --warn-bg: #f6edd9;
-  --warn-line: #e8d5ae;
-  --danger: #a8412e;
-  --danger-bg: #f7e9e3;
-  --danger-line: #e6c3b6;
-  /* Deeper danger ink for body copy inside danger callouts / problem lists. */
-  --danger-ink: #8a3a2e;
-  /* ===== SEGMENTED TOGGLE (Plain/Pro, network, preview view, rationale mode) ===== */
-  --toggle-bg: #f1eadc;
-  --toggle-line: #e3dbc9;
-  --toggle-text-off: #857b6b;
-  /* ===== ON-CHAIN (slate-blue — reserved strictly for chain linkage / governance) ===== */
-  --gov: #2b4c7e;
-  --gov-bg: #eaf0f7;
-  --gov-line: #cdd9e9;
-  /* ===== ELEVATION (warm) ===== */
-  --shadow-card: 0 1px 2px rgba(70, 55, 30, 0.05);
-  --shadow-menu: 0 16px 40px -16px rgba(70, 55, 30, 0.35);
-  /* ===== RADII ===== */
-  --r-pill: 999px;
-  --r-card: 18px;
-  --r-panel: 16px;
-  --r-lg: 14px;
-  --r-md: 12px;
-  --r-control: 11px;
-  --r-input: 10px;
-  --r-sm: 9px;
-  --r-chip: 8px;
-  --r-xs: 7px;
-  --r-2xs: 6px;
-  --r-3xs: 5px;
-  /* ===== RESPOND-UI (its sheet reads the widget's public token names) ===== */
-  --tessera-mono: var(--mono);
-  --tessera-serif: var(--serif);
-  --tessera-ink: var(--ink);
-  --tessera-body: var(--body);
-  --tessera-muted: var(--muted);
-  --tessera-faint: var(--faint);
-  --tessera-dim: var(--dim);
-  --tessera-paper: #fff;
-  --tessera-line: var(--line);
-  --tessera-line2: var(--line2);
-  --tessera-hair: var(--hair);
-  --tessera-surface2: var(--surface2);
-  --tessera-surface3: var(--surface3);
-  --tessera-header-line: #e7dfce;
-  --tessera-card-bg: var(--card-bg);
-  --tessera-card-line: var(--card-line);
-  --tessera-label: var(--label);
-  --tessera-accent: var(--accent);
-  --tessera-accent-bg: var(--accent-bg);
-  --tessera-accent-line: var(--accent-line);
-  --tessera-on-accent: #fff;
-  --tessera-ok: var(--ok);
-  --tessera-ok-line: var(--ok-line);
-  --tessera-ok-bg-soft: #f0faf3;
-  --tessera-ok-ink: #3f7a55;
-  --tessera-warn: var(--warn);
-  --tessera-warn-line: var(--warn-line);
-  --tessera-danger: var(--danger);
-  --tessera-danger-bg: var(--danger-bg);
-  --tessera-danger-line-soft: #f0d2d0;
-  --tessera-schema-tag: #7e89a8;
-  --tessera-schema-tag-bg: #1c2536;
-  --tessera-schema-uri: #c4ccda;
-  --tessera-role-drep: var(--accent);
-  --tessera-role-drep-bg: var(--accent-bg);
-  --tessera-role-spo: #2e6b5e;
-  --tessera-role-spo-bg: #e4efeb;
-  --tessera-role-cc: #6b4fa0;
-  --tessera-role-cc-bg: #ece7f4;
-  --tessera-role-stakeholder: #4f7a3a;
-  --tessera-role-stakeholder-bg: #e8f1e0;
-  --tessera-role-keyholder: #9a6b1e;
-  --tessera-role-keyholder-bg: #f6edd9;
-  --tessera-r-card: var(--r-card);
-  --tessera-r-md: var(--r-md);
-  --tessera-r-control: var(--r-control);
-  --tessera-r-sm: var(--r-sm);
-  --tessera-r-chip: var(--r-chip);
-  --tessera-r-xs: var(--r-xs);
-  --tessera-r-3xs: var(--r-3xs);
-}
+@import "./tokens.css";
 
 * {
   box-sizing: border-box;
 }
 body {
   margin: 0;
-  background: var(--surface);
+  background: var(--page);
   font-family: var(--sans);
   color: var(--ink);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
-/* Serif reserved for hero/survey titles — section labels stay mono, UI stays Hanken */
+/* Serif reserved for hero/survey titles; section labels stay mono, UI stays sans */
 h1 {
   font-family: var(--serif);
   font-weight: 700;
@@ -152,7 +24,11 @@ select {
 }
 ::selection {
   background: var(--accent);
-  color: #fff;
+  color: var(--on-accent);
+}
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
 }
 
 @keyframes pulse {

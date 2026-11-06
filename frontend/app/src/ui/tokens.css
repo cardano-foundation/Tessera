@@ -1,0 +1,279 @@
+/*
+ * Design tokens, in two layers. Primitives are raw values, the same in every
+ * theme. The semantic layer maps meanings onto primitives, once per theme;
+ * components read only the semantic layer, so none of them names a theme.
+ *
+ * The semantic blocks sit on `[data-theme]` as well as `:root`, because a
+ * custom property resolves its var() references where it is declared: an
+ * element carrying `data-theme` re-derives every semantic token from its own
+ * mapping, so a subtree can render in the other theme.
+ *
+ * tokens.test.ts parses this file. It holds only rule blocks of custom
+ * properties; every text and boundary pair the semantic layer intends is
+ * checked there against WCAG 1.4.3 and 1.4.11 in both themes.
+ */
+
+:root {
+  /* Brand: the cardano.org palette */
+  --cardano-blue: #0033ad;
+  --cardano-blue-dark: #002a8e;
+  --obsidian: #000629;
+  --clarity: #fffaf3;
+  --photon: #ffb122;
+  --photon-dark: #f5a30f;
+  --slate: #5f6b85;
+
+  /* Light additions */
+  --white: #ffffff;
+  --l-body: #2b3147;
+  --l-sunken: #f3eee6;
+  --l-line: #e8e2d8;
+  --l-control-line: #7c8499;
+  --l-blue-bg: #e8edf9;
+  --l-blue-line: #b8c6ec;
+  --l-ok: #1f6e3b;
+  --l-ok-bg: #e7f2ea;
+  --l-ok-line: #b9d8c3;
+  --l-warn: #8a5a00;
+  --l-warn-bg: #fbf0da;
+  --l-warn-line: #ebcf96;
+  --l-danger: #b3261e;
+  --l-danger-bg: #fbe9e7;
+  --l-danger-line: #efc1bc;
+  --l-teal: #00666e;
+  --l-teal-bg: #e3f2f2;
+  --l-teal-line: #b5dadb;
+  --l-sky: #0069b4;
+  --l-sky-bg: #e5f0f9;
+  --l-pink: #c02a5f;
+  --l-pink-bg: #fae8ee;
+  --l-violet: #6b3fa0;
+  --l-violet-bg: #f0eaf7;
+
+  /* Dark additions; page and panel from the developer portal's dark mode */
+  --d-page: #111425;
+  --d-card: #1a1c2c;
+  --d-sunken: #0b0d1c;
+  --d-ink: #f5f6fa;
+  --d-body: #e3e3e3;
+  --d-muted: #a3a9bc;
+  --d-line: #2c2f44;
+  --d-control-line: #7a7f98;
+  --d-blue: #7a95da;
+  --d-blue-light: #94aae3;
+  --d-blue-bg: #1f2a4d;
+  --d-blue-line: #34457a;
+  --d-ok: #6fcf97;
+  --d-ok-bg: #14302a;
+  --d-ok-line: #2b5a44;
+  --d-warn: #f0c040;
+  --d-warn-bg: #33290f;
+  --d-warn-line: #5c4a18;
+  --d-danger: #ff8a80;
+  --d-danger-bg: #3a1a1e;
+  --d-danger-line: #6a2e33;
+  --d-teal: #5cc8cf;
+  --d-teal-bg: #10302f;
+  --d-teal-line: #24575a;
+  --d-periwinkle: #8fb1ff;
+  --d-green: #0fb37b;
+  --d-green-bg: #0f2e25;
+  --d-pink: #ff8fb8;
+  --d-pink-bg: #3a1a2a;
+  --d-violet: #c4a5ff;
+  --d-violet-bg: #2a1f45;
+
+  /* Not colours: fonts and radii, the same in every theme */
+  --sans: "Chivo Variable", system-ui, sans-serif;
+  --mono: "Chivo Mono Variable", ui-monospace, monospace;
+  --code: "IBM Plex Mono", ui-monospace, monospace;
+  --serif: "Newsreader Variable", Georgia, serif;
+  --r-pill: 999px;
+  --r-card: 18px;
+  --r-panel: 16px;
+  --r-lg: 14px;
+  --r-md: 12px;
+  --r-control: 11px;
+  --r-input: 10px;
+  --r-sm: 9px;
+  --r-chip: 8px;
+  --r-xs: 7px;
+  --r-2xs: 6px;
+  --r-3xs: 5px;
+}
+
+:root,
+[data-theme="light"] {
+  color-scheme: light;
+  --page: var(--clarity);
+  --card: var(--white);
+  --sunken: var(--l-sunken);
+  --ink: var(--obsidian);
+  --body: var(--l-body);
+  --muted: var(--slate);
+  --line: var(--l-line);
+  --control-line: var(--l-control-line);
+  --accent: var(--cardano-blue);
+  --accent-hover: var(--cardano-blue-dark);
+  --accent-bg: var(--l-blue-bg);
+  --accent-line: var(--l-blue-line);
+  --on-accent: var(--white);
+  --focus: var(--cardano-blue);
+  --cta: var(--photon);
+  --cta-hover: var(--photon-dark);
+  --on-cta: var(--obsidian);
+  --ok: var(--l-ok);
+  --ok-bg: var(--l-ok-bg);
+  --ok-line: var(--l-ok-line);
+  --warn: var(--l-warn);
+  --warn-bg: var(--l-warn-bg);
+  --warn-line: var(--l-warn-line);
+  --danger: var(--l-danger);
+  --danger-bg: var(--l-danger-bg);
+  --danger-line: var(--l-danger-line);
+  --gov: var(--l-teal);
+  --gov-bg: var(--l-teal-bg);
+  --gov-line: var(--l-teal-line);
+  --role-drep: var(--cardano-blue);
+  --role-drep-bg: var(--l-blue-bg);
+  --role-cc: var(--l-sky);
+  --role-cc-bg: var(--l-sky-bg);
+  --role-spo: var(--l-pink);
+  --role-spo-bg: var(--l-pink-bg);
+  --role-stakeholder: var(--l-violet);
+  --role-stakeholder-bg: var(--l-violet-bg);
+  --role-keyholder: var(--l-warn);
+  --role-keyholder-bg: var(--l-warn-bg);
+  --shadow-card: 0 1px 2px rgba(0, 6, 41, 0.06);
+  --shadow-menu: 0 16px 40px -16px rgba(0, 6, 41, 0.3);
+  --accent-shadow: rgba(0, 51, 173, 0.35);
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+  --page: var(--d-page);
+  --card: var(--d-card);
+  --sunken: var(--d-sunken);
+  --ink: var(--d-ink);
+  --body: var(--d-body);
+  --muted: var(--d-muted);
+  --line: var(--d-line);
+  --control-line: var(--d-control-line);
+  --accent: var(--d-blue);
+  --accent-hover: var(--d-blue-light);
+  --accent-bg: var(--d-blue-bg);
+  --accent-line: var(--d-blue-line);
+  --on-accent: var(--obsidian);
+  --focus: var(--d-blue-light);
+  --cta: var(--photon);
+  --cta-hover: var(--photon-dark);
+  --on-cta: var(--obsidian);
+  --ok: var(--d-ok);
+  --ok-bg: var(--d-ok-bg);
+  --ok-line: var(--d-ok-line);
+  --warn: var(--d-warn);
+  --warn-bg: var(--d-warn-bg);
+  --warn-line: var(--d-warn-line);
+  --danger: var(--d-danger);
+  --danger-bg: var(--d-danger-bg);
+  --danger-line: var(--d-danger-line);
+  --gov: var(--d-teal);
+  --gov-bg: var(--d-teal-bg);
+  --gov-line: var(--d-teal-line);
+  --role-drep: var(--d-periwinkle);
+  --role-drep-bg: var(--d-blue-bg);
+  --role-cc: var(--d-green);
+  --role-cc-bg: var(--d-green-bg);
+  --role-spo: var(--d-pink);
+  --role-spo-bg: var(--d-pink-bg);
+  --role-stakeholder: var(--d-violet);
+  --role-stakeholder-bg: var(--d-violet-bg);
+  --role-keyholder: var(--d-warn);
+  --role-keyholder-bg: var(--d-warn-bg);
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-menu: 0 16px 40px -16px rgba(0, 0, 0, 0.7);
+  --accent-shadow: rgba(148, 170, 227, 0.4);
+}
+
+/*
+ * Names the screens' CSS still reads, each mapped onto the semantic token
+ * nearest its old meaning. An alias goes once no module reads it.
+ */
+:root,
+[data-theme] {
+  --surface: var(--page);
+  --surface2: var(--card);
+  --surface3: var(--sunken);
+  --card-bg: var(--card);
+  --track: var(--sunken);
+  --toggle-bg: var(--sunken);
+  --faint: var(--muted);
+  --dim: var(--muted);
+  --pale: var(--muted);
+  --label: var(--muted);
+  --toggle-text-off: var(--muted);
+  --line2: var(--line);
+  --hair: var(--line);
+  --card-line: var(--line);
+  --toggle-line: var(--line);
+  --border-strong: var(--control-line);
+  --accent-2: var(--accent-hover);
+  --accent-tint: var(--accent-line);
+  --accent-bg-soft: var(--accent-bg);
+  --danger-ink: var(--danger);
+}
+
+/* respond-ui's sheet reads the widget's public token names. */
+:root,
+[data-theme] {
+  --tessera-mono: var(--mono);
+  --tessera-serif: var(--serif);
+  --tessera-ink: var(--ink);
+  --tessera-body: var(--body);
+  --tessera-muted: var(--muted);
+  --tessera-faint: var(--muted);
+  --tessera-dim: var(--muted);
+  --tessera-paper: var(--card);
+  --tessera-line: var(--line);
+  --tessera-line2: var(--line);
+  --tessera-hair: var(--line);
+  --tessera-surface2: var(--card);
+  --tessera-surface3: var(--sunken);
+  --tessera-header-line: var(--line);
+  --tessera-card-bg: var(--card);
+  --tessera-card-line: var(--line);
+  --tessera-label: var(--muted);
+  --tessera-accent: var(--accent);
+  --tessera-accent-bg: var(--accent-bg);
+  --tessera-accent-line: var(--accent-line);
+  --tessera-on-accent: var(--on-accent);
+  --tessera-ok: var(--ok);
+  --tessera-ok-line: var(--ok-line);
+  --tessera-ok-bg-soft: var(--ok-bg);
+  --tessera-ok-ink: var(--ok);
+  --tessera-warn: var(--warn);
+  --tessera-warn-line: var(--warn-line);
+  --tessera-danger: var(--danger);
+  --tessera-danger-bg: var(--danger-bg);
+  --tessera-danger-line-soft: var(--danger-line);
+  --tessera-schema-tag: var(--muted);
+  --tessera-schema-tag-bg: var(--sunken);
+  --tessera-schema-uri: var(--body);
+  --tessera-role-drep: var(--role-drep);
+  --tessera-role-drep-bg: var(--role-drep-bg);
+  --tessera-role-spo: var(--role-spo);
+  --tessera-role-spo-bg: var(--role-spo-bg);
+  --tessera-role-cc: var(--role-cc);
+  --tessera-role-cc-bg: var(--role-cc-bg);
+  --tessera-role-stakeholder: var(--role-stakeholder);
+  --tessera-role-stakeholder-bg: var(--role-stakeholder-bg);
+  --tessera-role-keyholder: var(--role-keyholder);
+  --tessera-role-keyholder-bg: var(--role-keyholder-bg);
+  --tessera-r-card: var(--r-card);
+  --tessera-r-md: var(--r-md);
+  --tessera-r-control: var(--r-control);
+  --tessera-r-sm: var(--r-sm);
+  --tessera-r-chip: var(--r-chip);
+  --tessera-r-xs: var(--r-xs);
+  --tessera-r-3xs: var(--r-3xs);
+}
