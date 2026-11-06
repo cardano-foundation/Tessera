@@ -558,6 +558,7 @@
   font-size: 15px;
   font-weight: 600;
   color: var(--tessera-ink);
+  background: var(--tessera-paper);
   text-align: center;
   box-sizing: border-box;
 }
@@ -681,6 +682,7 @@
   font-family: inherit;
   font-size: 14.5px;
   color: var(--tessera-ink);
+  background: var(--tessera-paper);
   line-height: 1.45;
   resize: vertical;
   box-sizing: border-box;

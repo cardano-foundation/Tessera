@@ -31,5 +31,5 @@
 .on {
   font-weight: 700;
   background: var(--accent);
-  color: #fff;
+  color: var(--on-accent);
 }

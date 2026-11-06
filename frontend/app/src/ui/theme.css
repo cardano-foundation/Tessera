@@ -12,6 +12,12 @@ body {
   text-rendering: optimizeLegibility;
 }
 /* Serif reserved for hero/survey titles; section labels stay mono, UI stays sans */
+/* Declared on each theme root, not inherited from body, so a subtree in the
+   other theme draws native controls in its own accent. */
+:root,
+[data-theme] {
+  accent-color: var(--accent);
+}
 h1 {
   font-family: var(--serif);
   font-weight: 700;

@@ -8,6 +8,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 This package follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html);
 while `< 1.0.0`, breaking changes bump the **minor** version.
 
+## [Unreleased]
+
+### Fixed
+
+- The points and custom-answer fields take their background from
+  `--tessera-paper`. They had none, so under a dark `color-scheme` the
+  browser painted its own grey.
+
 ## [0.8.0] - 2026-10-21
 
 ### Added

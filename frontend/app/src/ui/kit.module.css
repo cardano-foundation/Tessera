@@ -1,0 +1,275 @@
+/*
+ * The controls and text styles every screen shares: a screen composes these
+ * rather than restyling its own button or field. Colours are semantic tokens
+ * only; the /design showcase renders each one in every state.
+ */
+
+/* --- Text ---------------------------------------------------------------- */
+
+.pageTitle {
+  font-family: var(--sans);
+  font-size: 34px;
+  font-weight: 300;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  margin: 0;
+}
+
+.surveyTitle {
+  font-family: var(--serif);
+  font-size: 30px;
+  font-weight: 600;
+  line-height: 1.18;
+  letter-spacing: -0.012em;
+  color: var(--ink);
+  margin: 0;
+}
+
+.heading {
+  font-family: var(--sans);
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 1.3;
+  color: var(--ink);
+  margin: 0;
+}
+
+.text {
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--body);
+}
+
+.small {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+.label {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.code {
+  font-family: var(--code);
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+/* --- Buttons ------------------------------------------------------------- */
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 8px 16px;
+  font-family: var(--sans);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.2;
+  text-decoration: none;
+  cursor: pointer;
+  border-radius: var(--r-input);
+  border: 1px solid var(--control-line);
+  background: var(--card);
+  color: var(--ink);
+}
+.button:hover {
+  background: var(--sunken);
+}
+.button:active {
+  border-color: var(--ink);
+}
+.button:disabled {
+  cursor: not-allowed;
+  border-color: var(--line);
+  background: var(--sunken);
+  color: var(--muted);
+}
+
+.primary {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--on-accent);
+}
+.primary:hover {
+  border-color: var(--accent-hover);
+  background: var(--accent-hover);
+}
+.primary:active {
+  border-color: var(--ink);
+  background: var(--accent-hover);
+}
+
+.cta {
+  border-color: var(--cta);
+  background: var(--cta);
+  color: var(--on-cta);
+}
+.cta:hover {
+  border-color: var(--cta-hover);
+  background: var(--cta-hover);
+}
+.cta:active {
+  border-color: var(--ink);
+  background: var(--cta-hover);
+}
+
+.quiet {
+  border-color: transparent;
+  background: transparent;
+  color: var(--accent);
+}
+.quiet:hover {
+  background: var(--accent-bg);
+}
+.quiet:active {
+  border-color: var(--accent-line);
+}
+
+.danger {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+.danger:hover {
+  background: var(--danger-bg);
+}
+.danger:active {
+  border-color: var(--danger);
+  background: var(--danger-bg);
+}
+
+/* Disabled wins over every variant's fill. */
+.primary:disabled,
+.cta:disabled,
+.quiet:disabled,
+.danger:disabled {
+  border-color: var(--line);
+  background: var(--sunken);
+  color: var(--muted);
+}
+
+/* --- Links --------------------------------------------------------------- */
+
+.link {
+  color: var(--accent);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+}
+.link:hover {
+  color: var(--accent-hover);
+  text-decoration-thickness: 2px;
+}
+
+/* --- Fields -------------------------------------------------------------- */
+
+/* Text inputs, text areas and selects alike; the border is what tells a
+   field from the card around it, so it holds 3:1. */
+.field {
+  width: 100%;
+  min-height: 42px;
+  padding: 9px 12px;
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.4;
+  color: var(--ink);
+  background: var(--card);
+  border: 1px solid var(--control-line);
+  border-radius: var(--r-input);
+}
+.field::placeholder {
+  color: var(--muted);
+}
+.field:hover {
+  border-color: var(--ink);
+}
+.field:focus-visible {
+  border-color: var(--focus);
+}
+.field[aria-invalid="true"] {
+  border-color: var(--danger);
+}
+.field:disabled {
+  cursor: not-allowed;
+  border-color: var(--line);
+  background: var(--sunken);
+  color: var(--muted);
+}
+
+.fieldLabel {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink);
+  margin-bottom: 6px;
+}
+
+.fieldHint {
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--muted);
+  margin-top: 6px;
+}
+
+/* --- Chips --------------------------------------------------------------- */
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 8px;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  border-radius: var(--r-2xs);
+  border: 1px solid var(--line);
+  background: var(--sunken);
+  color: var(--muted);
+}
+.chipAccent {
+  border-color: var(--accent-line);
+  background: var(--accent-bg);
+  color: var(--accent);
+}
+.chipOk {
+  border-color: var(--ok-line);
+  background: var(--ok-bg);
+  color: var(--ok);
+}
+.chipWarn {
+  border-color: var(--warn-line);
+  background: var(--warn-bg);
+  color: var(--warn);
+}
+.chipDanger {
+  border-color: var(--danger-line);
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+.chipGov {
+  border-color: var(--gov-line);
+  background: var(--gov-bg);
+  color: var(--gov);
+}
+
+/* --- Surfaces ------------------------------------------------------------ */
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--r-card);
+  box-shadow: var(--shadow-card);
+  padding: 20px 22px;
+}

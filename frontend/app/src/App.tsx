@@ -21,6 +21,8 @@ const DevWidgetHost = import.meta.env.DEV
   ? lazy(() => import("~/ui/screens/DevWidgetHost"))
   : undefined;
 
+const Design = lazy(() => import("~/ui/design"));
+
 const Layout: ParentComponent = (props) => (
   <AppProvider>
     <Header />
@@ -47,6 +49,7 @@ export default function App() {
       <Route path="/survey/:key/link" component={LinkSurvey} />
       <Route path="/create" component={Create} />
       <Route path="/settings" component={Settings} />
+      <Route path="/design" component={Design} />
       {import.meta.env.DEV && DevWidgetHost && (
         <Route path="/dev/widget/:key" component={DevWidgetHost} />
       )}
