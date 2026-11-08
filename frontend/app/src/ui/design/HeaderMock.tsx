@@ -56,7 +56,6 @@ const NetworkChip: Component = () => (
     aria-haspopup="true"
     aria-expanded="false"
   >
-    <span class={css.dotWarn} />
     Preprod
     <Caret />
   </button>
@@ -156,17 +155,14 @@ const Menus: Component = () => (
     <Menu title="Network chip, open">
       <MenuHeading>Network</MenuHeading>
       <div class={`${css.menuRow} ${css.menuRowOn}`}>
-        <span class={css.dotWarn} />
         preprod
         <span class={css.menuEnd}>✓</span>
       </div>
       <span class={css.menuRow}>
-        <span class={css.dotOk} />
         mainnet
         <span class={css.menuEnd}>↗</span>
       </span>
       <span class={css.menuRow}>
-        <span class={css.dotWarn} />
         preview
         <span class={css.menuEnd}>↗</span>
       </span>

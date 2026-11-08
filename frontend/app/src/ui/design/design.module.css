@@ -228,20 +228,12 @@
 .caret {
   font-size: 10px;
 }
-.dotWarn,
-.dotOk,
 .roleDot,
 .roleDotStake {
   width: 8px;
   height: 8px;
   border-radius: 50%;
   flex: none;
-}
-.dotWarn {
-  background: var(--warn);
-}
-.dotOk {
-  background: var(--ok);
 }
 .roleDot {
   background: var(--role-drep);
