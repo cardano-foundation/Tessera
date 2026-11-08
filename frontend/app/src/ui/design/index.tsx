@@ -31,6 +31,7 @@ import { QuestionList, RespondContexts } from "~/ui/respond/Question";
 import { Bars } from "~/ui/results/Card";
 import { BOUNDARY_PAIRS, TEXT_PAIRS, contrast } from "~/ui/tokens";
 import kit from "~/ui/kit.module.css";
+import { DetailMock } from "./DetailMock";
 import { HeaderMock } from "./HeaderMock";
 import { SAMPLE } from "./sample";
 import { forceStates } from "./states";
@@ -63,7 +64,13 @@ export default function Design(): JSX.Element {
       </Section>
 
       <Section title="Mark and header">
+        <HeaderNotes />
         <Themes wide>{(theme) => <HeaderMock theme={theme} />}</Themes>
+      </Section>
+
+      <Section title="Detail without a mode">
+        <DetailNotes />
+        <Themes>{() => <DetailMock />}</Themes>
       </Section>
 
       <Section title="Questions">
@@ -80,6 +87,63 @@ const Section: Component<{ title: string; children: JSX.Element }> = (
     <h2 class={kit.heading}>{props.title}</h2>
     {props.children}
   </section>
+);
+
+const HeaderNotes: Component = () => (
+  <ol class={`${kit.text} ${css.notes}`}>
+    <li>
+      The network chip is the network switch. It lists the other deployments as
+      links, since each network is its own app. The wallet menu stops repeating
+      it. With no other deployment configured, the chip is a plain label. A
+      wallet on the wrong network still turns the wallet button's dot red.
+    </li>
+    <li>
+      Settings leaves the nav, so Explore and Create are the only destinations.
+      A settings button opens quick settings: theme and language, and a link to
+      the full page for IPFS, Koios and the backend.
+    </li>
+    <li>
+      The Plain/Pro toggle goes, along with the mode itself (see "Detail without
+      a mode").
+    </li>
+    <li>
+      On phones, one sticky bar has two rows: brand, network, settings and
+      wallet on top, with Explore and Create as tabs below. The bottom bar goes,
+      and so does its special case on Respond.
+    </li>
+    <li>
+      The CIP-179 tag leaves the bar. It tells a newcomer nothing and costs room
+      on phones.
+    </li>
+    <li>
+      The build uses one open-menu state for the network, settings, cart and
+      wallet menus. Escape or an outside click closes the open menu, and focus
+      returns to its button. It also adds aria-current on the current link,
+      scroll padding for the sticky bar, and the chrome surface in both themes.
+    </li>
+  </ol>
+);
+
+const DetailNotes: Component = () => (
+  <ol class={`${kit.text} ${css.notes}`}>
+    <li>
+      Today, Pro resets to Plain on every load. It gates two kinds of thing. The
+      first is readouts: the survey ref, the end epoch, the drand chain and
+      round, and the on-chain preview. The second is features: the voter
+      rationale, a manual reveal round, the padding override, and the custom
+      question type.
+    </li>
+    <li>
+      Proposed: no mode. Readouts sit in a closed "Technical details" disclosure
+      where they apply. Features sit in place, each behind its own optional
+      disclosure. A screen opens what it needs, with no trip to the header or to
+      Settings.
+    </li>
+    <li>
+      Removed: the mode in the app state, the header toggle, the Display section
+      of Settings, and the pro props in Explore and Create.
+    </li>
+  </ol>
 );
 
 const THEMES = ["light", "dark"] as const;
