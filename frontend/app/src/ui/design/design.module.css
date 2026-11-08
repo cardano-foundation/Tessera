@@ -211,18 +211,19 @@
 
 .nav {
   display: flex;
-  gap: 4px;
+  gap: 24px;
+  margin-left: 8px;
 }
 .navLink {
   font-size: 14px;
   font-weight: 500;
   color: var(--muted);
-  border-radius: var(--r-sm);
-  padding: 8px 12px;
+  border-bottom: 2px solid transparent;
+  padding: 6px 0 4px;
 }
 .navOn {
-  color: var(--accent);
-  background: var(--accent-bg);
+  color: var(--ink);
+  border-bottom-color: var(--accent);
 }
 
 .barActions {

@@ -41,9 +41,7 @@ const Bar: Component<{ phone: boolean }> = (props) => (
     <span class={`${kit.chip} ${kit.chipWarn}`}>Preview</span>
     <Show when={!props.phone}>
       <span class={css.nav}>
-        <span class={css.navLink} classList={{ [css.navOn]: true }}>
-          Explore
-        </span>
+        <span class={`${css.navLink} ${css.navOn}`}>Explore</span>
         <span class={css.navLink}>Create</span>
         <span class={css.navLink}>Settings</span>
       </span>
