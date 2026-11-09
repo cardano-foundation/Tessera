@@ -59,8 +59,10 @@ jobs:
           ACTION: ${{ inputs.action }}
           CASE_ID: ${{ inputs.case }}
           TURSO_DATABASE_URL: ${{ vars[format('TURSO_DATABASE_URL_{0}', inputs.network)] }}
-          TURSO_AUTH_TOKEN: ${{ secrets[format('TURSO_AUTH_TOKEN_{0}', inputs.network)] }}
+          # Named statically: a computed secret name sends every secret.
+          TURSO_AUTH_TOKEN: ${{ inputs.network == 'preprod' && secrets.TURSO_AUTH_TOKEN_PREPROD || secrets.TURSO_AUTH_TOKEN_PREVIEW }}
         run: |
+          : "${TURSO_DATABASE_URL:?no TURSO_DATABASE_URL_* variable for $NETWORK in the moderation environment}"
           target=$(jq -r .inputs.target "$GITHUB_EVENT_PATH")
           echo "::add-mask::$target"
           pnpm exec tsx src/hide.ts "$ACTION" "$target" --case "$CASE_ID"
