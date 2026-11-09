@@ -12,6 +12,7 @@ import { formatRevealDate } from "~/tlock/drand";
 import { roleLabel, shortHash, shortRef } from "~/ui/format";
 import { SubmissionReceipt } from "~/ui/components/SubmissionReceipt";
 import { t, n } from "~/i18n";
+import kit from "~/ui/kit.module.css";
 import css from "./create.module.css";
 
 export const SummaryCard: Component<{
@@ -40,8 +41,8 @@ export const SummaryCard: Component<{
         : t("create.summarySealed")
       : t("create.summaryPublic");
   return (
-    <div class={css.summaryCard}>
-      <div class={css.numberedHead}>{t("create.summary")}</div>
+    <section class={kit.card}>
+      <h2 class={css.numberedHead}>{t("create.summary")}</h2>
       <h3 class={css.summaryTitle}>
         {props.meta.title.trim() || t("create.untitledSurvey")}
       </h3>
@@ -57,7 +58,7 @@ export const SummaryCard: Component<{
           value={visibility()}
         />
       </div>
-    </div>
+    </section>
   );
 };
 
@@ -90,22 +91,24 @@ export const PublishButton: Component<{
         type="button"
         onClick={() => (props.queueing ? props.onQueue() : props.onPublish())}
         disabled={props.submitting || !!props.blockedReason}
-        class={css.publishBtn}
-        classList={{ [css.publishBtnEnabled]: ok() && !props.submitting }}
+        class={`${kit.button} ${css.wide} ${css.publishBtn}`}
+        classList={{
+          [kit.primary]: ok() && props.queueing,
+          [kit.cta]: ok() && !props.queueing,
+        }}
       >
         {props.submitting
           ? props.busyText
           : props.queueing
             ? t("cart.addToCart")
-            : t("create.signAndPublish")}{" "}
-        <span class={css.publishArrow}>→</span>
+            : t("create.signAndPublish")}
       </button>
       <Show when={!props.queueing}>
         <button
           type="button"
           onClick={() => props.onQueue()}
           disabled={props.submitting || !!props.blockedReason}
-          class={css.queueBtn}
+          class={`${kit.button} ${css.wide}`}
         >
           {t("cart.addToCart")}
         </button>
@@ -123,7 +126,7 @@ export const PublishButton: Component<{
           }
         >
           {t("create.publishNoteOkPre")}
-          <span class={css.mono}>key:{shortHash(props.paymentHashHex!)}</span>
+          <span class={kit.code}>key:{shortHash(props.paymentHashHex!)}</span>
           {t("create.publishNoteOkPost")}
         </Show>
       </p>

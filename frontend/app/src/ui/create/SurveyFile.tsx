@@ -7,7 +7,10 @@ import { Show, type Component } from "solid-js";
 
 import { PLACEHOLDER_ANCHOR } from "~/domain/create";
 import { ErrorBox } from "~/ui/components/Feedback";
+import { Note } from "~/ui/components/Note";
 import { t } from "~/i18n";
+import kit from "~/ui/kit.module.css";
+import { CARD_NOTE } from "./Sections";
 import css from "./create.module.css";
 
 export const SurveyFileCard: Component<{
@@ -31,23 +34,19 @@ export const SurveyFileCard: Component<{
 }> = (props) => {
   let input!: HTMLInputElement;
   return (
-    <div class={css.fileCard}>
-      <div class={css.numberedHead}>{t("create.fileHead")}</div>
-      <p class={css.hint}>{t("create.fileHint")}</p>
+    <section class={`${kit.card} ${css.fileCard}`}>
+      <h2 class={css.numberedHead}>{t("create.fileHead")}</h2>
+      <p class={`${kit.small} ${css.fileHint}`}>{t("create.fileHint")}</p>
       <div class={css.fileRow}>
         <button
           type="button"
           onClick={() => props.onExport()}
           disabled={!props.exportable}
-          class={css.queueBtn}
+          class={kit.button}
         >
           {t("create.exportFile")}
         </button>
-        <button
-          type="button"
-          onClick={() => input.click()}
-          class={css.queueBtn}
-        >
+        <button type="button" onClick={() => input.click()} class={kit.button}>
           {t("create.importFile")}
         </button>
         <input
@@ -65,46 +64,56 @@ export const SurveyFileCard: Component<{
       </div>
       <Show
         when={props.exportable}
-        fallback={<p class={css.hint}>{t("create.exportNeedsValid")}</p>}
+        fallback={
+          <p class={`${kit.small} ${css.hint}`}>
+            {t("create.exportNeedsValid")}
+          </p>
+        }
       >
         <Show
           when={props.placeholderOwner}
-          fallback={<p class={css.hint}>{t("create.exportOwnerNote")}</p>}
+          fallback={
+            <p class={`${kit.small} ${css.hint}`}>
+              {t("create.exportOwnerNote")}
+            </p>
+          }
         >
-          <div class={css.warnNote}>{t("create.exportPlaceholderOwner")}</div>
+          <Note kind="warn" style={CARD_NOTE}>
+            {t("create.exportPlaceholderOwner")}
+          </Note>
         </Show>
         <Show when={props.external}>
-          <div class={css.warnNote}>
+          <Note kind="warn" style={CARD_NOTE}>
             {t("create.exportExternalWarning", {
               placeholder: PLACEHOLDER_ANCHOR.uri,
             })}
-          </div>
+          </Note>
         </Show>
       </Show>
       <Show when={props.documentReady}>
         <button
           type="button"
           onClick={() => props.onExportDocument()}
-          class={css.queueBtn}
+          class={`${kit.button} ${css.wide}`}
         >
           {t("create.exportDocument")}
         </button>
       </Show>
       <Show when={props.confirmingImport}>
-        <div class={css.importConfirm}>
+        <div class={`${css.neutralNote} ${css.noteRow}`}>
           <span>{t("create.importReplaceConfirm")}</span>
           <div class={css.noteBtnRow}>
             <button
               type="button"
               onClick={() => props.onConfirmImport()}
-              class={css.noteBtn}
+              class={kit.button}
             >
               {t("create.importReplace")}
             </button>
             <button
               type="button"
               onClick={() => props.onCancelImport()}
-              class={css.noteBtn}
+              class={kit.button}
             >
               {t("create.importKeep")}
             </button>
@@ -112,13 +121,15 @@ export const SurveyFileCard: Component<{
         </div>
       </Show>
       <Show when={props.importTextMissing}>
-        <div class={css.warnNote}>{t("create.importNoPresentation")}</div>
+        <Note kind="warn" style={CARD_NOTE}>
+          {t("create.importNoPresentation")}
+        </Note>
       </Show>
       <Show when={props.importError}>
         {(message) => (
           <ErrorBox title={t("create.importFailed")} message={message()} />
         )}
       </Show>
-    </div>
+    </section>
   );
 };

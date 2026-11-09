@@ -3,6 +3,7 @@
 import { Index, Show, type Component } from "solid-js";
 
 import { t } from "~/i18n";
+import kit from "~/ui/kit.module.css";
 import css from "./create.module.css";
 
 export const OptionsEditor: Component<{
@@ -12,7 +13,7 @@ export const OptionsEditor: Component<{
   zeroBased?: boolean;
   /** Tag the first/last rows "worst"/"best" (ordered rating scale). */
   endBadges?: boolean;
-  /** Optional mono hint line above the rows. */
+  /** Optional hint line above the rows. */
   hint?: string;
   onLabel: (j: number, v: string) => void;
   onAdd: () => void;
@@ -20,7 +21,7 @@ export const OptionsEditor: Component<{
 }> = (props) => (
   <div class={css.optionsList}>
     <Show when={props.hint}>
-      <div class={css.scaleHint}>{props.hint}</div>
+      <p class={`${kit.small} ${css.flush}`}>{props.hint}</p>
     </Show>
     <Index each={props.labels}>
       {(label, j) => (
@@ -31,19 +32,23 @@ export const OptionsEditor: Component<{
             value={label()}
             placeholder={t("create.optionPlaceholder", { n: j + 1 })}
             onInput={(e) => props.onLabel(j, e.currentTarget.value)}
-            class={css.optionInput}
+            class={kit.field}
           />
           <Show when={props.endBadges && j === 0}>
-            <span class={css.endBadgeWorst}>{t("create.endBadgeWorst")}</span>
+            <span class={`${kit.chip} ${css.endBadge}`}>
+              {t("create.endBadgeWorst")}
+            </span>
           </Show>
           <Show when={props.endBadges && j === props.labels.length - 1}>
-            <span class={css.endBadgeBest}>{t("create.endBadgeBest")}</span>
+            <span class={`${kit.chip} ${kit.chipAccent} ${css.endBadge}`}>
+              {t("create.endBadgeBest")}
+            </span>
           </Show>
           <Show when={props.labels.length > 2}>
             <button
               type="button"
               onClick={() => props.onRemove(j)}
-              class={css.removeBtn}
+              class={`${kit.button} ${kit.danger} ${css.removeBtn}`}
               aria-label={t("create.removeOption", { n: j + 1 })}
             >
               ×
@@ -55,7 +60,7 @@ export const OptionsEditor: Component<{
     <button
       type="button"
       onClick={() => props.onAdd()}
-      class={css.addOptionBtn}
+      class={`${kit.button} ${kit.quiet} ${css.addOptionBtn}`}
     >
       {props.addLabel ?? t("create.addOption")}
     </button>
@@ -71,7 +76,7 @@ export const MinMaxRow: Component<{
 }> = (props) => (
   <div class={css.fieldRow}>
     <label class={css.inlineField}>
-      <span class={css.fieldLabel}>
+      <span class={kit.fieldLabel}>
         {t("create.minOf", { label: props.label })}
       </span>
       <input
@@ -79,11 +84,11 @@ export const MinMaxRow: Component<{
         inputMode="numeric"
         value={props.min}
         onInput={(e) => props.onMin(e.currentTarget.value)}
-        class={css.miniNumber}
+        class={`${kit.field} ${css.code} ${css.miniNumber}`}
       />
     </label>
     <label class={css.inlineField}>
-      <span class={css.fieldLabel}>
+      <span class={kit.fieldLabel}>
         {t("create.maxOf", { label: props.label })}
       </span>
       <input
@@ -91,7 +96,7 @@ export const MinMaxRow: Component<{
         inputMode="numeric"
         value={props.max}
         onInput={(e) => props.onMax(e.currentTarget.value)}
-        class={css.miniNumber}
+        class={`${kit.field} ${css.code} ${css.miniNumber}`}
       />
     </label>
   </div>
@@ -107,32 +112,32 @@ export const NumericRow: Component<{
 }> = (props) => (
   <div class={css.fieldRow}>
     <label class={css.inlineField}>
-      <span class={css.fieldLabel}>{t("create.min")}</span>
+      <span class={kit.fieldLabel}>{t("create.min")}</span>
       <input
         type="text"
         value={props.min}
         onInput={(e) => props.onMin(e.currentTarget.value)}
-        class={css.miniNumber}
+        class={`${kit.field} ${css.code} ${css.miniNumber}`}
       />
     </label>
     <label class={css.inlineField}>
-      <span class={css.fieldLabel}>{t("create.max")}</span>
+      <span class={kit.fieldLabel}>{t("create.max")}</span>
       <input
         type="text"
         value={props.max}
         onInput={(e) => props.onMax(e.currentTarget.value)}
-        class={css.miniNumber}
+        class={`${kit.field} ${css.code} ${css.miniNumber}`}
       />
     </label>
     <label class={css.inlineField}>
-      <span class={css.fieldLabel}>{t("create.stepOptional")}</span>
+      <span class={kit.fieldLabel}>{t("create.stepOptional")}</span>
       <input
         type="text"
         inputMode="numeric"
         value={props.step}
         placeholder={t("create.numericStepPlaceholder")}
         onInput={(e) => props.onStep(e.currentTarget.value)}
-        class={css.miniNumber}
+        class={`${kit.field} ${css.code} ${css.miniNumber}`}
       />
     </label>
   </div>

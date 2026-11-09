@@ -10,7 +10,9 @@ import {
   type QuestionType,
 } from "~/domain/create";
 import { t, type MsgKey } from "~/i18n";
+import { SegmentedToggle } from "~/ui/components/SegmentedToggle";
 import { MinMaxRow, NumericRow, OptionsEditor } from "./Fields";
+import kit from "~/ui/kit.module.css";
 import css from "./create.module.css";
 
 /** Each question type's name, as the type picker and the add buttons show it. */
@@ -33,18 +35,19 @@ export const QuestionEditor: Component<{
 }> = (props) => {
   const i = () => props.index;
   return (
-    <div class={css.card}>
+    <article class={kit.card}>
       <div class={css.qHeadRow}>
         <div class={css.qHeadLeft}>
-          <span class={css.qChip}>
+          <h3 class={`${kit.chip} ${kit.chipAccent} ${css.qChip}`}>
             {t("create.questionChip", { n: props.index + 1 })}
-          </span>
+          </h3>
           <select
             value={props.draft.type}
+            aria-label={t("create.questionType", { n: props.index + 1 })}
             onChange={(e) =>
               props.set(i(), "type", e.currentTarget.value as QuestionType)
             }
-            class={css.select}
+            class={`${kit.field} ${css.select}`}
           >
             <For each={QUESTION_TYPES}>
               {(type) => (
@@ -67,7 +70,7 @@ export const QuestionEditor: Component<{
             <button
               type="button"
               onClick={() => props.onRemove()}
-              class={css.removeBtn}
+              class={`${kit.button} ${kit.danger} ${css.removeBtn}`}
               aria-label={t("create.removeQuestion")}
             >
               ×
@@ -81,13 +84,13 @@ export const QuestionEditor: Component<{
         value={props.draft.prompt}
         placeholder={t("create.promptPlaceholder")}
         onInput={(e) => props.set(i(), "prompt", e.currentTarget.value)}
-        class={css.promptInput}
+        class={`${kit.field} ${css.promptInput}`}
       />
 
       <div class={css.typeFields}>
         <TypeFields index={i()} draft={props.draft} set={props.set} />
       </div>
-    </div>
+    </article>
   );
 };
 
@@ -155,41 +158,30 @@ const TypeFields: Component<{
 
       <Show when={props.draft.type === "pointsAllocation"}>
         <label class={css.inlineField}>
-          <span class={css.fieldLabel}>{t("create.budget")}</span>
+          <span class={kit.fieldLabel}>{t("create.budget")}</span>
           <input
             type="text"
             inputMode="numeric"
             value={props.draft.budget}
             onInput={(e) => props.set(i(), "budget", e.currentTarget.value)}
-            class={css.budgetInput}
+            class={`${kit.field} ${css.code} ${css.budgetInput}`}
           />
         </label>
       </Show>
 
       <Show when={props.draft.type === "rating"}>
         <div class={css.ratingBlock}>
-          <div class={css.ratingPillRow}>
-            <button
-              type="button"
-              aria-pressed={props.draft.ratingScale === "numeric"}
-              onClick={() => props.set(i(), "ratingScale", "numeric")}
-              class={css.pill}
-              classList={{
-                [css.pillOn]: props.draft.ratingScale === "numeric",
-              }}
-            >
-              {t("create.ratingNumericScale")}
-            </button>
-            <button
-              type="button"
-              aria-pressed={props.draft.ratingScale === "labels"}
-              onClick={() => props.set(i(), "ratingScale", "labels")}
-              class={css.pill}
-              classList={{ [css.pillOn]: props.draft.ratingScale === "labels" }}
-            >
-              {t("create.ratingLabelledScale")}
-            </button>
-          </div>
+          <SegmentedToggle
+            value={props.draft.ratingScale}
+            onChange={(v) => props.set(i(), "ratingScale", v)}
+            fontSize={13}
+            buttonPadding="6px 14px"
+            wrapStyle={{ "margin-bottom": "12px" }}
+            options={[
+              { value: "numeric", label: t("create.ratingNumericScale") },
+              { value: "labels", label: t("create.ratingLabelledScale") },
+            ]}
+          />
           <Show
             when={props.draft.ratingScale === "numeric"}
             fallback={
@@ -227,29 +219,31 @@ const TypeFields: Component<{
             onClick={() =>
               props.set(i(), "requireAll", !props.draft.requireAll)
             }
-            class={css.requireAllRow}
+            class={`${css.switchRow} ${css.requireAllRow}`}
           >
             <span
-              class={css.requireAllTrack}
-              classList={{ [css.requireAllTrackOn]: props.draft.requireAll }}
+              class={css.switchTrack}
+              classList={{ [css.switchTrackOn]: props.draft.requireAll }}
             >
               <span
-                class={css.requireAllKnob}
-                classList={{ [css.requireAllKnobOn]: props.draft.requireAll }}
+                class={css.switchKnob}
+                classList={{ [css.switchKnobOn]: props.draft.requireAll }}
               />
             </span>
-            <span class={css.requireAllLabel}>
+            <span class={css.switchTitle}>
               {t("create.ratingRequireAllLabel")}
             </span>
           </button>
-          <p class={css.hint}>{t("create.ratingRequireAllHint")}</p>
+          <p class={`${kit.small} ${css.hint}`}>
+            {t("create.ratingRequireAllHint")}
+          </p>
         </div>
       </Show>
 
       <Show when={props.draft.type === "custom"}>
         <div class={css.customFields}>
-          <label class={css.blockLabel}>
-            <span class={css.fieldLabel}>{t("create.customUriLabel")}</span>
+          <label class={css.block}>
+            <span class={kit.fieldLabel}>{t("create.customUriLabel")}</span>
             <input
               type="text"
               value={props.draft.customUri}
@@ -257,11 +251,11 @@ const TypeFields: Component<{
               onInput={(e) =>
                 props.set(i(), "customUri", e.currentTarget.value)
               }
-              class={css.customInput}
+              class={`${kit.field} ${css.code}`}
             />
           </label>
-          <label class={css.blockLabel}>
-            <span class={css.fieldLabel}>{t("create.customHashLabel")}</span>
+          <label class={css.block}>
+            <span class={kit.fieldLabel}>{t("create.customHashLabel")}</span>
             <input
               type="text"
               value={props.draft.customHash}
@@ -269,7 +263,7 @@ const TypeFields: Component<{
               onInput={(e) =>
                 props.set(i(), "customHash", e.currentTarget.value)
               }
-              class={css.customInput}
+              class={`${kit.field} ${css.code}`}
             />
           </label>
         </div>

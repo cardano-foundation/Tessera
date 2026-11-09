@@ -15,6 +15,7 @@ import {
   Show,
   createEffect,
   createSignal,
+  createUniqueId,
   on,
   untrack,
   type Component,
@@ -31,6 +32,7 @@ import { Note } from "~/ui/components/Note";
 import { isSafeAnchorUri } from "~/ui/format";
 import { download } from "~/util/download";
 import { t } from "~/i18n";
+import kit from "~/ui/kit.module.css";
 import css from "./LinkAnchorSection.module.css";
 
 /** The prepared anchor a parent needs to submit it (or `null` until ready). */
@@ -64,6 +66,7 @@ export const LinkAnchorSection: Component<LinkAnchorSectionProps> = (props) => {
   const [pinning, setPinning] = createSignal(false);
   const [pinnedBy, setPinnedBy] = createSignal<ProviderId[] | null>(null);
   const [pinError, setPinError] = createSignal<string | null>(null);
+  const urlHintId = createUniqueId();
 
   // A different document invalidates anything tied to the previous one.
   createEffect(
@@ -134,9 +137,9 @@ export const LinkAnchorSection: Component<LinkAnchorSectionProps> = (props) => {
 
   return (
     <>
-      <div class={css.stepHead}>{t("linkSurvey.step2Head")}</div>
-      <div class={css.card}>
-        <div class={css.label}>{t("linkSurvey.ready")}</div>
+      <h2 class={css.stepHead}>{t("linkSurvey.step2Head")}</h2>
+      <div class={`${kit.card} ${css.card}`}>
+        <div class={`${kit.label} ${css.label}`}>{t("linkSurvey.ready")}</div>
         <div class={css.loadedName}>{props.anchor.fileName}</div>
 
         {/* Belt: emitted documents should always validate clean, but a shape
@@ -153,7 +156,9 @@ export const LinkAnchorSection: Component<LinkAnchorSectionProps> = (props) => {
         <Show when={props.anchor.surveyRef}>
           {(ref) => (
             <>
-              <div class={css.label}>{t("linkSurvey.linksToSurvey")}</div>
+              <div class={`${kit.label} ${css.label}`}>
+                {t("linkSurvey.linksToSurvey")}
+              </div>
               <div class={css.surveyRef}>
                 {ref().txId}
                 <span class={css.refIndex}>
@@ -167,29 +172,31 @@ export const LinkAnchorSection: Component<LinkAnchorSectionProps> = (props) => {
         <Show
           when={hasPinning()}
           fallback={
-            <p class={css.hint}>
+            <p class={`${kit.small} ${css.hint}`}>
               {t("linkSurvey.hostHintPre")}
-              <A href="/settings" class={css.settingsLink}>
+              <A href="/settings" class={kit.link}>
                 {t("linkSurvey.settingsLinkText")}
               </A>
               {t("linkSurvey.hostHintPost")}
             </p>
           }
         >
-          <p class={css.hint}>{t("linkSurvey.pinHint")}</p>
+          <p class={`${kit.small} ${css.hint}`}>{t("linkSurvey.pinHint")}</p>
         </Show>
 
         <div class={css.actionRow}>
           <Show when={hasPinning()}>
             <button
+              type="button"
               onClick={() => void pinToIpfs()}
               disabled={pinning()}
-              class={css.btnPrimary}
+              class={`${kit.button} ${kit.primary}`}
             >
               {pinning() ? t("linkSurvey.pinning") : t("linkSurvey.pinToIpfs")}
             </button>
           </Show>
           <button
+            type="button"
             onClick={() =>
               download(
                 props.anchor.fileName,
@@ -197,10 +204,8 @@ export const LinkAnchorSection: Component<LinkAnchorSectionProps> = (props) => {
                 "application/ld+json",
               )
             }
-            classList={{
-              [css.btn]: hasPinning(),
-              [css.btnPrimary]: !hasPinning(),
-            }}
+            class={kit.button}
+            classList={{ [kit.primary]: !hasPinning() }}
           >
             {t("linkSurvey.downloadJsonld")}
           </button>
@@ -208,7 +213,7 @@ export const LinkAnchorSection: Component<LinkAnchorSectionProps> = (props) => {
             text={props.anchor.hashHex}
             label={t("linkSurvey.copyAnchorHash")}
             copiedLabel={t("linkSurvey.copiedHash")}
-            class={css.btn}
+            class={kit.button}
           />
         </div>
 
@@ -223,24 +228,32 @@ export const LinkAnchorSection: Component<LinkAnchorSectionProps> = (props) => {
           <Note kind="danger">{pinError()}</Note>
         </Show>
 
-        <div class={css.label}>{t("linkSurvey.anchorHashLabel")}</div>
+        <div class={`${kit.label} ${css.label}`}>
+          {t("linkSurvey.anchorHashLabel")}
+        </div>
         <div class={css.hashValue}>{props.anchor.hashHex}</div>
         <pre class={css.code}>{props.anchor.text}</pre>
 
-        <input
-          type="url"
-          value={url()}
-          onInput={(e) => setUrl(e.currentTarget.value)}
-          placeholder={t("linkSurvey.urlPlaceholder")}
-          class={css.inputSpaced}
-        />
-        <p class={css.hint}>{t("linkSurvey.urlHint")}</p>
+        <label class={css.urlField}>
+          <span class={kit.fieldLabel}>{t("linkSurvey.urlLabel")}</span>
+          <input
+            type="url"
+            value={url()}
+            onInput={(e) => setUrl(e.currentTarget.value)}
+            placeholder={t("linkSurvey.urlPlaceholder")}
+            aria-describedby={urlHintId}
+            class={`${kit.field} ${css.urlInput}`}
+          />
+        </label>
+        <p id={urlHintId} class={kit.fieldHint}>
+          {t("linkSurvey.urlHint")}
+        </p>
         <Show when={url().trim() !== "" && !urlValid()}>
           <Note kind="danger">
             {t("linkSurvey.urlInvalidPre")}
-            <span class={css.mono}>ipfs://</span>
+            <span class={kit.code}>ipfs://</span>
             {t("linkSurvey.urlInvalidMid")}
-            <span class={css.mono}>https://</span>
+            <span class={kit.code}>https://</span>
             {t("linkSurvey.urlInvalidPost")}
           </Note>
         </Show>

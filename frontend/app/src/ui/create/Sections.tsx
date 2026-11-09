@@ -11,9 +11,13 @@ import type { Network } from "~/config";
 import type { DefinitionMeta } from "~/domain/create";
 import { formatEpochEndDate, formatRevealDate } from "~/tlock/drand";
 import { roleColors, roleLabel, shortHash } from "~/ui/format";
+import { Disclosure } from "~/ui/components/Disclosure";
+import { Note } from "~/ui/components/Note";
+import { SegmentedToggle } from "~/ui/components/SegmentedToggle";
 import { VisGlyph } from "~/ui/components/glyphs";
 import type { WalletIdentity } from "~/wallet/types";
 import { t, n } from "~/i18n";
+import kit from "~/ui/kit.module.css";
 import css from "./create.module.css";
 
 export const SectionHead: Component<{
@@ -21,43 +25,49 @@ export const SectionHead: Component<{
   label: string;
   trailing?: number;
 }> = (props) => (
-  <div class={css.numberedHead}>
+  <h2 class={css.numberedHead}>
     {props.n} · {props.label}
     <Show when={props.trailing !== undefined}>
       <span class={css.headTrailing}> · {props.trailing}</span>
     </Show>
-  </div>
+  </h2>
 );
+
+/** A toned callout inside a card, spaced like the hints around it. */
+export const CARD_NOTE = {
+  "margin-top": "10px",
+  "margin-bottom": "0",
+} as const;
 
 export const DetailsSection: Component<{
   meta: DefinitionMeta;
   setMeta: SetStoreFunction<DefinitionMeta>;
 }> = (props) => (
-  <div>
+  <section>
     <SectionHead n="01" label={t("create.sectionBasics")} />
-    <div class={css.card}>
-      <label class={css.blockLabel}>
-        <span class={css.fieldLabel}>{t("create.fieldTitle")}</span>
+    <div class={kit.card}>
+      <label class={css.block}>
+        <span class={kit.fieldLabel}>{t("create.fieldTitle")}</span>
         <input
           type="text"
           value={props.meta.title}
           placeholder={t("create.titlePlaceholder")}
           onInput={(e) => props.setMeta("title", e.currentTarget.value)}
-          class={css.textInput}
+          class={kit.field}
         />
       </label>
-      <label class={css.blockLabelGap}>
-        <span class={css.fieldLabel}>{t("create.fieldDescription")}</span>
+      <label class={css.blockGap}>
+        <span class={kit.fieldLabel}>{t("create.fieldDescription")}</span>
         <textarea
           value={props.meta.description}
           placeholder={t("create.descriptionPlaceholder")}
           onInput={(e) => props.setMeta("description", e.currentTarget.value)}
           rows={3}
-          class={css.textArea}
+          class={`${kit.field} ${css.textArea}`}
         />
       </label>
     </div>
-  </div>
+  </section>
 );
 
 /**
@@ -70,10 +80,10 @@ export const OwnerSection: Component<{
   /** Whether the connected wallet's payment credential can own a survey. */
   canOwn: boolean;
 }> = (props) => (
-  <div class={css.section}>
+  <section class={css.section}>
     <SectionHead n="02" label={t("create.sectionWhoCanCancel")} />
-    <div class={css.cardSoft}>
-      <div class={css.ownerText}>
+    <div class={kit.card}>
+      <p class={`${kit.small} ${css.flush}`}>
         <Show
           when={props.identity !== null && props.canOwn && props.identity}
           fallback={
@@ -93,24 +103,24 @@ export const OwnerSection: Component<{
             <>
               <b class={css.ownerHeading}>{t("create.ownerHeading")}</b>{" "}
               {t("create.ownerBody")}
-              <span class={css.ownerKey}>
+              <span class={`${kit.code} ${css.ownerKey}`}>
                 key:{shortHash(id().payment.hashHex)}
               </span>
             </>
           )}
         </Show>
-      </div>
+      </p>
     </div>
-  </div>
+  </section>
 );
 
 export const RolesSection: Component<{
   roles: readonly Role[];
   onToggle: (r: Role) => void;
 }> = (props) => (
-  <div class={css.section}>
+  <section class={css.section}>
     <SectionHead n="03" label={t("create.sectionWhoCanRespond")} />
-    <div class={css.card}>
+    <div class={kit.card}>
       <div class={css.rowWrap}>
         <For each={ROLE_VALUES}>
           {(r) => {
@@ -128,6 +138,7 @@ export const RolesSection: Component<{
                 <span
                   class={css.checkbox}
                   classList={{ [css.checkboxOn]: on() }}
+                  aria-hidden="true"
                 >
                   <Show when={on()}>✓</Show>
                 </span>
@@ -137,9 +148,9 @@ export const RolesSection: Component<{
           }}
         </For>
       </div>
-      <p class={css.hint}>{t("create.rolesHint")}</p>
+      <p class={`${kit.small} ${css.hint}`}>{t("create.rolesHint")}</p>
     </div>
-  </div>
+  </section>
 );
 
 export const TimingSection: Component<{
@@ -214,41 +225,41 @@ export const TimingSection: Component<{
     );
   };
   return (
-    <div class={css.section}>
+    <section class={css.section}>
       <SectionHead n="04" label={t("create.sectionTiming")} />
-      <div class={css.card} classList={{ [css.govCard]: govLinked() }}>
+      <div class={kit.card} classList={{ [css.govCard]: govLinked() }}>
         <button
           type="button"
           role="switch"
           aria-checked={govLinked()}
           onClick={() => props.onGovLinked(!props.govLinked)}
-          class={css.govToggleRow}
+          class={css.switchRow}
         >
           <span
-            class={css.govSwitchTrack}
-            classList={{ [css.govSwitchTrackOn]: govLinked() }}
+            class={css.switchTrack}
+            classList={{ [css.switchTrackGovOn]: govLinked() }}
           >
             <span
-              class={css.govSwitchKnob}
-              classList={{ [css.govSwitchKnobOn]: govLinked() }}
+              class={css.switchKnob}
+              classList={{ [css.switchKnobOn]: govLinked() }}
             />
           </span>
-          <span class={css.govToggleText}>
+          <span class={css.switchText}>
             <span
-              class={css.govToggleTitle}
-              classList={{ [css.govToggleTitleOn]: govLinked() }}
+              class={css.switchTitle}
+              classList={{ [css.govTitleOn]: govLinked() }}
             >
               {t("create.govToggleTitle")}
             </span>
-            <span class={css.govToggleDesc}>{t("create.govToggleDesc")}</span>
+            <span class={kit.small}>{t("create.govToggleDesc")}</span>
           </span>
         </button>
 
         <label class={css.endEpochField}>
-          <span class={`${css.fieldLabel} ${css.endEpochLabel}`}>
+          <span class={`${kit.fieldLabel} ${css.endEpochLabel}`}>
             {t("create.endEpochLabel")}
             <Show when={locked()}>
-              <span class={css.govAutoBadge}>
+              <span class={`${kit.chip} ${kit.chipGov}`}>
                 {t("create.autoLockedBadge")}
               </span>
             </Show>
@@ -260,21 +271,19 @@ export const TimingSection: Component<{
             readOnly={locked()}
             aria-disabled={locked()}
             onInput={(e) => props.onInput(e.currentTarget.value)}
-            class={css.epochInput}
-            classList={{ [css.epochInputLocked]: locked() }}
+            class={`${kit.field} ${css.code} ${css.epochInput}`}
+            classList={{ [css.inputLocked]: locked() }}
           />
         </label>
         <Show when={endEpochDate()}>
           {(date) => (
-            <div class={css.revealLine}>
-              {t("create.closesOn", { date: date() })}
-            </div>
+            <p class={css.dateLine}>{t("create.closesOn", { date: date() })}</p>
           )}
         </Show>
         <Show
           when={govLinked()}
           fallback={
-            <p class={css.hint}>
+            <p class={`${kit.small} ${css.hint}`}>
               {t("create.acceptedThroughEpoch", {
                 hint:
                   tipEpoch() !== undefined
@@ -287,9 +296,9 @@ export const TimingSection: Component<{
           <Show
             when={locked()}
             fallback={
-              <div class={css.warnNote}>
+              <Note kind="warn" style={CARD_NOTE}>
                 {t("create.govLifetimeUnreadable")}
-              </div>
+              </Note>
             }
           >
             <div class={css.govNote}>
@@ -298,7 +307,7 @@ export const TimingSection: Component<{
                 epochParen: tipEpoch() !== undefined ? ` (${tipEpoch()})` : "",
               })}{" "}
               <b>{autoEndEpoch()}</b> (
-              <span class={css.mono}>
+              <span class={kit.code}>
                 gov_action_lifetime = {govActionLifetime()}
               </span>
               ){t("create.govNoteOutro")}
@@ -306,14 +315,39 @@ export const TimingSection: Component<{
           </Show>
         </Show>
         <Show when={!govLinked() && tooEarly()}>
-          <div class={css.warnNote}>
+          <Note kind="warn" style={CARD_NOTE}>
             {t("create.tooEarlyWarning", { epoch: tipEpoch()! })}
-          </div>
+          </Note>
         </Show>
       </div>
-    </div>
+    </section>
   );
 };
+
+/** Two mutually exclusive choices, each a titled card that reads pressed. */
+const ModeCard: Component<{
+  on: boolean;
+  onClick: () => void;
+  title: string;
+  desc: string;
+  sealed?: boolean;
+}> = (props) => (
+  <button
+    type="button"
+    aria-pressed={props.on}
+    onClick={() => props.onClick()}
+    class={css.modeCard}
+    classList={{ [css.modeCardOn]: props.on }}
+  >
+    <span class={css.modeTitle}>
+      <Show when={props.sealed}>
+        <VisGlyph status="sealed" />
+      </Show>
+      {props.title}
+    </span>
+    <span class={css.modeDesc}>{props.desc}</span>
+  </button>
+);
 
 export const VisibilitySection: Component<{
   mode: "public" | "sealed";
@@ -327,122 +361,105 @@ export const VisibilitySection: Component<{
   paddingOverride: string;
   onPaddingOverride: (v: string) => void;
   resolvedPadding: number;
-  pro: boolean;
 }> = (props) => (
-  <div class={css.section}>
+  <section class={css.section}>
     <SectionHead n="05" label={t("create.sectionVisibility")} />
-    <div class={css.card}>
+    <div class={kit.card}>
       <div class={css.modeGrid}>
-        <button
-          type="button"
-          aria-pressed={props.mode === "public"}
+        <ModeCard
+          on={props.mode === "public"}
           onClick={() => props.onMode("public")}
-          class={css.modeCard}
-          classList={{ [css.modeCardOn]: props.mode === "public" }}
-        >
-          <div class={css.modeTitle}>{t("create.visPublicTitle")}</div>
-          <div class={css.modeDesc}>{t("create.visPublicDesc")}</div>
-        </button>
-        <button
-          type="button"
-          aria-pressed={props.mode === "sealed"}
+          title={t("create.visPublicTitle")}
+          desc={t("create.visPublicDesc")}
+        />
+        <ModeCard
+          on={props.mode === "sealed"}
           onClick={() => props.onMode("sealed")}
-          class={css.modeCard}
-          classList={{ [css.modeCardOn]: props.mode === "sealed" }}
-        >
-          <div class={css.modeTitleSealed}>
-            <VisGlyph status="sealed" /> {t("create.visSealedTitle")}
-          </div>
-          <div class={css.modeDesc}>{t("create.visSealedDesc")}</div>
-        </button>
+          title={t("create.visSealedTitle")}
+          desc={t("create.visSealedDesc")}
+          sealed
+        />
       </div>
 
       <Show when={props.mode === "sealed"}>
-        <div class={css.sealedConfig}>
-          {/* Pro: pin chain + choose how the reveal round is set. Plain: Auto. */}
-          <Show when={props.pro}>
-            <div class={css.fieldLabel}>{t("create.drandChainLabel")}</div>
-            <div class={css.chainHash}>
-              {QUICKNET_CHAIN_HASH_HEX.slice(0, 6)}…
-              {QUICKNET_CHAIN_HASH_HEX.slice(-3)} · quicknet
-            </div>
+        <Show when={props.resolvedRound > 0}>
+          <p class={css.dateLine}>
+            {t("create.revealsOn", {
+              date: formatRevealDate(props.resolvedRound),
+            })}
+          </p>
+        </Show>
+        <div class={css.neutralNote}>{t("create.sealedNote")}</div>
 
-            <div class={css.fieldLabelGap}>{t("create.revealRoundLabel")}</div>
-            <div class={css.pillRow}>
-              <button
-                type="button"
-                aria-pressed={props.drandMode === "auto"}
-                onClick={() => props.onDrandMode("auto")}
-                class={css.pill}
-                classList={{ [css.pillOn]: props.drandMode === "auto" }}
-              >
-                {t("create.drandAuto")}
-              </button>
-              <button
-                type="button"
-                aria-pressed={props.drandMode === "manual"}
-                onClick={() => props.onDrandMode("manual")}
-                class={css.pill}
-                classList={{ [css.pillOn]: props.drandMode === "manual" }}
-              >
-                {t("create.drandManual")}
-              </button>
-            </div>
-            <Show
-              when={props.drandMode === "manual"}
-              fallback={<p class={css.hint}>{t("create.drandAutoHint")}</p>}
-            >
-              <input
-                type="text"
-                inputMode="numeric"
-                value={props.drandRoundText}
-                placeholder={t("create.drandRoundPlaceholder")}
-                onInput={(e) => props.onDrandRoundText(e.currentTarget.value)}
-                class={css.roundInput}
-              />
-            </Show>
+        <Disclosure
+          class={css.disclosure}
+          summary={t("create.revealSettings")}
+          hint={t("create.revealSettingsHint")}
+        >
+          <div class={kit.fieldLabel}>{t("create.drandChainLabel")}</div>
+          <div class={css.readout}>
+            {QUICKNET_CHAIN_HASH_HEX.slice(0, 6)}…
+            {QUICKNET_CHAIN_HASH_HEX.slice(-3)} · quicknet
+          </div>
+
+          <div class={`${kit.fieldLabel} ${css.labelGap}`}>
+            {t("create.revealRoundLabel")}
+          </div>
+          <SegmentedToggle
+            ariaLabel={t("create.revealRoundLabel")}
+            value={props.drandMode}
+            onChange={props.onDrandMode}
+            fontSize={13}
+            buttonPadding="6px 14px"
+            options={[
+              { value: "auto", label: t("create.drandAuto") },
+              { value: "manual", label: t("create.drandManual") },
+            ]}
+          />
+          <Show
+            when={props.drandMode === "manual"}
+            fallback={
+              <p class={`${kit.small} ${css.hint}`}>
+                {t("create.drandAutoHint")}
+              </p>
+            }
+          >
+            <input
+              type="text"
+              inputMode="numeric"
+              value={props.drandRoundText}
+              placeholder={t("create.drandRoundPlaceholder")}
+              aria-label={t("create.revealRoundLabel")}
+              onInput={(e) => props.onDrandRoundText(e.currentTarget.value)}
+              class={`${kit.field} ${css.code} ${css.roundInput}`}
+            />
           </Show>
-
           <Show when={props.resolvedRound > 0}>
-            <div class={css.revealLine}>
-              <Show
-                when={props.pro}
-                fallback={t("create.revealsOn", {
-                  date: formatRevealDate(props.resolvedRound),
-                })}
-              >
-                {t("create.revealsRoundOn", {
-                  round: n(props.resolvedRound),
-                  date: formatRevealDate(props.resolvedRound),
-                })}
-              </Show>
-            </div>
-          </Show>
-
-          <Show when={props.pro}>
-            <label class={css.blockLabelGap}>
-              <span class={css.fieldLabel}>{t("create.paddingLabel")}</span>
-              <input
-                type="text"
-                inputMode="numeric"
-                value={props.paddingOverride}
-                placeholder={t("create.paddingAutoPlaceholder", {
-                  size: n(props.resolvedPadding),
-                })}
-                onInput={(e) => props.onPaddingOverride(e.currentTarget.value)}
-                class={css.paddingInput}
-              />
-            </label>
-            <p class={css.hint}>
-              {t("create.paddingHint", { size: n(props.resolvedPadding) })}
+            <p class={`${kit.small} ${css.hint}`}>
+              {t("create.resolvedRound", { round: n(props.resolvedRound) })}
             </p>
           </Show>
 
-          <div class={css.sealedNote}>{t("create.sealedNote")}</div>
-        </div>
+          <label class={css.blockGap}>
+            <span class={kit.fieldLabel}>{t("create.paddingLabel")}</span>
+            <input
+              type="text"
+              inputMode="numeric"
+              value={props.paddingOverride}
+              placeholder={t("create.paddingAutoPlaceholder", {
+                size: n(props.resolvedPadding),
+              })}
+              onInput={(e) => props.onPaddingOverride(e.currentTarget.value)}
+              class={`${kit.field} ${css.code} ${css.paddingInput}`}
+            />
+          </label>
+          <p class={`${kit.small} ${css.hint}`}>
+            {t("create.paddingHint", { size: n(props.resolvedPadding) })}
+          </p>
+        </Disclosure>
       </Show>
     </div>
-  </div>
+  </section>
 );
 
 export const ContentSection: Component<{
@@ -450,44 +467,38 @@ export const ContentSection: Component<{
   onMode: (m: "embedded" | "external") => void;
   hasPinning: boolean;
 }> = (props) => (
-  <div class={css.section}>
+  <section class={css.section}>
     <SectionHead n="06" label={t("create.sectionContent")} />
-    <div class={css.card}>
+    <div class={kit.card}>
       <div class={css.modeGrid}>
-        <button
-          type="button"
-          aria-pressed={props.mode === "embedded"}
+        <ModeCard
+          on={props.mode === "embedded"}
           onClick={() => props.onMode("embedded")}
-          class={css.modeCard}
-          classList={{ [css.modeCardOn]: props.mode === "embedded" }}
-        >
-          <div class={css.modeTitle}>{t("create.contentEmbeddedTitle")}</div>
-          <div class={css.modeDesc}>{t("create.contentEmbeddedDesc")}</div>
-        </button>
-        <button
-          type="button"
-          aria-pressed={props.mode === "external"}
+          title={t("create.contentEmbeddedTitle")}
+          desc={t("create.contentEmbeddedDesc")}
+        />
+        <ModeCard
+          on={props.mode === "external"}
           onClick={() => props.onMode("external")}
-          class={css.modeCard}
-          classList={{ [css.modeCardOn]: props.mode === "external" }}
-        >
-          <div class={css.modeTitle}>{t("create.contentExternalTitle")}</div>
-          <div class={css.modeDesc}>{t("create.contentExternalDesc")}</div>
-        </button>
+          title={t("create.contentExternalTitle")}
+          desc={t("create.contentExternalDesc")}
+        />
       </div>
 
       <Show when={props.mode === "external"}>
-        <p class={css.externalNote}>{t("create.contentExternalNote")}</p>
+        <p class={`${kit.small} ${css.hint}`}>
+          {t("create.contentExternalNote")}
+        </p>
         <Show when={!props.hasPinning}>
-          <div class={css.warnNote}>
+          <Note kind="warn" style={CARD_NOTE}>
             {t("create.contentNoPinningPre")}
-            <A href="/settings" class={css.settingsLink}>
+            <A href="/settings" class={css.noteLink}>
               {t("create.contentNoPinningLink")}
             </A>
             {t("create.contentNoPinningPost")}
-          </div>
+          </Note>
         </Show>
       </Show>
     </div>
-  </div>
+  </section>
 );

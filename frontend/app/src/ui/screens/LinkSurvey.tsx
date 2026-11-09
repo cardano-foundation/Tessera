@@ -16,6 +16,7 @@ import {
   createMemo,
   createResource,
   createSignal,
+  createUniqueId,
   untrack,
   type Component,
 } from "solid-js";
@@ -51,6 +52,7 @@ import { PublishLocked, QueuedNote } from "~/ui/components/CartDrawer";
 import { networkMismatch } from "~/ui/format";
 import type { Action } from "~/wallet/action";
 import { t } from "~/i18n";
+import kit from "~/ui/kit.module.css";
 import css from "./LinkSurvey.module.css";
 import { usePageTitle } from "~/ui/pageTitle";
 
@@ -121,6 +123,8 @@ export const LinkSurvey: Component = () => {
   const [abstract, setAbstract] = createSignal("");
   const [motivation, setMotivation] = createSignal("");
   const [rationale, setRationale] = createSignal("");
+  const titleHintId = createUniqueId();
+  const uploadHintId = createUniqueId();
   const formComplete = () =>
     [title(), abstract(), motivation(), rationale()].every(
       (v) => v.trim() !== "",
@@ -238,15 +242,17 @@ export const LinkSurvey: Component = () => {
 
   return (
     <main class={css.main}>
-      <A href={`/survey/${encodeURIComponent(key())}`} class={css.backLink}>
-        <span class={css.backArrow}>←</span> {t("linkSurvey.backToSurvey")}
+      <A href={`/survey/${encodeURIComponent(key())}`} class={kit.back}>
+        {t("linkSurvey.backToSurvey")}
       </A>
 
       <div class={css.titleRow}>
-        <span class={css.govPill}>{t("linkSurvey.govPill")}</span>
-        <h1 class={css.title}>{t("linkSurvey.title")}</h1>
+        <span class={`${kit.chip} ${kit.chipGov}`}>
+          {t("linkSurvey.govPill")}
+        </span>
+        <h1 class={kit.pageTitle}>{t("linkSurvey.title")}</h1>
       </div>
-      <p class={css.lead}>
+      <p class={`${kit.text} ${css.lead}`}>
         {t("linkSurvey.leadPre")}
         <b>Info Action</b>
         {t("linkSurvey.leadPost")}
@@ -264,8 +270,10 @@ export const LinkSurvey: Component = () => {
         }
       >
         {/* The survey being linked, and whether a link can still form. */}
-        <div class={linkCss.card}>
-          <div class={linkCss.label}>{t("linkSurvey.linkingLabel")}</div>
+        <div class={`${kit.card} ${linkCss.card}`}>
+          <div class={`${kit.label} ${linkCss.label}`}>
+            {t("linkSurvey.linkingLabel")}
+          </div>
           <div class={css.surveyTitle}>
             {def()!.title || t("linkSurvey.untitledSurvey")}
           </div>
@@ -284,13 +292,13 @@ export const LinkSurvey: Component = () => {
               text={refLite()!.txId}
               label={t("linkSurvey.copyTxId")}
               copiedLabel={t("linkSurvey.copiedTxId")}
-              class={linkCss.btn}
+              class={kit.button}
             />
             <CopyButton
               text={String(refLite()!.index)}
               label={t("linkSurvey.copyIndex")}
               copiedLabel={t("linkSurvey.copiedIndex")}
-              class={linkCss.btn}
+              class={kit.button}
             />
           </div>
           <Show when={alignment()}>
@@ -303,93 +311,116 @@ export const LinkSurvey: Component = () => {
         </div>
 
         {/* 1 · The document */}
-        <div class={linkCss.stepHead}>{t("linkSurvey.step1Head")}</div>
-        <div class={linkCss.card}>
+        <h2 class={linkCss.stepHead}>{t("linkSurvey.step1Head")}</h2>
+        <div class={`${kit.card} ${linkCss.card}`}>
           <Show when={entry() === "ask"}>
-            <p class={linkCss.hintFlush}>{t("linkSurvey.entryQuestion")}</p>
+            <p class={`${kit.text} ${css.flush}`}>
+              {t("linkSurvey.entryQuestion")}
+            </p>
             <div class={css.choiceRow}>
-              <button class={css.choiceBtn} onClick={() => setEntry("form")}>
-                <div class={css.choiceTitle}>
+              <button
+                type="button"
+                class={css.choiceBtn}
+                onClick={() => setEntry("form")}
+              >
+                <span class={css.choiceTitle}>
                   {t("linkSurvey.entryFromScratch")}
-                </div>
-                <div class={css.choiceHint}>
+                </span>
+                <span class={kit.small}>
                   {t("linkSurvey.entryFromScratchHint")}
-                </div>
+                </span>
               </button>
-              <button class={css.choiceBtn} onClick={() => setEntry("upload")}>
-                <div class={css.choiceTitle}>{t("linkSurvey.entryUpload")}</div>
-                <div class={css.choiceHint}>
-                  {t("linkSurvey.entryUploadHint")}
-                </div>
+              <button
+                type="button"
+                class={css.choiceBtn}
+                onClick={() => setEntry("upload")}
+              >
+                <span class={css.choiceTitle}>
+                  {t("linkSurvey.entryUpload")}
+                </span>
+                <span class={kit.small}>{t("linkSurvey.entryUploadHint")}</span>
               </button>
             </div>
           </Show>
 
           <Show when={entry() === "form"}>
-            <div class={css.formField}>
-              <div class={css.formLabel}>{t("linkSurvey.formTitle")}</div>
+            <label class={css.formField}>
+              <span class={kit.fieldLabel}>{t("linkSurvey.formTitle")}</span>
               <input
                 value={title()}
                 onInput={(e) => setTitle(e.currentTarget.value)}
-                class={css.formInput}
+                aria-describedby={titleHintId}
+                class={kit.field}
               />
-              <p class={linkCss.hintTight}>{t("linkSurvey.formTitleHint")}</p>
-            </div>
-            <div class={css.formField}>
-              <div class={css.formLabel}>{t("linkSurvey.formAbstract")}</div>
+            </label>
+            <p id={titleHintId} class={kit.fieldHint}>
+              {t("linkSurvey.formTitleHint")}
+            </p>
+            <label class={css.formField}>
+              <span class={kit.fieldLabel}>{t("linkSurvey.formAbstract")}</span>
               <textarea
                 value={abstract()}
                 onInput={(e) => setAbstract(e.currentTarget.value)}
-                class={css.formArea}
+                class={`${kit.field} ${css.formArea}`}
               />
-            </div>
-            <div class={css.formField}>
-              <div class={css.formLabel}>{t("linkSurvey.formMotivation")}</div>
+            </label>
+            <label class={css.formField}>
+              <span class={kit.fieldLabel}>
+                {t("linkSurvey.formMotivation")}
+              </span>
               <textarea
                 value={motivation()}
                 onInput={(e) => setMotivation(e.currentTarget.value)}
-                class={css.formArea}
+                class={`${kit.field} ${css.formArea}`}
               />
-            </div>
-            <div class={css.formField}>
-              <div class={css.formLabel}>{t("linkSurvey.formRationale")}</div>
+            </label>
+            <label class={css.formField}>
+              <span class={kit.fieldLabel}>
+                {t("linkSurvey.formRationale")}
+              </span>
               <textarea
                 value={rationale()}
                 onInput={(e) => setRationale(e.currentTarget.value)}
-                class={css.formArea}
+                class={`${kit.field} ${css.formArea}`}
               />
-            </div>
+            </label>
             <div class={linkCss.actionRow}>
               <button
+                type="button"
                 onClick={generate}
                 disabled={!formComplete()}
-                class={linkCss.btnPrimary}
+                class={`${kit.button} ${kit.primary}`}
               >
                 {t("linkSurvey.formGenerate")}
               </button>
             </div>
-            <button class={css.switchBtn} onClick={startOver}>
+            <button
+              type="button"
+              class={`${kit.button} ${kit.quiet} ${css.startOver}`}
+              onClick={startOver}
+            >
               {t("linkSurvey.entryChange")}
             </button>
           </Show>
 
           <Show when={entry() === "upload"}>
-            <p class={linkCss.hintFlush}>
+            <p class={`${kit.small} ${css.flush}`} id={uploadHintId}>
               {t("linkSurvey.uploadHintPre")}
-              <span class={linkCss.mono}>.jsonld</span>
+              <span class={kit.code}>.jsonld</span>
               {t("linkSurvey.uploadHintMid")}
-              <span class={linkCss.mono}>body.cip179</span>
+              <span class={kit.code}>body.cip179</span>
               {t("linkSurvey.uploadHintPost")}
             </p>
             <input
               type="file"
+              aria-describedby={uploadHintId}
               accept=".jsonld,.json,application/ld+json,application/json"
               onChange={(e) => {
                 void loadFile(e.currentTarget.files?.[0]);
                 // Allow re-loading the same filename after an edit on disk.
                 e.currentTarget.value = "";
               }}
-              class={linkCss.fileInput}
+              class={css.fileInput}
             />
             <Show when={uploadError()}>
               <Note kind="danger" style={{ "margin-top": "12px" }}>
@@ -401,7 +432,11 @@ export const LinkSurvey: Component = () => {
                 {t("linkSurvey.strippedAuthors")}
               </Note>
             </Show>
-            <button class={css.switchBtn} onClick={startOver}>
+            <button
+              type="button"
+              class={`${kit.button} ${kit.quiet} ${css.startOver}`}
+              onClick={startOver}
+            >
               {t("linkSurvey.entryChange")}
             </button>
           </Show>
@@ -419,9 +454,11 @@ export const LinkSurvey: Component = () => {
               />
 
               {/* 3 · Info-Action-specific: sign & submit. */}
-              <div class={linkCss.stepHead}>{t("linkSurvey.step3Head")}</div>
-              <p class={css.sectionNote}>{t("linkSurvey.submitSectionNote")}</p>
-              <div class={linkCss.card}>
+              <h2 class={linkCss.stepHead}>{t("linkSurvey.step3Head")}</h2>
+              <p class={`${kit.small} ${css.sectionNote}`}>
+                {t("linkSurvey.submitSectionNote")}
+              </p>
+              <div class={`${kit.card} ${linkCss.card}`}>
                 <Show
                   when={app.wallet()}
                   fallback={
@@ -453,31 +490,32 @@ export const LinkSurvey: Component = () => {
                         when={!app.cartLocked()}
                         fallback={<PublishLocked />}
                       >
-                        <button
-                          onClick={() => (queueing() ? queue() : void submit())}
-                          disabled={queueing() ? !canQueue() : !canSubmit()}
-                          class={css.submitBtn}
-                          classList={{
-                            [css.submitBtnEnabled]: queueing()
-                              ? canQueue()
-                              : canSubmit(),
-                          }}
-                        >
-                          {busy()
-                            ? t("linkSurvey.building")
-                            : queueing()
-                              ? t("cart.addToCart")
-                              : t("linkSurvey.submit")}
-                        </button>
-                        <Show when={!queueing()}>
+                        <div class={css.submitRow}>
                           <button
-                            onClick={() => queue()}
-                            disabled={!canQueue()}
-                            class={css.queueBtn}
+                            type="button"
+                            onClick={() =>
+                              queueing() ? queue() : void submit()
+                            }
+                            disabled={queueing() ? !canQueue() : !canSubmit()}
+                            class={`${kit.button} ${queueing() ? kit.primary : kit.cta}`}
                           >
-                            {t("cart.addToCart")}
+                            {busy()
+                              ? t("linkSurvey.building")
+                              : queueing()
+                                ? t("cart.addToCart")
+                                : t("linkSurvey.submit")}
                           </button>
-                        </Show>
+                          <Show when={!queueing()}>
+                            <button
+                              type="button"
+                              onClick={() => queue()}
+                              disabled={!canQueue()}
+                              class={kit.button}
+                            >
+                              {t("cart.addToCart")}
+                            </button>
+                          </Show>
+                        </div>
                       </Show>
                     </Show>
                   }
@@ -490,7 +528,7 @@ export const LinkSurvey: Component = () => {
                       <div class={css.txLine}>
                         <TxLink hash={h()} color="var(--ok)" />
                       </div>
-                      <p class={linkCss.hint}>
+                      <p class={css.submittedHint}>
                         {t("linkSurvey.submittedHint")}
                       </p>
                     </Note>

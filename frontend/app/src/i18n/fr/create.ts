@@ -40,12 +40,12 @@ const create: Messages = {
     "Le sondage sera détenu par le wallet qui le publie, et seul ce wallet pourra l'annuler. Vous pouvez dès maintenant le rédiger et l'exporter ; connectez un wallet avec le bouton de l'en-tête pour le publier.",
   ownerScriptHeading: "Ce wallet ne peut pas détenir de sondage.",
   ownerScriptBody:
-    "Publier prouve le credential propriétaire par une signature, et le credential de paiement de ce wallet est à script — rien qu'il puisse signer ne le prouverait. Connectez un wallet dont le credential de paiement est à clé pour publier.",
+    "Publier prouve le credential propriétaire par une signature, et le credential de paiement de ce wallet est à script : rien qu'il puisse signer ne le prouverait. Connectez un wallet dont le credential de paiement est à clé pour publier.",
 
   // --- Who can respond (roles) section ---
   sectionWhoCanRespond: "Qui peut répondre",
   rolesHint:
-    "L'éligibilité est une revendication, vérifiée indépendamment par rapport à l'état du registre. Keyholder est ouvert à quiconque possède un wallet (une simple clé de paiement — aucun enregistrement requis). Les SPO et les CC peuvent être listés, mais ne peuvent pas répondre depuis un wallet de navigateur (ils ont besoin de clés froides/chaudes).",
+    "L'éligibilité est une revendication, vérifiée indépendamment par rapport à l'état du registre. Keyholder est ouvert à quiconque possède un wallet (une simple clé de paiement ; aucun enregistrement requis). Les pools de stake et les membres du CC peuvent être listés, mais ne peuvent pas répondre depuis un wallet de navigateur (ils ont besoin de clés froides et chaudes).",
 
   // --- Timing section ---
   sectionTiming: "Calendrier",
@@ -60,7 +60,7 @@ const create: Messages = {
     "Les réponses sont acceptées jusqu'à la fin de cette époque. {hint}",
   currentEpochIs: "L'époque actuelle est {epoch}.",
   govLifetimeUnreadable:
-    "Impossible de lire gov_action_lifetime depuis la chaîne, le délai ne peut donc pas être calculé. Saisissez manuellement l'époque d'expiration de l'action — elles doivent correspondre exactement.",
+    "Impossible de lire gov_action_lifetime depuis la chaîne, le délai ne peut donc pas être calculé. Saisissez manuellement l'époque d'expiration de l'action ; elles doivent correspondre exactement.",
   govNoteIntro:
     "Verrouillé sur l'époque d'expiration de l'action de gouvernance. Sur {network}, une action de gouvernance soumise à cette époque{epochParen} se clôture à l'époque",
   govNoteOutro:
@@ -76,31 +76,33 @@ const create: Messages = {
   visSealedTitle: "Scellé",
   visSealedDesc: "Chiffré par verrou temporel ; ouvre à un round drand.",
   drandChainLabel: "Chaîne drand",
+  revealSettings: "Réglages de révélation",
+  revealSettingsHint: "round drand, remplissage",
   revealRoundLabel: "Round de révélation",
   drandAuto: "Auto",
   drandManual: "Manuel",
   drandAutoHint:
-    "Dérivé de l'époque de fin — le premier round drand après la clôture des réponses.",
+    "Dérivé de l'époque de fin : le premier round drand après la clôture des réponses.",
   drandRoundPlaceholder: "numéro de round drand",
-  revealsOn: "Révèle {date}",
-  revealsRoundOn: "round {round} · révèle {date}",
+  revealsOn: "Révélation le {date}",
+  resolvedRound: "Round {round}",
   paddingLabel: "Taille de remplissage (octets)",
   paddingAutoPlaceholder: "auto · {size}",
   paddingHint:
     "Chaque réponse est complétée par des zéros jusqu'à cette longueur avant chiffrement, afin que la taille du chiffré ne révèle pas l'étendue des réponses. Laissez vide pour dimensionner automatiquement au pire cas ({size} octets pour ces questions).",
   sealedNote:
-    "Les réponses sont chiffrées au fur et à mesure de leur arrivée et restent cachées jusqu'au moment de la révélation — même vous ne pouvez pas les lire avant.",
+    "Les réponses sont chiffrées au fur et à mesure de leur arrivée et restent cachées jusqu'au moment de la révélation. Même vous ne pouvez pas les lire avant.",
 
   // --- Content section ---
   sectionContent: "Contenu",
   contentEmbeddedTitle: "Intégré",
   contentEmbeddedDesc:
-    "Tout le texte on-chain. Aucune dépendance externe — recommandé.",
+    "Tout le texte on-chain, sans dépendance externe. Recommandé.",
   contentExternalTitle: "Externe",
   contentExternalDesc:
     "Les énoncés et libellés vivent dans un document IPFS épinglé ; la chaîne porte une ancre de hachage.",
   contentExternalNote:
-    "À la publication, le titre, la description, les énoncés et les libellés d'options sont écrits dans un document de présentation, épinglé sur vos fournisseurs IPFS, et ancré on-chain par son hachage blake2b-256. Seuls les décomptes, contraintes, le détenteur et le calendrier restent on-chain — le sondage reste donc valide et comptabilisable même si le document devient ensuite inaccessible (seuls les libellés disparaissent). Garde une charge utile on-chain réduite pour les grands sondages.",
+    "À la publication, le titre, la description, les énoncés et les libellés d'options sont écrits dans un document de présentation, épinglé sur vos fournisseurs IPFS, et ancré on-chain par son hachage blake2b-256. Seuls les décomptes, contraintes, le détenteur et le calendrier restent on-chain : le sondage reste donc valide et comptabilisable même si le document devient ensuite inaccessible (seuls les libellés disparaissent). Garde une charge utile on-chain réduite pour les grands sondages.",
   contentNoPinningPre: "Aucun fournisseur IPFS n'est configuré. ",
   contentNoPinningLink: "Ajoutez-en un dans les Paramètres",
   contentNoPinningPost:
@@ -112,6 +114,7 @@ const create: Messages = {
   questionChip: "Q{n}",
   required: "Obligatoire",
   optional: "Facultatif",
+  questionType: "Type de la question {n}",
   removeQuestion: "Supprimer la question",
   promptPlaceholder: "Énoncé de la question",
 
@@ -128,7 +131,7 @@ const create: Messages = {
   addOption: "+ Ajouter une option",
   addLevel: "+ Ajouter un niveau",
   scaleHint:
-    "ordonné du pire → au meilleur · les réponses stockent l'indice à base 0",
+    "ordonné du pire au meilleur · les réponses stockent l'indice à base 0",
   optionPlaceholder: "Option {n}",
   endBadgeWorst: "pire",
   endBadgeBest: "meilleur",
@@ -169,7 +172,7 @@ const create: Messages = {
   summaryEnds: "Fin",
   summaryVisibility: "Visibilité",
   noRolesSelected: "Aucun rôle sélectionné",
-  endsNone: "—",
+  endsNone: "Non définie",
   endsEpoch: "époque {epoch}",
   summarySealedReveals: "Scellé · révèle {date}",
   summarySealed: "Scellé",
@@ -191,6 +194,10 @@ const create: Messages = {
   // --- Problem list & section heads ---
   fixBeforePublishing: "À corriger avant de publier",
   problemInQuestion: "{question} {field}",
+
+  // --- Technical details (aside) ---
+  technicalDetails: "Détails techniques",
+  technicalDetailsHint: "Charge utile on-chain",
 
   // --- Survey file (export / import) ---
   fileHead: "Fichier du sondage",
@@ -220,10 +227,8 @@ const create: Messages = {
   submittedBody:
     "Votre définition a été soumise sous le label de métadonnées 17. Elle peut mettre quelques instants à apparaître, le temps que l'indexeur se synchronise.",
   submittedRef: "réf {ref}",
-  viewSurvey: "Voir le sondage →",
+  viewSurvey: "Voir le sondage",
   allSurveysButton: "Tous les sondages",
-
-  // --- Connect prompt ---
 };
 
 export default create;

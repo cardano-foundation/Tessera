@@ -1,12 +1,5 @@
-/*
- * Co-located styles for Create.tsx.
- *
- * Convention: one `Foo.module.css` next to `Foo.tsx`, imported as `s` and
- * applied via `class={s.x}`. Static styles live here; design tokens
- * (`var(--…)`) come from theme.css `:root`. Signal/prop-driven toggles use
- * state classes flipped with `classList`; genuinely continuous values bridge
- * through inline CSS custom properties.
- */
+/* Create screen. Controls, fields, text styles and cards come from the kit;
+   this file lays them out and styles the builder's own toggles. */
 
 /* ---- layout shells -------------------------------------------------------- */
 
@@ -22,88 +15,66 @@
   padding: 22px 24px 90px;
 }
 
-.gridTop {
-  margin-top: 20px;
-}
-
-.backLink {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  font-size: 13.5px;
-  font-weight: 600;
-  color: var(--muted);
-  text-decoration: none;
-  padding: 6px 0;
-}
-
-.backArrow {
-  font-size: 15px;
-}
-
-.title {
-  font-size: 26px;
-  font-weight: 700;
-  letter-spacing: -0.018em;
-  line-height: 1.16;
-  margin: 10px 0 0;
-  color: var(--ink);
+.pageHead {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
 }
 
 .subtitle {
-  font-size: 14px;
-  color: var(--muted);
-  line-height: 1.55;
-  margin: 8px 0 0;
+  max-width: 72ch;
+  margin: 0;
 }
 
-/* ---- cards & section heads ------------------------------------------------ */
-
-.card {
-  background: #fff;
-  border: 1px solid var(--line);
-  border-radius: var(--r-sm);
-  padding: 18px 20px;
-  margin-top: 10px;
+/* Builder and a summary aside that sticks below the header (63px tall at
+   this width), collapsing to one column on narrow screens. */
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 26px;
+  align-items: start;
+  margin-top: 24px;
+}
+.aside {
+  position: sticky;
+  top: 84px;
+}
+@media (max-width: 900px) {
+  .grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .aside {
+    position: static;
+  }
 }
 
-/*
- * Governance-tinted variant of `.card`, used when the survey is being tied to
- * an Info Action (same blue family as the linkage UI elsewhere).
- */
-.govCard {
-  composes: card;
-  background: var(--gov-bg);
-  border-color: var(--gov-line);
+.asideBlock {
+  margin-top: 16px;
 }
 
-/* `.card` with the soft surface treatment (owner credential note). */
-.cardSoft {
-  composes: card;
-  background: var(--card-bg);
-  border-color: var(--card-line);
-}
+/* ---- sections ------------------------------------------------------------- */
 
 .numberedHead {
   font-family: var(--mono);
-  font-size: 10.5px;
+  font-size: 11px;
+  font-weight: 600;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--accent);
-  font-weight: 600;
-  margin: 0 2px 11px;
+  margin: 0 2px 10px;
 }
 
 .headTrailing {
-  color: var(--dim);
+  color: var(--muted);
 }
 
 .section {
-  margin-top: 22px;
+  margin-top: 26px;
 }
 
 .questionsSection {
-  margin-top: 24px;
+  margin-top: 28px;
 }
 
 .questionList {
@@ -112,59 +83,34 @@
   gap: 12px;
 }
 
+/* Tied to a governance action: the card takes the governance border. */
+.govCard {
+  border-color: var(--gov-line);
+}
+
 /* ---- generic field bits --------------------------------------------------- */
 
-.blockLabel {
+.block {
   display: block;
 }
 
-.blockLabelGap {
+.blockGap {
   display: block;
-  margin-top: 14px;
+  margin-top: 16px;
 }
 
-.fieldLabel {
-  display: block;
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--muted);
-  margin-bottom: 6px;
-}
-
-.textInput {
-  width: 100%;
-  border: 1px solid var(--line);
-  border-radius: var(--r-control);
-  padding: 11px 13px;
-  font-family: inherit;
-  font-size: 14px;
-  color: var(--ink);
-  outline: none;
-  box-sizing: border-box;
-  margin-top: 0;
+.labelGap {
+  margin-top: 16px;
 }
 
 .textArea {
-  composes: textInput;
   resize: vertical;
-  font-family: inherit;
 }
 
-.monoInput {
-  composes: textInput;
-  font-family: var(--mono);
-}
-
-.miniNumber {
-  width: 110px;
-  border: 1px solid var(--line);
-  border-radius: var(--r-control);
-  padding: 9px 11px;
-  font-family: var(--mono);
+/* Raw values: epochs, rounds, sizes, numbers, URIs and hashes. */
+.code {
+  font-family: var(--code);
   font-size: 14px;
-  color: var(--ink);
-  outline: none;
-  box-sizing: border-box;
 }
 
 .inlineField {
@@ -173,55 +119,62 @@
 }
 
 .hint {
-  font-size: 12px;
-  color: var(--dim);
-  line-height: 1.5;
   margin: 10px 0 0;
 }
 
-.warnNote {
-  font-size: 12px;
-  color: var(--warn);
-  background: var(--warn-bg);
-  border: 1px solid var(--warn-line);
-  border-radius: var(--r-control);
-  padding: 10px 12px;
+.flush {
+  margin: 0;
+}
+
+.dateLine {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--accent);
+  margin: 10px 0 0;
+}
+
+.neutralNote {
+  font-size: 13px;
   line-height: 1.5;
-  margin-top: 10px;
+  color: var(--body);
+  background: var(--sunken);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  padding: 10px 12px;
+  margin-top: 12px;
 }
 
-/* Sealed-mode reassurance: same box as `.warnNote`, neutral card colors. */
-.sealedNote {
-  composes: warnNote;
-  color: var(--label);
-  background: var(--card-bg);
-  border-color: var(--card-line);
-}
-
-/* A form restored from an earlier visit: neutral box with a way out. */
-.restoredNote {
-  composes: sealedNote;
+/* A neutral note with its own actions: a restored draft, or an import that
+   would replace typed text (asked inline, never in a dialog). */
+.noteRow {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 8px 12px;
-  margin-top: 16px;
 }
 
-.noteBtn {
-  font-family: inherit;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  border-radius: var(--r-control);
-  padding: 5px 10px;
+.noteLink {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+}
+
+.disclosure {
+  margin-top: 14px;
+}
+
+.readout {
+  font-family: var(--code);
+  font-size: 13px;
+  color: var(--body);
+  background: var(--sunken);
   border: 1px solid var(--line);
-  background: #fff;
-  color: var(--ink);
+  border-radius: var(--r-input);
+  padding: 9px 12px;
 }
 
-/* ---- roles ---------------------------------------------------------------- */
+/* ---- toggles -------------------------------------------------------------- */
 
 .rowWrap {
   display: flex;
@@ -229,27 +182,28 @@
   flex-wrap: wrap;
 }
 
-/*
- * Role toggle. The active border/background/text colors are role-specific, so
- * the on-state colors are bridged in via inline custom properties; the
- * `.roleToggleOn` modifier just consumes them.
- */
+/* The on-state colours are the role's, bridged in as custom properties. */
 .roleToggle {
   display: inline-flex;
   align-items: center;
   gap: 8px;
+  min-height: 36px;
   font-family: inherit;
-  font-size: 12.5px;
-  font-weight: 700;
+  font-size: 13px;
+  font-weight: 500;
   cursor: pointer;
-  border-radius: 8px;
-  padding: 7px 12px;
-  border: 1px solid var(--line);
-  background: #fff;
-  color: var(--muted);
+  border-radius: var(--r-chip);
+  padding: 6px 12px;
+  border: 1px solid var(--control-line);
+  background: var(--card);
+  color: var(--body);
+}
+.roleToggle:hover {
+  border-color: var(--ink);
 }
 
-.roleToggleOn {
+.roleToggleOn,
+.roleToggleOn:hover {
   border-color: var(--role-color);
   background: var(--role-bg);
   color: var(--role-color);
@@ -258,12 +212,11 @@
 .checkbox {
   width: 16px;
   height: 16px;
-  border-radius: 5px;
-  border: 2px solid var(--line2);
-  background: #fff;
-  color: #fff;
+  border-radius: var(--r-3xs);
+  border: 1px solid var(--control-line);
+  background: var(--card);
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 600;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -271,78 +224,83 @@
 }
 
 .checkboxOn {
-  border: none;
-  background: var(--accent);
+  border-color: var(--role-color);
+  background: var(--role-color);
+  color: var(--card);
 }
 
-/* ---- gov toggle / switch -------------------------------------------------- */
-
-.govToggleRow {
+.switchRow {
   display: flex;
   align-items: center;
   gap: 12px;
   width: 100%;
+  min-height: 32px;
   padding: 0;
   background: transparent;
   border: none;
   cursor: pointer;
   font-family: inherit;
+  text-align: left;
 }
 
-.govSwitchTrack {
+.switchTrack {
   position: relative;
   flex: none;
   width: 38px;
   height: 22px;
   border-radius: var(--r-pill);
-  background: var(--track);
-  border: 1px solid var(--line);
+  background: var(--sunken);
+  border: 1px solid var(--control-line);
   transition: background 0.15s ease;
 }
 
-.govSwitchTrackOn {
+.switchTrackOn {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.switchTrackGovOn {
   background: var(--gov);
   border-color: var(--gov);
 }
 
-.govSwitchKnob {
+.switchKnob {
   position: absolute;
   top: 2px;
   left: 2px;
   width: 16px;
   height: 16px;
   border-radius: 50%;
-  background: #fff;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+  background: var(--control-line);
   transition: left 0.15s ease;
 }
 
-.govSwitchKnobOn {
+.switchKnobOn {
   left: 18px;
+  background: var(--card);
 }
 
-.govToggleText {
+.switchText {
   display: flex;
   flex-direction: column;
   gap: 2px;
-  text-align: left;
 }
 
-.govToggleTitle {
-  font-size: 13px;
-  font-weight: 700;
+.switchTitle {
+  font-size: 14px;
+  font-weight: 500;
   color: var(--ink);
 }
 
-.govToggleTitleOn {
+.govTitleOn {
   color: var(--gov);
 }
 
-.govToggleDesc {
-  font-size: 11.5px;
-  color: var(--muted);
-  line-height: 1.45;
+.requireAllRow {
+  margin-top: 16px;
 }
+
+/* ---- timing --------------------------------------------------------------- */
 
 .endEpochField {
   display: block;
@@ -355,161 +313,91 @@
   gap: 8px;
 }
 
-.govAutoBadge {
-  font-family: var(--mono);
-  font-size: 9.5px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--gov);
-  background: #fff;
-  border: 1px solid var(--gov-line);
-  border-radius: var(--r-3xs);
-  padding: 3px 6px;
-}
-
-/* End-epoch input: mono, capped width, locked variant tinted gov. */
 .epochInput {
-  composes: monoInput;
   max-width: 200px;
 }
 
-.epochInputLocked {
-  background: var(--surface3);
-  color: var(--gov);
-  border-color: var(--gov-line);
+.inputLocked,
+.inputLocked:hover {
+  background: var(--sunken);
+  color: var(--body);
+  border-color: var(--line);
   cursor: not-allowed;
 }
 
-.revealLine {
-  font-family: var(--mono);
-  font-size: 11.5px;
-  color: var(--accent);
-  margin-top: 9px;
-}
-
-.mono {
-  font-family: var(--mono);
-}
-
 .govNote {
-  font-size: 12px;
+  font-size: 13px;
   color: var(--gov);
-  background: #fff;
+  background: var(--card);
   border: 1px solid var(--gov-line);
-  border-radius: var(--r-control);
+  border-radius: var(--r-md);
   padding: 10px 12px;
   line-height: 1.5;
   margin-top: 10px;
 }
+.govNote b {
+  font-weight: 600;
+}
 
-/* ---- mode cards (embedded/external, public/sealed) ------------------------ */
+/* ---- mode cards (public/sealed, embedded/external) ------------------------ */
 
 .modeGrid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 10px;
 }
 
 .modeCard {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
   text-align: left;
   font-family: inherit;
   cursor: pointer;
   border-radius: var(--r-control);
-  padding: 12px 13px;
-  border: 1px solid var(--line);
-  background: #fff;
+  padding: 12px 14px;
+  border: 1px solid var(--control-line);
+  background: var(--card);
+}
+.modeCard:hover {
+  border-color: var(--ink);
 }
 
-.modeCardOn {
+/* Selection reads from the doubled border as well as the colour. */
+.modeCardOn,
+.modeCardOn:hover {
   border-color: var(--accent);
+  box-shadow: inset 0 0 0 1px var(--accent);
   background: var(--accent-bg);
 }
 
 .modeTitle {
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--ink);
-}
-
-.modeTitleSealed {
-  composes: modeTitle;
   display: inline-flex;
   align-items: center;
   gap: 7px;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.modeCardOn .modeTitle {
+  color: var(--accent);
 }
 
 .modeDesc {
-  font-size: 11.5px;
-  color: var(--faint);
-  line-height: 1.4;
-  margin-top: 5px;
-}
-
-.externalNote {
-  font-size: 12.5px;
+  font-size: 13px;
   color: var(--muted);
-  line-height: 1.5;
-  margin: 14px 0 0;
-}
-
-.settingsLink {
-  color: var(--accent);
+  line-height: 1.4;
 }
 
 /* ---- sealed config -------------------------------------------------------- */
 
-.sealedConfig {
-  margin-top: 16px;
-}
-
-.fieldLabelGap {
-  composes: fieldLabel;
-  margin-top: 14px;
-}
-
-.chainHash {
-  font-family: var(--mono);
-  font-size: 12px;
-  color: var(--muted);
-  background: var(--surface);
-  border: 1px solid var(--line2);
-  border-radius: var(--r-control);
-  padding: 9px 11px;
-}
-
-.pillRow {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 10px;
-}
-
-.pill {
-  font-family: inherit;
-  font-size: 12.5px;
-  font-weight: 600;
-  cursor: pointer;
-  border-radius: 8px;
-  padding: 7px 13px;
-  border: 1px solid var(--line);
-  background: #fff;
-  color: var(--muted);
-}
-
-.pillOn {
-  font-weight: 700;
-  border-color: var(--accent);
-  background: var(--accent);
-  color: #fff;
-}
-
 .roundInput {
-  composes: monoInput;
   max-width: 240px;
+  margin-top: 10px;
 }
 
 .paddingInput {
-  composes: monoInput;
   max-width: 160px;
 }
 
@@ -536,112 +424,47 @@
 }
 
 .qChip {
-  font-family: var(--mono);
+  margin: 0;
   font-size: 12px;
-  font-weight: 600;
-  color: var(--accent);
-  background: var(--accent-bg);
-  border-radius: var(--r-chip);
-  padding: 5px 8px;
 }
 
 .select {
-  font-family: inherit;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--ink);
-  background: #fff;
-  border: 1px solid var(--line);
-  border-radius: var(--r-control);
-  padding: 7px 10px;
+  max-width: 200px;
   cursor: pointer;
 }
 
 .requiredBtn {
+  min-height: 32px;
   font-family: inherit;
-  font-size: 12px;
-  font-weight: 700;
+  font-size: 13px;
+  font-weight: 500;
   cursor: pointer;
   border-radius: var(--r-chip);
-  padding: 6px 12px;
-  border: 1px solid var(--line);
-  background: #fff;
+  padding: 5px 12px;
+  border: 1px solid var(--control-line);
+  background: var(--card);
   color: var(--muted);
 }
+.requiredBtn:hover {
+  border-color: var(--ink);
+}
 
-.requiredBtnOn {
+.requiredBtnOn,
+.requiredBtnOn:hover {
   border-color: var(--accent);
   background: var(--accent-bg);
   color: var(--accent);
 }
 
-.requireAllRow {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  width: 100%;
-  padding: 0;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  font-family: inherit;
-  margin-top: 14px;
-}
-
-.requireAllTrack {
-  position: relative;
-  flex: none;
-  width: 38px;
-  height: 22px;
-  border-radius: var(--r-pill);
-  background: var(--track);
-  border: 1px solid var(--line);
-  transition: background 0.15s ease;
-}
-
-.requireAllTrackOn {
-  background: var(--accent);
-  border-color: var(--accent);
-}
-
-.requireAllKnob {
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: #fff;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
-  transition: left 0.15s ease;
-}
-
-.requireAllKnobOn {
-  left: 18px;
-}
-
-.requireAllLabel {
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--ink);
-  text-align: left;
-}
-
 .removeBtn {
-  width: 30px;
-  height: 30px;
-  border-radius: var(--r-xs);
-  border: 1px solid #f0d2d0;
-  background: #fff;
-  color: var(--danger);
-  font-size: 16px;
-  cursor: pointer;
+  width: 40px;
+  padding: 0;
+  font-size: 18px;
   line-height: 1;
   flex: none;
 }
 
 .promptInput {
-  composes: textInput;
   margin-top: 12px;
 }
 
@@ -652,7 +475,6 @@
 /* ---- type fields ---------------------------------------------------------- */
 
 .budgetInput {
-  composes: monoInput;
   max-width: 140px;
 }
 
@@ -660,22 +482,11 @@
   margin-top: 14px;
 }
 
-.ratingPillRow {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 12px;
-}
-
 .customFields {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
   margin-top: 4px;
-}
-
-.customInput {
-  composes: monoInput;
-  font-size: 12.5px;
 }
 
 /* ---- options editor ------------------------------------------------------- */
@@ -684,13 +495,6 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
-}
-
-.scaleHint {
-  font-family: var(--mono);
-  font-size: 10.5px;
-  color: var(--dim);
-  letter-spacing: 0.03em;
 }
 
 .optionRow {
@@ -703,49 +507,18 @@
   font-family: var(--mono);
   font-size: 12px;
   font-weight: 600;
-  color: var(--dim);
+  color: var(--muted);
   width: 18px;
   text-align: center;
   flex: none;
 }
 
-.optionInput {
-  composes: textInput;
-  margin-top: 0;
-}
-
 .endBadge {
-  font-family: var(--mono);
-  font-size: 9.5px;
-  border-radius: var(--r-3xs);
-  padding: 3px 6px;
-  white-space: nowrap;
   flex: none;
-}
-
-.endBadgeWorst {
-  composes: endBadge;
-  color: #cda892;
-  background: #fbf0f0;
-}
-
-.endBadgeBest {
-  composes: endBadge;
-  color: var(--accent);
-  background: var(--accent-bg);
 }
 
 .addOptionBtn {
   align-self: flex-start;
-  font-family: inherit;
-  font-size: 12.5px;
-  font-weight: 600;
-  cursor: pointer;
-  border-radius: var(--r-control);
-  padding: 7px 12px;
-  border: 1px dashed var(--line2);
-  background: var(--card-bg);
-  color: var(--muted);
 }
 
 /* ---- min/max + numeric rows ----------------------------------------------- */
@@ -757,21 +530,25 @@
   flex-wrap: wrap;
 }
 
+.miniNumber {
+  max-width: 120px;
+}
+
 /* ---- add-a-question panel ------------------------------------------------- */
 
 .addPanel {
-  background: #fff;
-  border: 1px dashed #d8cdb6;
-  border-radius: var(--r-sm);
+  background: var(--card);
+  border: 1px dashed var(--control-line);
+  border-radius: var(--r-card);
   padding: 16px 18px;
   margin-top: 12px;
 }
 
 .addPanelHead {
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--body);
-  margin-bottom: 11px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink);
+  margin: 0 0 12px;
 }
 
 .addBtnRow {
@@ -780,62 +557,32 @@
   gap: 8px;
 }
 
-.addTypeBtn {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  font-family: inherit;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--body);
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: var(--r-sm);
-  padding: 8px 12px;
-  cursor: pointer;
-}
-
 .addTypeTag {
   font-family: var(--mono);
   font-size: 11px;
-  color: var(--dim);
+  color: var(--muted);
 }
 
 /* ---- owner section -------------------------------------------------------- */
 
-.ownerText {
-  font-size: 12.5px;
-  color: var(--label);
-  line-height: 1.5;
-}
-
 .ownerHeading {
-  color: #5b4a22;
+  font-weight: 500;
+  color: var(--ink);
 }
 
 .ownerKey {
-  font-family: var(--mono);
-  font-size: 11.5px;
-  color: var(--dim);
+  color: var(--muted);
   margin-left: 6px;
 }
 
 /* ---- summary card --------------------------------------------------------- */
-
-.summaryCard {
-  background: #fff;
-  border: 1px solid var(--line);
-  border-radius: var(--r-sm);
-  padding: 20px;
-  box-shadow: var(--shadow-card);
-}
 
 .summaryTitle {
   font-family: var(--serif);
   font-size: 19px;
   font-weight: 600;
   line-height: 1.25;
-  margin: 12px 0 0;
+  margin: 0;
   color: var(--ink);
 }
 
@@ -851,104 +598,64 @@
   justify-content: space-between;
   gap: 12px;
   padding: 11px 0;
-  border-top: 1px solid var(--line2);
+  border-top: 1px solid var(--line);
 }
 
 .summaryRowLabel {
-  font-size: 12.5px;
+  font-size: 13px;
   color: var(--muted);
   flex: none;
 }
 
 .summaryRowValue {
-  font-size: 13px;
-  font-weight: 600;
+  font-size: 14px;
+  font-weight: 500;
   color: var(--ink);
   text-align: right;
 }
 
-/* ---- publish button + note ------------------------------------------------ */
+/* ---- publish -------------------------------------------------------------- */
+
+.wide {
+  width: 100%;
+  margin-top: 8px;
+}
 
 .publishBtn {
-  width: 100%;
-  margin-top: 14px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 9px;
-  background: var(--line2);
-  color: var(--dim);
-  border: none;
-  border-radius: var(--r-md);
-  padding: 15px;
-  font-family: inherit;
+  min-height: 48px;
+  margin-top: 16px;
   font-size: 15px;
-  font-weight: 700;
-  cursor: not-allowed;
-  box-shadow: none;
-}
-
-.publishBtnEnabled {
-  background: var(--accent);
-  color: #fff;
-  cursor: pointer;
-  box-shadow: 0 10px 24px -10px var(--accent-shadow);
-}
-
-.publishArrow {
-  font-size: 16px;
 }
 
 .publishNote {
   text-align: center;
-  font-size: 10.5px;
+  font-size: 12px;
   color: var(--danger);
   margin: 10px 0 0;
   line-height: 1.5;
 }
 
 .publishNoteOk {
-  color: var(--dim);
-}
-
-.queueBtn {
-  width: 100%;
-  margin-top: 8px;
-  background: #fff;
-  color: var(--ink);
-  border: 1px solid var(--line);
-  border-radius: var(--r-md);
-  padding: 10px;
-  font-family: inherit;
-  font-size: 13px;
-  font-weight: 700;
-  cursor: pointer;
-}
-.queueBtn:disabled {
-  color: var(--faint);
-  cursor: not-allowed;
+  color: var(--muted);
 }
 
 /* ---- survey file ---------------------------------------------------------- */
 
-/* Replacing typed text with an import: asked inline, never in a dialog. */
-.importConfirm {
-  composes: restoredNote;
-  margin-top: 10px;
-}
-
-.noteBtnRow {
-  display: flex;
-  gap: 8px;
-}
-
 .fileCard {
-  composes: summaryCard;
   margin-top: 16px;
+}
+
+.fileHint {
+  margin: 0 0 12px;
 }
 
 .fileRow {
   display: grid;
   grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.noteBtnRow {
+  display: flex;
   gap: 8px;
 }

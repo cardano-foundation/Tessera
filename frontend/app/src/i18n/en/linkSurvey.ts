@@ -12,7 +12,7 @@ const linkSurvey = {
   leadPre:
     "Produce the CIP-108 metadata document that advertises this survey, host it, then build and sign the Conway ",
   leadPost:
-    " carrying it. The action has no on-chain effect — it only points voters at the survey — and its refundable deposit returns to your stake address when it is ratified or expires.",
+    " carrying it. The action has no on-chain effect (it only points voters at the survey), and its refundable deposit returns to your stake address when it is ratified or expires.",
 
   // The survey being linked (loaded from its bundle)
   linkingLabel: "Linking survey",
@@ -37,21 +37,22 @@ const linkSurvey = {
     'The "@context" must define the CIP179 namespace and map "cip179" (with its specVersion, kind, surveyTxId and surveyIndex sub-terms) inside the body context, or the link is dropped during JSON-LD canonicalization and falls outside the author witness. See the CIP-179 worked example.',
 
   // Epoch-alignment notes
-  alignTipNotLoaded: "Chain tip not loaded yet — can't verify epoch alignment.",
+  alignTipNotLoaded:
+    "Chain tip not loaded yet, so epoch alignment can't be verified.",
   alignSurveyNotOnchain:
-    "Linked survey isn't on-chain yet — can't verify its end_epoch. Make sure it's published and indexed.",
+    "Linked survey isn't on-chain yet, so its end_epoch can't be verified. Make sure it's published and indexed.",
   alignLifetimeUnknown:
-    "gov_action_lifetime is unknown — can't compute the voting deadline.",
+    "gov_action_lifetime is unknown, so the voting deadline can't be computed.",
   /**
    * {epoch}/{end}/{submitEpoch}/{deadline} are raw epoch numbers and
    * {windowStart}/{windowEnd} locale-formatted dates (none translated).
    */
   alignAligned:
-    "Aligned — the current epoch {epoch} is the submission epoch: proposing now gives a voting deadline of epoch {end}, matching the survey's end_epoch. This window closes {windowEnd}.",
+    "Aligned. The current epoch {epoch} is the submission epoch: proposing now gives a voting deadline of epoch {end}, matching the survey's end_epoch. This window closes {windowEnd}.",
   alignTooEarly:
-    "Too early — propose during epoch {submitEpoch} ({windowStart} → {windowEnd}) so the action's deadline matches the survey's end_epoch {end}. The current epoch is {epoch}; proposing now would set the deadline to epoch {deadline}.",
+    "Too early. Propose during epoch {submitEpoch} ({windowStart} to {windowEnd}) so the action's deadline matches the survey's end_epoch {end}. The current epoch is {epoch}; proposing now would set the deadline to epoch {deadline}.",
   alignWindowPassed:
-    "Window passed — the survey ends at epoch {end}, so the action had to be proposed during epoch {submitEpoch} ({windowStart} → {windowEnd}). The current epoch is {epoch}, and a link to that survey can no longer form.",
+    "Window passed. The survey ends at epoch {end}, so the action had to be proposed during epoch {submitEpoch} ({windowStart} to {windowEnd}). The current epoch is {epoch}, and a link to that survey can no longer form.",
 
   // Step 1 · The document
   step1Head: "1 · The document",
@@ -62,7 +63,7 @@ const linkSurvey = {
     "A minimal form producing a valid CIP-108 base for the Info Action, survey link included.",
   entryUpload: "I have a document",
   entryUploadHint:
-    "Produced by your governance tooling and not yet linked — the survey link is inserted for you.",
+    "Produced by your governance tooling and not yet linked; the survey link is inserted for you.",
   entryChange: "Start over",
 
   // From-scratch form
@@ -85,15 +86,15 @@ const linkSurvey = {
     " link and its @context terms are inserted, and the document re-emitted.",
   refusalNotJson: "Not valid JSON: {message}",
   refusalNotObject:
-    "Not a CIP-108 document — the top level isn't a JSON object.",
-  refusalNoBody: 'Not a CIP-108 document — it has no "body" object.',
+    "Not a CIP-108 document: the top level isn't a JSON object.",
+  refusalNoBody: 'Not a CIP-108 document: it has no "body" object.',
   refusalNoContext:
-    'Not a JSON-LD document — it has no "@context" object to merge the CIP-179 terms into.',
+    'Not a JSON-LD document: it has no "@context" object to merge the CIP-179 terms into.',
   /** {ref} is the raw "txHash:index" the input already links (not translated). */
   refusalAlreadyLinkedTo:
-    "This document already links survey {ref}. Governance tooling never writes body.cip179 — start from the unlinked document, or link that survey from its own page.",
+    "This document already links survey {ref}. Governance tooling never writes body.cip179. Start from the unlinked document, or link that survey from its own page.",
   refusalAlreadyLinked:
-    "This document already carries a body.cip179 entry (malformed). Governance tooling never writes that field — start from the unlinked document.",
+    "This document already carries a body.cip179 entry (malformed). Governance tooling never writes that field. Start from the unlinked document.",
   strippedAuthors:
     "The document's authors section was emptied: its witness signed the unlinked body, so it can't survive this edit. Have every author re-sign the emitted document if you need the witness back.",
 
@@ -122,6 +123,7 @@ const linkSurvey = {
   /** {providers} is a comma-joined list of provider names (not translated). */
   pinnedNote: "Pinned to {providers}. URL filled in below.",
   anchorHashLabel: "Anchor hash (blake2b-256)",
+  urlLabel: "Anchor URL",
   urlPlaceholder: "ipfs://… or https://…/info-action-survey-link.jsonld",
   urlHint:
     "Auto-filled when you pin to IPFS above; otherwise paste where you hosted the document. Stored on-chain alongside its hash.",
@@ -131,7 +133,7 @@ const linkSurvey = {
    */
   urlInvalidPre: "The anchor URL must be an ",
   urlInvalidMid: " or ",
-  urlInvalidPost: " address — this one will be rejected before signing.",
+  urlInvalidPost: " address; this one will be rejected before signing.",
 
   // Step 3 · Sign & submit
   step3Head: "3 · Sign & submit",
@@ -142,7 +144,7 @@ const linkSurvey = {
   networkMismatch:
     "Your wallet is on a different network than the app ({network}). Switch it before submitting.",
   resolveIssues:
-    "Resolve the issues above before submitting — the action wouldn't be a valid CIP-179 survey link.",
+    "Resolve the issues above before submitting: the action wouldn't be a valid CIP-179 survey link.",
   building: "Building & signing…",
   submit: "Build, sign & submit",
   submittedTitle: "Proposal submitted ✓",

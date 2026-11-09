@@ -36,6 +36,7 @@ import {
   SubmitProgressModal,
   type SubmitStep,
 } from "~/ui/components/SubmitProgress";
+import { Disclosure } from "~/ui/components/Disclosure";
 import { OnchainPreview } from "~/ui/components/OnchainPreview";
 import { ErrorBox, ProblemList } from "~/ui/components/Feedback";
 import { PublishLocked, QueuedNote } from "~/ui/components/CartDrawer";
@@ -65,10 +66,11 @@ import {
 } from "./Sections";
 import { PublishButton, SubmittedPanel, SummaryCard } from "./Publish";
 import { SurveyFileCard } from "./SurveyFile";
+import kit from "~/ui/kit.module.css";
 import css from "./create.module.css";
 import { usePageTitle } from "~/ui/pageTitle";
 
-/** Add-a-question buttons: one per type, in tag order. Custom is Pro-only. */
+/** Add-a-question buttons: one per type, in tag order. */
 const ADD_BUTTONS: ReadonlyArray<{ type: QuestionType; tag: number }> = [
   { type: "singleChoice", tag: QuestionTag.SingleChoice },
   { type: "multiSelect", tag: QuestionTag.MultiSelect },
@@ -137,9 +139,8 @@ export const Create: Component = () => {
   });
 
   // Keep the definition's resolved round in sync with the chosen drand mode.
-  // Manual entry is a Pro-only affordance; Plain mode is always Auto.
   createEffect(() => {
-    const manual = app.ui.pro && drandMode() === "manual";
+    const manual = drandMode() === "manual";
     setMeta("sealedRound", manual ? drandRoundText() : String(autoRound()));
   });
 
@@ -153,11 +154,10 @@ export const Create: Component = () => {
     ps.map(createProblemText);
   const problemStrings = (): string[] => renderProblems(problems());
 
-  // Pro on-chain preview: the label-17 definition payload, built live. External
-  // content uses the same placeholder anchor `built` validates with (the real
-  // anchor is only known after pinning at publish time).
+  // The label-17 definition payload, built live. External content uses the
+  // same placeholder anchor `built` validates with (the real anchor is only
+  // known after pinning at publish time).
   const previewPayload = createMemo<Metadatum | undefined>(() => {
-    if (!app.ui.pro) return undefined;
     const definition = built().definition;
     if (!definition) return undefined;
     try {
@@ -169,7 +169,7 @@ export const Create: Component = () => {
 
   // The reveal round and padding size the sealed definition carries (the
   // padding is the auto worst-case size unless the creator overrode it). Shown
-  // in the sealed config; 0 until the form parses.
+  // in the reveal settings; 0 until the form parses.
   const sealedMode = () => {
     const mode = built().definition?.submissionMode;
     return mode?.type === "sealed" ? mode : undefined;
@@ -430,20 +430,23 @@ export const Create: Component = () => {
           />
         </Show>
 
-        <BackLink />
-        <h1 class={css.title}>{t("create.pageTitle")}</h1>
-        <p class={css.subtitle}>{t("create.pageSubtitle")}</p>
+        <header class={css.pageHead}>
+          <BackLink />
+          <h1 class={kit.pageTitle}>{t("create.pageTitle")}</h1>
+          <p class={`${kit.text} ${css.subtitle}`}>
+            {t("create.pageSubtitle")}
+          </p>
+        </header>
         <Show when={restored()}>
-          <div class={css.restoredNote}>
+          <div class={`${css.neutralNote} ${css.noteRow}`}>
             <span>{t("create.restoredDraft")}</span>
-            <button type="button" onClick={startOver} class={css.noteBtn}>
+            <button type="button" onClick={startOver} class={kit.button}>
               {t("create.startOver")}
             </button>
           </div>
         </Show>
 
-        <div class={`create-grid ${css.gridTop}`}>
-          {/* left: builder */}
+        <div class={css.grid}>
           <div>
             <DetailsSection meta={meta} setMeta={setMeta} />
             <OwnerSection
@@ -471,7 +474,6 @@ export const Create: Component = () => {
               paddingOverride={meta.sealedPadding}
               onPaddingOverride={(v) => setMeta("sealedPadding", v)}
               resolvedPadding={resolvedPadding()}
-              pro={app.ui.pro}
             />
             <ContentSection
               mode={meta.contentMode}
@@ -479,7 +481,7 @@ export const Create: Component = () => {
               hasPinning={hasPinning()}
             />
 
-            <div class={css.questionsSection}>
+            <section class={css.questionsSection}>
               <SectionHead
                 n="07"
                 label={t("create.sectionQuestions")}
@@ -499,20 +501,14 @@ export const Create: Component = () => {
                 </For>
               </div>
               <div class={css.addPanel}>
-                <div class={css.addPanelHead}>{t("create.addAQuestion")}</div>
+                <h3 class={css.addPanelHead}>{t("create.addAQuestion")}</h3>
                 <div class={css.addBtnRow}>
-                  <For
-                    each={
-                      app.ui.pro
-                        ? ADD_BUTTONS
-                        : ADD_BUTTONS.filter((b) => b.type !== "custom")
-                    }
-                  >
+                  <For each={ADD_BUTTONS}>
                     {(b) => (
                       <button
                         type="button"
                         onClick={() => addQuestion(b.type)}
-                        class={css.addTypeBtn}
+                        class={kit.button}
                       >
                         <span class={css.addTypeTag}>{b.tag}</span>
                         {t(QUESTION_TYPE_KEYS[b.type])}
@@ -521,7 +517,7 @@ export const Create: Component = () => {
                   </For>
                 </div>
               </div>
-            </div>
+            </section>
 
             <Show when={showProblems() && problems().length > 0}>
               <ProblemList
@@ -534,16 +530,12 @@ export const Create: Component = () => {
             </Show>
           </div>
 
-          {/* right: summary + publish */}
-          <aside class="create-aside">
+          <aside class={css.aside}>
             <SummaryCard
               meta={meta}
               qCount={questions.length}
               revealRound={resolvedRound()}
             />
-            <Show when={app.ui.pro}>
-              <OnchainPreview payload={previewPayload()} />
-            </Show>
             <Show when={!app.cartLocked()} fallback={<PublishLocked />}>
               <PublishButton
                 problemCount={problems().length}
@@ -589,6 +581,13 @@ export const Create: Component = () => {
               importError={importError()}
               importTextMissing={importTextMissing()}
             />
+            <Disclosure
+              class={css.asideBlock}
+              summary={t("create.technicalDetails")}
+              hint={t("create.technicalDetailsHint")}
+            >
+              <OnchainPreview payload={previewPayload()} />
+            </Disclosure>
           </aside>
         </div>
       </main>
@@ -597,7 +596,7 @@ export const Create: Component = () => {
 };
 
 const BackLink: Component = () => (
-  <A href="/" class={css.backLink}>
-    <span class={css.backArrow}>←</span> {t("create.backToSurveys")}
+  <A href="/" class={kit.back}>
+    {t("create.backToSurveys")}
   </A>
 );

@@ -36,12 +36,12 @@ const create = {
     "The survey will be owned by the wallet that publishes it, and only that wallet can cancel it. You can write and export it now; connect a wallet with the button in the header to publish.",
   ownerScriptHeading: "This wallet can't own a survey.",
   ownerScriptBody:
-    "Publishing proves the owner credential with a signature, and this wallet's payment credential is script-based — nothing it could sign would prove it. Connect a wallet with a key-based payment credential to publish.",
+    "Publishing proves the owner credential with a signature, and this wallet's payment credential is script-based, so nothing it could sign would prove it. Connect a wallet with a key-based payment credential to publish.",
 
   // --- Who can respond (roles) section ---
   sectionWhoCanRespond: "Who can respond",
   rolesHint:
-    "Eligibility is a claim, verified independently against ledger state. Keyholder is open to anyone with a wallet (a plain payment key — no registration needed). SPO and CC can be listed, but can't respond from a browser wallet (they need cold/hot keys).",
+    "Eligibility is a claim, verified independently against ledger state. Keyholder is open to anyone with a wallet (a plain payment key; no registration needed). Stake pools and CC members can be listed, but can't respond from a browser wallet (they need cold and hot keys).",
 
   // --- Timing section ---
   sectionTiming: "Timing",
@@ -58,7 +58,7 @@ const create = {
   /** {epoch} is a raw epoch identifier; spliced into acceptedThroughEpoch. */
   currentEpochIs: "Current epoch is {epoch}.",
   govLifetimeUnreadable:
-    "Couldn't read gov_action_lifetime from the chain, so the deadline can't be computed. Enter the action's expiry epoch manually — they must match exactly.",
+    "Couldn't read gov_action_lifetime from the chain, so the deadline can't be computed. Enter the action's expiry epoch manually; they must match exactly.",
   /** {epochParen} is e.g. " (5)" when the tip is known, otherwise empty. */
   govNoteIntro:
     "Locked to the governance action's expiry epoch. On {network}, a governance action submitted this epoch{epochParen} closes at epoch",
@@ -75,16 +75,18 @@ const create = {
   visSealedTitle: "Sealed",
   visSealedDesc: "Timelock-encrypted; opens at a drand round.",
   drandChainLabel: "Drand chain",
+  revealSettings: "Reveal settings",
+  revealSettingsHint: "drand round, padding",
   revealRoundLabel: "Reveal round",
   drandAuto: "Auto",
   drandManual: "Manual",
   drandAutoHint:
-    "Derived from the end epoch — the first drand round after responses close.",
+    "Derived from the end epoch: the first drand round after responses close.",
   drandRoundPlaceholder: "drand round number",
   /** {date} is a preformatted reveal date. */
-  revealsOn: "Reveals {date}",
-  /** {round} is the locale-formatted drand round number; {date} a reveal date. */
-  revealsRoundOn: "round {round} · reveals {date}",
+  revealsOn: "Reveals on {date}",
+  /** {round} is the locale-formatted drand round number. */
+  resolvedRound: "Round {round}",
   paddingLabel: "Padding size (bytes)",
   /** {size} is the auto-resolved worst-case padding size. */
   paddingAutoPlaceholder: "auto · {size}",
@@ -92,18 +94,18 @@ const create = {
   paddingHint:
     "Each response is zero-padded to this length before encryption, so ciphertext size doesn't leak how much was answered. Leave blank to auto-size to the worst-case answer ({size} bytes for these questions).",
   sealedNote:
-    "Responses are encrypted as they come in and stay hidden until the reveal time — not even you can read them early.",
+    "Responses are encrypted as they come in and stay hidden until the reveal time. Not even you can read them early.",
 
   // --- Content section ---
   sectionContent: "Content",
   contentEmbeddedTitle: "Embedded",
   contentEmbeddedDesc:
-    "All text on-chain. No external dependency — recommended.",
+    "All text on-chain, with no external dependency. Recommended.",
   contentExternalTitle: "External",
   contentExternalDesc:
     "Prompts & labels live in a pinned IPFS document; chain carries a hash anchor.",
   contentExternalNote:
-    "On publish, the title, description, prompts and option labels are written to a presentation document, pinned to your IPFS providers, and anchored on-chain by its blake2b-256 hash. Only counts, constraints, owner and timing stay on-chain — so the survey still validates and tallies even if the document later becomes unreachable (only labels go missing). Keeps the on-chain payload small for large surveys.",
+    "On publish, the title, description, prompts, and option labels are written to a presentation document, pinned to your IPFS providers, and anchored on-chain by its blake2b-256 hash. Only counts, constraints, owner, and timing stay on-chain, so the survey still validates and tallies even if the document later becomes unreachable (only labels go missing). Keeps the on-chain payload small for large surveys.",
   /** Wraps the inline Settings <A> link: pre + link + post. */
   contentNoPinningPre: "No IPFS provider is configured. ",
   contentNoPinningLink: "Add one in Settings",
@@ -116,6 +118,8 @@ const create = {
   questionChip: "Q{n}",
   required: "Required",
   optional: "Optional",
+  /** {n} is the 1-based question number. */
+  questionType: "Question {n} type",
   removeQuestion: "Remove question",
   promptPlaceholder: "Question prompt",
 
@@ -131,7 +135,7 @@ const create = {
   // --- Options editor ---
   addOption: "+ Add option",
   addLevel: "+ Add level",
-  scaleHint: "ordered worst → best · answers store the 0-based index",
+  scaleHint: "ordered from worst to best · answers store the 0-based index",
   /** {n} is the 1-based option number. */
   optionPlaceholder: "Option {n}",
   endBadgeWorst: "worst",
@@ -156,7 +160,7 @@ const create = {
 
   // --- Rating ---
   ratingNumericScale: "Numeric scale",
-  ratingLabelledScale: "Labelled scale",
+  ratingLabelledScale: "Labeled scale",
   ratingRequireAllLabel: "Require every option to be rated",
   ratingRequireAllHint:
     "When on, a response must rate every option. Turn it off to let responders rate only some.",
@@ -175,7 +179,7 @@ const create = {
   summaryEnds: "Ends",
   summaryVisibility: "Visibility",
   noRolesSelected: "No roles selected",
-  endsNone: "—",
+  endsNone: "Not set",
   /** {epoch} is the raw end-epoch identifier the creator typed. */
   endsEpoch: "epoch {epoch}",
   /** {date} is a preformatted reveal date. */
@@ -202,6 +206,10 @@ const create = {
   fixBeforePublishing: "Fix before publishing",
   /** Where a form problem is: {question} is the question chip, {field} its input's label. */
   problemInQuestion: "{question} {field}",
+
+  // --- Technical details (aside) ---
+  technicalDetails: "Technical details",
+  technicalDetailsHint: "On-chain payload",
 
   // --- Survey file (export / import) ---
   fileHead: "Survey file",
@@ -231,7 +239,7 @@ const create = {
     "Your definition was submitted under metadata label 17. It may take a few moments to appear as the indexer catches up.",
   /** {ref} is the short survey ref id. */
   submittedRef: "ref {ref}",
-  viewSurvey: "View survey →",
+  viewSurvey: "View survey",
   allSurveysButton: "All surveys",
 };
 

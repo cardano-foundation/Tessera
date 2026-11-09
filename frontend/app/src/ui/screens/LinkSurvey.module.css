@@ -1,15 +1,7 @@
 /*
- * Co-located styles for LinkSurvey.tsx.
- *
- * Convention: one `Foo.module.css` next to `Foo.tsx`, imported as `s` and
- * applied via `class={s.x}`. Static styles live here; design tokens
- * (`var(--…)`) come from theme.css `:root`. Signal/prop-driven toggles use
- * state classes flipped with `classList`. The `Note` component keeps its own
- * inline `style` prop — only real DOM `style={}` attributes are migrated here.
- *
- * The step layout primitives (stepHead / card / hint / btn / mono) live in
- * LinkAnchorSection.module.css — the hosting-half widget this screen embeds —
- * and are imported from there.
+ * The LinkSurvey screen. The step layout (stepHead / card / label / hint /
+ * actionRow) lives in LinkAnchorSection.module.css, with the hosting step
+ * this screen embeds, and is imported from there.
  */
 
 .main {
@@ -18,114 +10,42 @@
   padding: 22px 24px 90px;
 }
 
-.backLink {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  font-size: 13.5px;
-  font-weight: 600;
-  color: var(--muted);
-  text-decoration: none;
-  padding: 6px 0;
-}
-
-.backArrow {
-  font-size: 15px;
-}
-
 .titleRow {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-top: 10px;
-}
-
-.govPill {
-  font-family: var(--mono);
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--gov);
-  background: var(--gov-bg);
-  border: 1px solid var(--gov-line);
-  border-radius: var(--r-2xs);
-  padding: 4px 8px;
-}
-
-.title {
-  font-size: 24px;
-  font-weight: 700;
-  letter-spacing: -0.018em;
-  margin: 0;
-  color: var(--ink);
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  margin-top: 8px;
 }
 
 .lead {
-  font-size: 14px;
-  color: var(--muted);
-  line-height: 1.55;
   margin: 12px 0 0;
+}
+.lead b {
+  font-weight: 500;
+  color: var(--ink);
 }
 
 .sectionNote {
-  font-size: 13px;
-  color: var(--muted);
-  line-height: 1.5;
   margin: 10px 2px 0;
 }
 
-/* "Proposal submitted ✓" heading inside the success Note (tighter gap). */
-.submittedTitle {
-  font-weight: 700;
-  margin-bottom: 5px;
+.flush {
+  margin: 0;
 }
 
-/* Submitted-confirmation tx hash line: mono, breaks the long hash. */
-.txLine {
-  font-family: var(--mono);
-  font-size: 11.5px;
-  word-break: break-all;
-}
-
-/* Submit button: gov-filled when enabled, dimmed + not-allowed when not. */
-.submitBtn {
-  font-family: inherit;
-  font-size: 14px;
-  font-weight: 700;
-  cursor: not-allowed;
-  color: #fff;
-  background: var(--dim);
-  border: none;
-  border-radius: var(--r-md);
-  padding: 12px 20px;
-  opacity: 0.7;
-}
-
-.submitBtnEnabled {
-  cursor: pointer;
-  background: var(--gov);
-  opacity: 1;
-}
-
-.queueBtn {
-  margin-left: 10px;
-  font-family: inherit;
-  font-size: 13px;
-  font-weight: 700;
-  cursor: pointer;
+/* The survey being linked: its title, above the ref line. */
+.surveyTitle {
+  font-family: var(--serif);
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.3;
   color: var(--ink);
-  background: #fff;
-  border: 1px solid var(--line);
-  border-radius: var(--r-md);
-  padding: 11px 16px;
-}
-.queueBtn:disabled {
-  color: var(--faint);
-  cursor: not-allowed;
+  margin-bottom: 4px;
 }
 
-/* Step 1: the two entry choices, side by side until the viewport is narrow. */
+/* Step one: the two entry choices, side by side until the viewport is
+   narrow. */
 .choiceRow {
   display: flex;
   gap: 10px;
@@ -135,79 +55,66 @@
 
 .choiceBtn {
   flex: 1 1 240px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
   text-align: left;
   font-family: inherit;
   cursor: pointer;
-  color: var(--ink);
-  background: #fff;
-  border: 1px solid var(--gov-line);
+  background: var(--card);
+  border: 1px solid var(--control-line);
   border-radius: var(--r-md);
   padding: 13px 15px;
 }
+.choiceBtn:hover {
+  border-color: var(--ink);
+}
 
 .choiceTitle {
-  font-size: 13.5px;
-  font-weight: 700;
+  font-size: 15px;
+  font-weight: 500;
   color: var(--gov);
 }
 
-.choiceHint {
-  font-size: 12px;
-  color: var(--dim);
-  line-height: 1.5;
-  margin-top: 5px;
-}
-
-/* "Start over" — swaps the chosen branch back to the entry question. */
-.switchBtn {
-  font-family: inherit;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  color: var(--muted);
-  background: none;
-  border: none;
-  padding: 0;
+.startOver {
   margin-top: 12px;
-  text-decoration: underline;
 }
 
 .formField {
-  margin-top: 12px;
+  display: block;
+  margin-top: 14px;
 }
 .formField:first-child {
   margin-top: 0;
 }
 
-.formLabel {
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--muted);
-  margin-bottom: 6px;
-}
-
-.formInput {
-  width: 100%;
-  border: 1px solid var(--line);
-  border-radius: var(--r-control);
-  padding: 10px 12px;
-  font-family: inherit;
-  font-size: 13.5px;
-  color: var(--ink);
-  outline: none;
-  box-sizing: border-box;
-}
-
 .formArea {
-  composes: formInput;
   resize: vertical;
   min-height: 72px;
 }
 
-/* The survey being linked: its title, above the mono ref line. */
-.surveyTitle {
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--ink);
+.fileInput {
+  font-size: 14px;
+  margin-top: 10px;
+}
+
+.submitRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.submittedTitle {
+  font-weight: 500;
   margin-bottom: 4px;
+}
+
+.txLine {
+  font-family: var(--code);
+  font-size: 13px;
+  word-break: break-all;
+}
+
+.submittedHint {
+  margin: 8px 0 0;
 }
