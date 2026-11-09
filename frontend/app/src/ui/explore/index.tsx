@@ -26,8 +26,9 @@ import {
   SkeletonRows,
 } from "./Chrome";
 import { Entry, type EntryProps, type Flags } from "./Row";
-import css from "./explore.module.css";
 import { usePageTitle } from "~/ui/pageTitle";
+import kit from "~/ui/kit.module.css";
+import css from "./explore.module.css";
 
 // Below this width the table gets cramped, so each row reflows into a card.
 const CARD_BREAKPOINT = 800;
@@ -64,7 +65,6 @@ const Section: Component<{
   rows: readonly SurveyAggregate[];
   label: JSX.Element;
   entry: (a: SurveyAggregate) => JSX.Element;
-  closed?: boolean;
 }> = (props) => {
   let top: HTMLDivElement | undefined;
   const turn = (go: () => void): void => {
@@ -78,20 +78,13 @@ const Section: Component<{
     <Show when={props.rows.length > 0}>
       <div ref={top}>
         {props.label}
-        <Show
-          when={props.closed}
-          fallback={<For each={props.rows}>{props.entry}</For>}
-        >
-          <div class={css.closedRows}>
-            <For each={props.rows}>{props.entry}</For>
-          </div>
-        </Show>
+        <For each={props.rows}>{props.entry}</For>
         <Show when={offset() > 0 || props.section.hasNext()}>
           <div class={css.pager}>
             <button
               onClick={() => turn(props.section.previous)}
               disabled={offset() === 0}
-              class={css.pageBtn}
+              class={kit.button}
             >
               {t("explore.previousPage")}
             </button>
@@ -105,7 +98,7 @@ const Section: Component<{
             <button
               onClick={() => turn(props.section.next)}
               disabled={!props.section.hasNext() || props.section.loading()}
-              class={css.pageBtn}
+              class={kit.button}
             >
               {t("explore.nextPage")}
             </button>
@@ -222,7 +215,6 @@ export const Explore: Component = () => {
     tip: tip(),
     secondsPerEpoch: app.config.secondsPerEpoch,
     nowUnix: nowUnix(),
-    pro: app.ui.pro,
     flags: flagsOf(a),
     narrow: narrow(),
   });
@@ -233,7 +225,7 @@ export const Explore: Component = () => {
     <main class={css.page}>
       {/* title row + summary */}
       <div class={css.titleRow}>
-        <h1 class={css.title}>{t("explore.pageTitle")}</h1>
+        <h1 class={kit.pageTitle}>{t("explore.pageTitle")}</h1>
         <div class={css.summary}>
           <span class={css.entries}>
             {t("explore.summary", {
@@ -241,8 +233,8 @@ export const Explore: Component = () => {
               epoch: tipEpoch(),
             })}
           </span>
-          <A href="/create" class={css.newBtn}>
-            <span class={css.newBtnPlus}>+</span> {t("explore.newSurvey")}
+          <A href="/create" class={`${kit.button} ${kit.primary}`}>
+            {t("explore.newSurvey")}
           </A>
         </div>
       </div>
@@ -253,17 +245,13 @@ export const Explore: Component = () => {
           <For each={FILTERS}>
             {(f) => (
               <button
+                type="button"
                 onClick={() => app.setFilter(f.value)}
                 class={css.filter}
-                classList={{ [css.filterOn]: app.ui.filter === f.value }}
+                aria-pressed={app.ui.filter === f.value}
               >
-                {t(f.labelKey)}{" "}
-                <span
-                  class={css.filterCount}
-                  classList={{ [css.filterCountOn]: app.ui.filter === f.value }}
-                >
-                  {counts()[f.value]}
-                </span>
+                {t(f.labelKey)}
+                <span class={css.filterCount}>{counts()[f.value]}</span>
               </button>
             )}
           </For>
@@ -274,7 +262,7 @@ export const Explore: Component = () => {
             height="14"
             viewBox="0 0 24 24"
             fill="none"
-            stroke="#BFB39A"
+            stroke="currentColor"
             stroke-width="2.2"
             stroke-linecap="round"
             aria-hidden="true"
@@ -284,6 +272,8 @@ export const Explore: Component = () => {
             <line x1="15.5" y1="15.5" x2="21" y2="21" />
           </svg>
           <input
+            type="search"
+            aria-label={t("explore.searchLabel")}
             value={searchInput()}
             onInput={(e) => onSearchInput(e.currentTarget.value)}
             placeholder={t("explore.searchPlaceholder")}
@@ -332,7 +322,6 @@ export const Explore: Component = () => {
                 section={app.sections.linkedClosed}
                 rows={app.sections.linkedClosed.rows()}
                 entry={entry}
-                closed
                 label={
                   <SectionLabel
                     color="var(--gov)"
@@ -346,7 +335,7 @@ export const Explore: Component = () => {
                 entry={entry}
                 label={
                   <SectionLabel
-                    color="#5E7B49"
+                    color="var(--ok)"
                     label={t("explore.sectionOpen")}
                   />
                 }
@@ -355,10 +344,9 @@ export const Explore: Component = () => {
                 section={app.sections.closed}
                 rows={app.sections.closed.rows()}
                 entry={entry}
-                closed
                 label={
                   <SectionLabel
-                    color="#A79C88"
+                    color="var(--muted)"
                     label={t("explore.sectionClosed")}
                     topBorder
                   />

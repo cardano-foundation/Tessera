@@ -19,6 +19,7 @@ import {
 } from "~/ui/format";
 import { FormMosaic, RoleChips, VisGlyph } from "~/ui/components/glyphs";
 import { t } from "~/i18n";
+import kit from "~/ui/kit.module.css";
 import css from "./explore.module.css";
 
 /** Per-survey row flags (wallet relationship + optimistic-entry state). */
@@ -34,7 +35,6 @@ export interface EntryProps {
   tip: ChainTip | undefined;
   secondsPerEpoch: number;
   nowUnix: number;
-  pro: boolean;
   flags: Flags;
   narrow: boolean;
 }
@@ -84,21 +84,27 @@ const AnsweredCheck: Component = () => (
 );
 
 const YoursBadge: Component = () => (
-  <span class={css.badge}>{t("explore.badgeYours")}</span>
+  <span class={`${kit.chip} ${kit.chipAccent} ${css.badge}`}>
+    {t("explore.badgeYours")}
+  </span>
+);
+
+const WarnBadge: Component<{ text: string }> = (props) => (
+  <span class={`${kit.chip} ${kit.chipWarn} ${css.badge}`}>{props.text}</span>
 );
 
 const OffChainBadge: Component = () => (
-  <span class={css.badge}>{t("explore.badgeOffChain")}</span>
+  <WarnBadge text={t("explore.badgeOffChain")} />
 );
 
 /** Marks a survey whose on-chain definition is spec-invalid (untalliable). */
 const InvalidBadge: Component = () => (
-  <span class={css.badge}>{t("explore.badgeUntalliable")}</span>
+  <WarnBadge text={t("explore.badgeUntalliable")} />
 );
 
 /** Marks an optimistic survey whose defining tx may never land (finding 61). */
 const StuckBadge: Component = () => (
-  <span class={css.badge}>{t("explore.badgeNotOnChain")}</span>
+  <WarnBadge text={t("explore.badgeNotOnChain")} />
 );
 
 const GovLine: Component<{ actionId: string; title: string | null }> = (
@@ -123,12 +129,7 @@ const GridRow: Component<EntryProps> = (props) => {
     <A href={`/survey/${encodeURIComponent(props.a.key)}`} class={css.row}>
       <div class={css.formCell}>
         <FormMosaic count={def().questions.length} />
-        <span
-          class={css.formCount}
-          classList={{ [css.formCountClosed]: closed() }}
-        >
-          {def().questions.length}
-        </span>
+        <span class={css.formCount}>{def().questions.length}</span>
       </div>
       <div class={css.centerCell}>
         <VisGlyph status={status()} />
@@ -140,10 +141,7 @@ const GridRow: Component<EntryProps> = (props) => {
       </div>
       <div class={css.titleCell}>
         <div class={css.titleLine}>
-          <span
-            class={css.surveyTitle}
-            classList={{ [css.surveyTitleClosed]: closed() }}
-          >
+          <span class={css.surveyTitle} classList={{ [css.closed]: closed() }}>
             {def().title || t("explore.untitled")}
           </span>
           <Show when={props.flags.mine}>
@@ -168,26 +166,15 @@ const GridRow: Component<EntryProps> = (props) => {
       </div>
       <RoleChips roles={def().eligibleRoles} />
       <div>
-        <div class={css.ends} classList={{ [css.endsClosed]: closed() }}>
+        <div class={css.ends} classList={{ [css.closed]: closed() }}>
           {ends()}
         </div>
         <Show when={closedDate()}>
           {(date) => <div class={css.endsDate}>{date()}</div>}
         </Show>
-        <Show when={props.pro}>
-          <div
-            title={t("explore.refTitle")}
-            class={css.ref}
-            classList={{ [css.refClosed]: closed() }}
-          >
-            {t("explore.refEpoch", { epoch: def().endEpoch })}
-            <br />
-            {props.a.key}
-          </div>
-        </Show>
       </div>
       <div class={css.repliesCell}>
-        <span class={css.replies} classList={{ [css.repliesClosed]: closed() }}>
+        <span class={css.replies} classList={{ [css.closed]: closed() }}>
           {status() === "cancelled" || status() === "invalid"
             ? "—"
             : props.a.responseCount}
@@ -219,10 +206,7 @@ const CardRow: Component<EntryProps> = (props) => {
         <Show when={props.flags.responded}>
           <AnsweredCheck />
         </Show>
-        <span
-          class={css.cardTitle}
-          classList={{ [css.cardTitleClosed]: closed() }}
-        >
+        <span class={css.cardTitle} classList={{ [css.closed]: closed() }}>
           {def().title || t("explore.untitled")}
         </span>
         <Show when={props.flags.mine}>
@@ -262,30 +246,15 @@ const CardRow: Component<EntryProps> = (props) => {
           </MetaChip>
         </Show>
         <MetaChip label={t("explore.metaEnds")}>
-          <span
-            class={css.cardEnds}
-            classList={{ [css.cardEndsClosed]: closed() }}
-          >
-            {ends()}
-            <Show when={closedDate()}>{(date) => <> · {date()}</>}</Show>
-          </span>
+          {ends()}
+          <Show when={closedDate()}>{(date) => <> · {date()}</>}</Show>
         </MetaChip>
         <MetaChip label={t("explore.metaReplies")}>
           {status() === "cancelled" || status() === "invalid"
             ? "—"
             : String(props.a.responseCount)}
         </MetaChip>
-        <Show when={props.pro}>
-          <MetaChip label={t("explore.metaEpoch")}>
-            {String(def().endEpoch)}
-          </MetaChip>
-        </Show>
       </div>
-      <Show when={props.pro}>
-        <div title={t("explore.refTitle")} class={css.cardRef}>
-          {t("explore.refLabel", { ref: props.a.key })}
-        </div>
-      </Show>
     </A>
   );
 };

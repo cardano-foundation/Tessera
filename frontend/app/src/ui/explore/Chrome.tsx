@@ -43,10 +43,9 @@ export const SectionLabel: Component<{
   topBorder?: boolean;
 }> = (props) => (
   <div class={css.section} classList={{ [css.sectionTop]: props.topBorder }}>
-    {/* Per-section accent is a free-form prop, so it rides in on a CSS var. */}
-    <span class={css.sectionTag} style={{ "--section-color": props.color }}>
+    <h2 class={css.sectionTag} style={{ "--section-color": props.color }}>
       {props.label}
-    </span>
+    </h2>
   </div>
 );
 
@@ -105,9 +104,11 @@ export const Legend: Component = () => (
     <FormMosaic count={4} size={14} />
     <span class={css.legendText}>{t("explore.legendForm")}</span>
     <span class={css.legendGroup}>
-      <span class={css.legendDot} />
+      <span class={css.legendMark}>
+        <VisGlyph status="public" />
+      </span>
       <span class={css.legendText}>{t("explore.legendPublic")}</span>
-      <span class={css.legendSealed}>
+      <span class={css.legendMark}>
         <VisGlyph status="sealed" />
       </span>
       <span class={css.legendText}>{t("explore.legendSealed")}</span>

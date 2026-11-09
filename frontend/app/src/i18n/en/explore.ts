@@ -30,6 +30,7 @@ const explore = {
   newSurvey: "New survey",
 
   searchPlaceholder: "Search surveys…",
+  searchLabel: "Search surveys",
 
   // Table header cells.
   headerForm: "Form",
@@ -42,7 +43,7 @@ const explore = {
   /** {error} is the raw error string. */
   loadError: "Failed to load: {error}",
   incomplete:
-    "Showing the most recent surveys and responses — more exist on-chain than could be loaded, so some lists and tallies may be incomplete.",
+    "Showing the most recent surveys and responses. More exist on-chain than could be loaded, so some lists and tallies may be incomplete.",
 
   // Section labels splitting the register.
   sectionGov: "On-chain governance · open",
@@ -53,8 +54,8 @@ const explore = {
   noMatch: "No surveys match.",
 
   // Pagination.
-  previousPage: "← Previous",
-  nextPage: "Next →",
+  previousPage: "Previous",
+  nextPage: "Next",
   /** A section page's rows, {from} to {to}, out of the section's {total}. */
   pageRange: "{from}–{to} of {total}",
 
@@ -70,22 +71,15 @@ const explore = {
   /** Spliced after govLinkedAction when a linked-action title is known; {title} is user content. */
   govLinkedActionTitle: " · {title}",
   untitled: "Untitled · external content",
-  noPresentation: "Presentation text unavailable — on-chain structure intact.",
-  refTitle:
-    "Survey ref: the transaction that defines the survey, and the survey's position in it",
-  /** {epoch} is the raw end-epoch number. */
-  refEpoch: "epoch {epoch}",
-  /** {ref} is the full survey ref. */
-  refLabel: "ref {ref}",
-
+  noPresentation:
+    "Presentation text unavailable; the on-chain structure is intact.",
   // Card-mode meta chips.
   metaEligible: "Eligible",
   metaEnds: "Ends",
   metaReplies: "Replies",
-  metaEpoch: "Epoch",
 
   // Legend.
-  legendForm: "Form — one tile per question.",
+  legendForm: "Form: one tile per question.",
   legendPublic: "public",
   legendSealed: "sealed until reveal",
   legendAnswered: "you answered",

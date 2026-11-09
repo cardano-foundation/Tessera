@@ -3,7 +3,7 @@
 const healthFooter = {
   // Snapshot freshness (age is a preformatted duration like "3 m").
   updated: "data {age} old",
-  updatedStale: "data {age} old — refresh may be stuck",
+  updatedStale: "data {age} old, refresh may be stuck",
   updatedTitle: "How old the served on-chain snapshot is",
   // The slowest refresh run of the day, against the platform's time limit on
   // one run when it has one.
@@ -16,7 +16,7 @@ const healthFooter = {
   koiosDaily: "Koios {calls} / 24 h",
   koiosDailyWithLimit: "Koios {calls}/{limit} / 24 h",
   koiosDailyTitle:
-    "Requests on the operator's Koios identity over the last 24 hours — refreshes and served reads alike",
+    "Requests on the operator's Koios identity over the last 24 hours, refreshes and served reads alike",
   passthroughDaily: "polling {calls} / 24 h",
   passthroughDailyTitle:
     "Confirmation polling, on its own Koios identity so no flood of it can reach the identity the served data depends on",

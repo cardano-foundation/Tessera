@@ -2,7 +2,7 @@ import type { Messages } from "../en/healthFooter";
 
 const healthFooter: Messages = {
   updated: "données datant de {age}",
-  updatedStale: "données datant de {age} — rafraîchissement peut-être bloqué",
+  updatedStale: "données datant de {age}, rafraîchissement peut-être bloqué",
   updatedTitle: "Âge de l'instantané on-chain servi",
   slowestRun: "rafraîchissement le plus long {run} s / 24 h",
   slowestRunWithLimit: "rafraîchissement le plus long {run}/{limit} s / 24 h",
@@ -11,7 +11,7 @@ const healthFooter: Messages = {
   koiosDaily: "Koios {calls} / 24 h",
   koiosDailyWithLimit: "Koios {calls}/{limit} / 24 h",
   koiosDailyTitle:
-    "Requêtes sur l'identité Koios de l'opérateur au cours des dernières 24 heures — rafraîchissements comme lectures servies",
+    "Requêtes sur l'identité Koios de l'opérateur au cours des dernières 24 heures, rafraîchissements comme lectures servies",
   passthroughDaily: "suivi {calls} / 24 h",
   passthroughDailyTitle:
     "Suivi des confirmations, sur son identité Koios dédiée : aucun afflux ne peut atteindre l'identité dont dépendent les données servies",

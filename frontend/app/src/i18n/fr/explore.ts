@@ -28,6 +28,7 @@ const explore: Messages = {
   newSurvey: "Nouveau sondage",
 
   searchPlaceholder: "Rechercher des sondages…",
+  searchLabel: "Rechercher des sondages",
 
   headerForm: "Formulaire",
   headerAnsweredTitle: "Sondages auxquels vous avez répondu",
@@ -38,7 +39,7 @@ const explore: Messages = {
 
   loadError: "Échec du chargement : {error}",
   incomplete:
-    "Affichage des sondages et réponses les plus récents — il en existe davantage on-chain que ce qui a pu être chargé, donc certaines listes et certains décomptes peuvent être incomplets.",
+    "Affichage des sondages et réponses les plus récents. Il en existe davantage on-chain que ce qui a pu être chargé, donc certaines listes et certains décomptes peuvent être incomplets.",
 
   sectionGov: "Gouvernance on-chain · ouverts",
   sectionGovClosed: "Gouvernance on-chain · terminés",
@@ -47,8 +48,8 @@ const explore: Messages = {
 
   noMatch: "Aucun sondage correspondant.",
 
-  previousPage: "← Précédents",
-  nextPage: "Suivants →",
+  previousPage: "Précédents",
+  nextPage: "Suivants",
   pageRange: "{from}–{to} sur {total}",
 
   answeredTitle: "Vous avez répondu à ce sondage",
@@ -61,18 +62,13 @@ const explore: Messages = {
   govLinkedActionTitle: " · {title}",
   untitled: "Sans titre · contenu externe",
   noPresentation:
-    "Texte de présentation indisponible — structure on-chain intacte.",
-  refTitle:
-    "Référence du sondage : la transaction qui le définit, et sa position dans celle-ci",
-  refEpoch: "époque {epoch}",
-  refLabel: "réf {ref}",
+    "Texte de présentation indisponible ; la structure on-chain est intacte.",
 
   metaEligible: "Éligibles",
   metaEnds: "Fin",
   metaReplies: "Réponses",
-  metaEpoch: "Époque",
 
-  legendForm: "Formulaire — une tuile par question.",
+  legendForm: "Formulaire : une tuile par question.",
   legendPublic: "public",
   legendSealed: "scellé jusqu'à la révélation",
   legendAnswered: "vous avez répondu",

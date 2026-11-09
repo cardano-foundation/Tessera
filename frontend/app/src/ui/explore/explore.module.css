@@ -1,12 +1,5 @@
-/*
- * Co-located styles for Explore.tsx (CSS Modules).
- *
- * Convention: static styles live here as plain classes; boolean/enum state
- * toggles use modifier classes applied with Solid `classList`; design tokens
- * (`var(--…)`) come from theme.css `:root`. Genuinely computed values (skeleton
- * bar widths, the per-section accent color) are bridged through inline CSS
- * custom properties consumed below. One-off literal colors stay literal.
- */
+/* Computed values (skeleton bar sizes, a section's colour) arrive as inline
+   custom properties. */
 
 .page {
   max-width: 1100px;
@@ -20,17 +13,9 @@
   align-items: flex-end;
   justify-content: space-between;
   gap: 16px;
-  border-bottom: 1px solid #e7dfce;
+  border-bottom: 1px solid var(--line);
   padding-bottom: 14px;
   flex-wrap: wrap;
-}
-
-.title {
-  font-size: 31px;
-  font-weight: 700;
-  letter-spacing: -0.014em;
-  margin: 0;
-  color: var(--ink);
 }
 
 .summary {
@@ -42,30 +27,9 @@
 
 .entries {
   font-family: var(--mono);
-  font-size: 11.5px;
-  color: var(--dim);
+  font-size: 12px;
+  color: var(--muted);
   white-space: nowrap;
-}
-
-.newBtn {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  white-space: nowrap;
-  background: var(--accent);
-  color: #fff;
-  text-decoration: none;
-  border-radius: var(--r-control);
-  padding: 9px 14px;
-  font-size: 13px;
-  font-weight: 700;
-  box-shadow: 0 6px 16px -9px var(--accent-shadow);
-}
-
-.newBtnPlus {
-  font-size: 15px;
-  line-height: 0;
-  margin-top: -1px;
 }
 
 /* ===== filters + search ===== */
@@ -79,40 +43,42 @@
 
 .filterGroup {
   display: flex;
-  gap: 7px;
+  gap: 8px;
   flex-wrap: wrap;
 }
 
 .filter {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
+  gap: 8px;
+  min-height: 32px;
+  padding: 4px 12px;
   font-family: inherit;
-  font-size: 12.5px;
-  font-weight: 600;
-  cursor: pointer;
-  border-radius: 8px;
-  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 500;
   white-space: nowrap;
+  cursor: pointer;
+  color: var(--body);
+  background: var(--card);
   border: 1px solid var(--line);
-  background: #f2ecde;
-  color: #6b6356;
+  border-radius: var(--r-chip);
 }
-.filterOn {
-  font-weight: 700;
-  border: 1px solid var(--accent);
+.filter:hover {
+  border-color: var(--control-line);
+}
+.filter[aria-pressed="true"] {
+  color: var(--on-accent);
   background: var(--accent);
-  color: #fbf8f1;
+  border-color: var(--accent);
 }
 
 .filterCount {
   font-family: var(--mono);
-  font-size: 10.5px;
-  font-weight: 600;
-  color: #a79c88;
+  font-size: 11px;
+  color: var(--muted);
 }
-.filterCountOn {
-  color: rgba(251, 248, 241, 0.75);
+.filter[aria-pressed="true"] .filterCount {
+  color: var(--on-accent);
 }
 
 .search {
@@ -120,11 +86,28 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  background: var(--surface2);
-  border: 1px solid var(--line);
-  border-radius: var(--r-input);
-  padding: 8px 12px;
   min-width: 190px;
+  min-height: 40px;
+  padding: 0 12px;
+  color: var(--muted);
+  background: var(--card);
+  border: 1px solid var(--control-line);
+  border-radius: var(--r-input);
+}
+.search:hover {
+  border-color: var(--ink);
+}
+/* The field has no box of its own; the ring goes on the box around it. */
+.search:focus-within {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+@media (max-width: 560px) {
+  .search {
+    flex: 1 1 100%;
+    margin-left: 0;
+  }
 }
 
 .searchIcon {
@@ -133,13 +116,17 @@
 }
 
 .searchInput {
+  flex: 1;
+  min-height: 38px;
   border: none;
   outline: none;
   font-family: inherit;
-  font-size: 13px;
-  flex: 1;
+  font-size: 14px;
   background: transparent;
   color: var(--ink);
+}
+.searchInput::placeholder {
+  color: var(--muted);
 }
 
 /* ===== register table (cards on narrow screens) ===== */
@@ -169,12 +156,8 @@
   border: 1px solid var(--warn-line);
   background: var(--warn-bg);
   border-radius: var(--r-md);
-  font-size: 12.5px;
-  color: var(--warn);
-}
-
-.closedRows {
-  opacity: 0.56;
+  font-size: 13px;
+  color: var(--body);
 }
 
 /* Seven columns: form · visibility · answered · survey · eligible · ends ·
@@ -191,16 +174,16 @@
 .header {
   composes: gridRow;
   padding: 10px 6px;
-  border-bottom: 1px solid #ddd3c0;
+  border-bottom: 1px solid var(--line);
 }
 
 .headerCell {
   font-family: var(--mono);
-  font-size: 9.5px;
-  letter-spacing: 0.09em;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: #b0a488;
-  font-weight: 600;
+  color: var(--muted);
   text-align: left;
 }
 .cellCenter {
@@ -216,16 +199,16 @@
 }
 .sectionTop {
   padding-top: 20px;
-  border-top: 1px solid #ece2d0;
+  border-top: 1px solid var(--line);
 }
 
 .sectionTag {
+  margin: 0;
   font-family: var(--mono);
-  font-size: 11.5px;
-  font-weight: 600;
+  font-size: 12px;
+  font-weight: 500;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  /* per-section accent, bridged from the call site */
   color: var(--section-color);
 }
 
@@ -236,32 +219,23 @@
 }
 .innerNarrow .sectionTag {
   font-size: 13px;
-  font-weight: 700;
 }
 
 /* ===== badges / inline marks ===== */
 .answered {
   color: var(--ok);
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 600;
   line-height: 1;
 }
 
 .badge {
   flex: none;
-  font-size: 10px;
-  font-weight: 700;
-  color: var(--warn);
-  background: var(--warn-bg);
-  border: 1px solid var(--warn-line);
-  border-radius: 5px;
-  padding: 1.5px 6px;
-  white-space: nowrap;
 }
 
 .govLine {
-  font-family: var(--mono);
-  font-size: 10.5px;
+  font-family: var(--code);
+  font-size: 11px;
   color: var(--gov);
   margin-top: 4px;
   white-space: nowrap;
@@ -273,10 +247,13 @@
 .row {
   composes: gridRow;
   padding: 12px 6px;
-  border-bottom: 1px solid #ece2d0;
-  cursor: pointer;
+  border-bottom: 1px solid var(--line);
   text-decoration: none;
   color: inherit;
+}
+.row:hover,
+.card:hover {
+  background: var(--sunken);
 }
 
 .formCell {
@@ -288,12 +265,8 @@
 
 .formCount {
   font-family: var(--mono);
-  font-size: 9.5px;
-  font-weight: 600;
-  color: #a98a6e;
-}
-.formCountClosed {
-  color: #b3a892;
+  font-size: 11px;
+  color: var(--muted);
 }
 
 .centerCell {
@@ -313,9 +286,10 @@
   min-width: 0;
 }
 
-.surveyTitle {
+.surveyTitle,
+.cardTitle {
   font-family: var(--serif);
-  font-size: 16px;
+  font-size: 17px;
   font-weight: 600;
   letter-spacing: -0.005em;
   color: var(--ink);
@@ -323,13 +297,15 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.surveyTitleClosed {
-  color: #5c5648;
+/* A closed survey steps back a shade, never below text contrast. */
+.closed {
+  color: var(--body);
+  font-weight: 500;
 }
 
 .desc {
-  font-size: 12px;
-  color: #a79c88;
+  font-size: 13px;
+  color: var(--muted);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -339,27 +315,15 @@
 .ends {
   font-size: 13px;
   font-weight: 500;
-  color: #5a5246;
-}
-.endsClosed {
-  color: #8a8270;
+  color: var(--body);
 }
 .endsDate {
-  font-size: 11.5px;
-  color: #8a8270;
+  font-size: 12px;
+  color: var(--muted);
   margin-top: 2px;
 }
-
-.ref {
-  font-family: var(--mono);
-  font-size: 10.5px;
-  color: var(--gov);
-  margin-top: 2px;
-  word-break: break-all;
-  line-height: 1.4;
-}
-.refClosed {
-  color: #9c9486;
+.ends.closed {
+  color: var(--muted);
 }
 
 .repliesCell {
@@ -369,18 +333,18 @@
 .replies {
   font-family: var(--mono);
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--ink);
 }
-.repliesClosed {
-  color: #6c6657;
+.replies.closed {
+  color: var(--body);
 }
 
 /* ===== card row ===== */
 .card {
   display: block;
   padding: 14px 4px;
-  border-bottom: 1px solid #ece2d0;
+  border-bottom: 1px solid var(--line);
   text-decoration: none;
   color: inherit;
 }
@@ -400,22 +364,11 @@
 .cardTitle {
   flex: 1;
   min-width: 0;
-  font-family: var(--serif);
-  font-size: 16px;
-  font-weight: 600;
-  letter-spacing: -0.005em;
-  color: var(--ink);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.cardTitleClosed {
-  color: #5c5648;
 }
 
 .cardDesc {
-  font-size: 12.5px;
-  color: #a79c88;
+  font-size: 13px;
+  color: var(--muted);
   margin-top: 3px;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -424,6 +377,9 @@
 }
 
 .cardBadgeRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
   margin-top: 6px;
 }
 
@@ -435,21 +391,6 @@
   margin-top: 11px;
 }
 
-.cardEnds {
-  color: #5a5246;
-}
-.cardEndsClosed {
-  color: #8a8270;
-}
-
-.cardRef {
-  font-family: var(--mono);
-  font-size: 10.5px;
-  color: var(--gov);
-  word-break: break-all;
-  margin-top: 8px;
-}
-
 /* ===== meta chip ===== */
 .metaChip {
   display: inline-flex;
@@ -459,17 +400,17 @@
 
 .metaLabel {
   font-family: var(--mono);
-  font-size: 9px;
-  letter-spacing: 0.07em;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: #b0a488;
-  font-weight: 600;
+  color: var(--muted);
 }
 
 .metaValue {
-  font-size: 12.5px;
-  color: #5a5246;
+  font-size: 13px;
   font-weight: 500;
+  color: var(--body);
 }
 
 /* A direct flex item of the meta row, not a chip value: an inline mosaic
@@ -492,8 +433,8 @@
 }
 
 .legendText {
-  font-size: 11.5px;
-  color: #a79c88;
+  font-size: 12px;
+  color: var(--muted);
 }
 
 .legendGroup {
@@ -503,23 +444,15 @@
   margin-left: 10px;
 }
 
-.legendDot {
-  width: 11px;
-  height: 11px;
-  border-radius: 50%;
-  border: 2px solid #7e8b6a;
-  box-sizing: border-box;
-}
-
-.legendSealed {
-  margin-left: 6px;
+.legendMark {
   display: inline-flex;
+  margin-left: 6px;
 }
 
 .legendCheck {
   margin-left: 10px;
   color: var(--ok);
-  font-weight: 700;
+  font-weight: 600;
   font-size: 12px;
 }
 
@@ -532,36 +465,16 @@
   padding: 14px 6px;
 }
 
-.pageBtn {
-  font: inherit;
-  font-size: 13px;
-  padding: 7px 18px;
-  border: 1px solid #d8cfc0;
-  border-radius: 8px;
-  background: none;
-  color: var(--ink, #3d382f);
-  cursor: pointer;
-}
-
-.pageBtn:hover:not(:disabled) {
-  border-color: #bfb39a;
-}
-
-.pageBtn:disabled {
-  opacity: 0.6;
-  cursor: default;
-}
-
 .pageRange {
-  font-size: 11.5px;
-  color: #a79c88;
+  font-size: 12px;
+  color: var(--muted);
 }
 
 /* ===== notice ===== */
 .notice {
   padding: 26px 6px;
   text-align: center;
-  font-size: 13.5px;
+  font-size: 14px;
   color: var(--muted);
 }
 .noticeDanger {
@@ -571,34 +484,37 @@
 /* ===== skeleton ===== */
 .skeletonCard {
   padding: 14px 4px;
-  border-bottom: 1px solid #efe8da;
+  border-bottom: 1px solid var(--line);
   display: flex;
   flex-direction: column;
   gap: 9px;
 }
 
-/* Bar width is computed per-instance, bridged from the call site. */
+.skeletonBar,
+.skeletonForm,
+.skeletonDot,
+.skeletonReplies {
+  background: var(--sunken);
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
 .skeletonBar {
   display: block;
   width: var(--bar-w);
   height: var(--bar-h);
-  border-radius: 5px;
-  background: #e9e1d0;
-  animation: pulse 1.4s ease-in-out infinite;
+  border-radius: var(--r-3xs);
 }
 
 .skeletonRow {
   composes: gridRow;
   padding: 15px 6px;
-  border-bottom: 1px solid #efe8da;
+  border-bottom: 1px solid var(--line);
 }
 
 .skeletonForm {
   width: 26px;
   height: 26px;
-  border-radius: 6px;
-  background: #e9e1d0;
-  animation: pulse 1.4s ease-in-out infinite;
+  border-radius: var(--r-2xs);
   margin: 0 auto;
 }
 
@@ -606,15 +522,11 @@
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  background: #e9e1d0;
-  animation: pulse 1.4s ease-in-out infinite;
 }
 
 .skeletonReplies {
   justify-self: end;
   width: 24px;
   height: 12px;
-  border-radius: 5px;
-  background: #e9e1d0;
-  animation: pulse 1.4s ease-in-out infinite;
+  border-radius: var(--r-3xs);
 }

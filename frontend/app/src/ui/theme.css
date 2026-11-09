@@ -37,6 +37,17 @@ select {
   outline-offset: 2px;
 }
 
+/* Pulses and spinners hold still; the state they stand for is still shown. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
 @keyframes pulse {
   0%,
   100% {
