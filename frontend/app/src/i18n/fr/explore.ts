@@ -72,6 +72,7 @@ const explore: Messages = {
   legendPublic: "public",
   legendSealed: "scellé jusqu'à la révélation",
   legendAnswered: "vous avez répondu",
+  legendEpochs: "une cellule par époque restante",
 };
 
 export default explore;

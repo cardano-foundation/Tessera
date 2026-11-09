@@ -156,9 +156,47 @@ export function formatAda(lovelace: bigint): string {
   return n(ada);
 }
 
+/** Seconds until an open survey's end epoch is over; zero or less once it is. */
+export function secondsLeft(
+  a: SurveyAggregate,
+  tip: ChainTip,
+  secondsPerEpoch: number,
+  nowUnix: number,
+): number {
+  return (
+    voteDeadlineUnix(a.record.definition.endEpoch, tip, secondsPerEpoch) -
+    nowUnix
+  );
+}
+
+/** Cells in the epoch gauge; more epochs left show as "+". */
+export const GAUGE_CELLS = 3;
+
+/**
+ * An open survey's time left as a battery of epochs: whole epochs still to run
+ * fill their cells, then the current epoch's remainder, then empty cells.
+ * `level` counts the epochs that have begun or are to come, capped at the cell
+ * count; a survey always has its current epoch, even ending now.
+ */
+export function epochGauge(
+  seconds: number,
+  secondsPerEpoch: number,
+): { fills: number[]; level: number; more: boolean } {
+  const left = Math.max(seconds, 0);
+  const whole = Math.floor(left / secondsPerEpoch);
+  const part = (left % secondsPerEpoch) / secondsPerEpoch;
+  const epochs = Math.max(whole + (part > 0 ? 1 : 0), 1);
+  return {
+    fills: Array.from({ length: GAUGE_CELLS }, (_, i) =>
+      i < whole ? 1 : i === whole ? part : 0,
+    ),
+    level: Math.min(epochs, GAUGE_CELLS),
+    more: epochs > GAUGE_CELLS,
+  };
+}
+
 /** Coarse "time left to vote": days+hours up high, hours+minutes near the end. */
-function timeLeft(deadlineUnix: number, nowUnix: number): string {
-  const s = deadlineUnix - nowUnix;
+function timeLeft(s: number): string {
   if (s <= 0) return t("explore.endingNow");
   const d = Math.floor(s / 86400);
   const h = Math.floor((s % 86400) / 3600);
@@ -179,10 +217,7 @@ export function endsText(
   if (v === "invalid") return t("explore.endsInvalid");
   if (v === "cancelled") return t("explore.endsWithdrawn");
   if (v === "ended") return t("explore.endsClosed");
-  return timeLeft(
-    voteDeadlineUnix(a.record.definition.endEpoch, tip, secondsPerEpoch),
-    nowUnix,
-  );
+  return timeLeft(secondsLeft(a, tip, secondsPerEpoch, nowUnix));
 }
 
 /** A day in the active locale, e.g. "Oct 14, 2026". */

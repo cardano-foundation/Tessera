@@ -14,10 +14,16 @@ import {
   closedDateText,
   endsText,
   isClosed,
+  secondsLeft,
   shortGovId,
   viewStatus,
 } from "~/ui/format";
-import { FormMosaic, RoleChips, VisGlyph } from "~/ui/components/glyphs";
+import {
+  EpochGauge,
+  FormMosaic,
+  RoleChips,
+  VisGlyph,
+} from "~/ui/components/glyphs";
 import { t } from "~/i18n";
 import kit from "~/ui/kit.module.css";
 import css from "./explore.module.css";
@@ -65,6 +71,10 @@ function rowView(props: EntryProps) {
       props.tip
         ? endsText(props.a, props.tip, props.secondsPerEpoch, props.nowUnix)
         : "—",
+    left: (): number | undefined =>
+      props.tip && !isClosed(status())
+        ? secondsLeft(props.a, props.tip, props.secondsPerEpoch, props.nowUnix)
+        : undefined,
     closedDate: (): string | undefined =>
       props.tip
         ? closedDateText(props.a, props.tip, props.secondsPerEpoch)
@@ -122,7 +132,7 @@ const GovLine: Component<{
 );
 
 const GridRow: Component<EntryProps> = (props) => {
-  const { def, status, labelsMissing, closed, ends, closedDate } =
+  const { def, status, labelsMissing, closed, ends, left, closedDate } =
     rowView(props);
   return (
     // A router link, not a div+navigate: a plain click stays client-side (no
@@ -180,6 +190,14 @@ const GridRow: Component<EntryProps> = (props) => {
         <Show when={closedDate()}>
           {(date) => <div class={css.endsDate}>{date()}</div>}
         </Show>
+        <Show when={left() !== undefined}>
+          <div class={css.endsGauge}>
+            <EpochGauge
+              seconds={left()!}
+              secondsPerEpoch={props.secondsPerEpoch}
+            />
+          </div>
+        </Show>
       </div>
       <div class={css.repliesCell}>
         <span class={css.replies} classList={{ [css.closed]: closed() }}>
@@ -203,7 +221,7 @@ const MetaChip: Component<{ label: string; children: JSX.Element }> = (
 );
 
 const CardRow: Component<EntryProps> = (props) => {
-  const { def, status, labelsMissing, closed, ends, closedDate } =
+  const { def, status, labelsMissing, closed, ends, left, closedDate } =
     rowView(props);
   return (
     <A href={`/survey/${encodeURIComponent(props.a.key)}`} class={css.card}>
@@ -266,6 +284,14 @@ const CardRow: Component<EntryProps> = (props) => {
         <MetaChip label={t("explore.metaEnds")}>
           {ends()}
           <Show when={closedDate()}>{(date) => <> · {date()}</>}</Show>
+          <Show when={left() !== undefined}>
+            <span class={css.cardGauge}>
+              <EpochGauge
+                seconds={left()!}
+                secondsPerEpoch={props.secondsPerEpoch}
+              />
+            </span>
+          </Show>
         </MetaChip>
         <MetaChip label={t("explore.metaReplies")}>
           {status() === "cancelled" || status() === "invalid"

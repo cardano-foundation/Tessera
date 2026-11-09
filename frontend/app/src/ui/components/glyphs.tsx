@@ -1,6 +1,6 @@
 import { For, Show, type Component } from "solid-js";
 
-import { roleAbbr, roleColors, type ViewStatus } from "~/ui/format";
+import { epochGauge, roleAbbr, roleColors, type ViewStatus } from "~/ui/format";
 import css from "./glyphs.module.css";
 
 /**
@@ -86,3 +86,38 @@ export const RoleChips: Component<{
     </For>
   </div>
 );
+
+const LEVEL_COLOR = ["var(--danger)", "var(--warn)", "var(--ok)"];
+
+/**
+ * An open survey's time left, one cell per epoch to run, like a battery: its
+ * colour drops from ok to warn to danger as the last two epochs come. Beside
+ * the time-left text, which says the same, so it is hidden from assistive
+ * technology.
+ */
+export const EpochGauge: Component<{
+  seconds: number;
+  secondsPerEpoch: number;
+}> = (props) => {
+  const gauge = () => epochGauge(props.seconds, props.secondsPerEpoch);
+  return (
+    <span
+      class={css.gauge}
+      style={{ "--gauge": LEVEL_COLOR[gauge().level - 1] }}
+      aria-hidden="true"
+    >
+      <For each={gauge().fills}>
+        {(fill, i) => (
+          <span
+            class={css.cell}
+            classList={{ [css.cellOn]: i() < gauge().level }}
+            style={{ "--fill": `${(fill * 100).toFixed(1)}%` }}
+          />
+        )}
+      </For>
+      <Show when={gauge().more}>
+        <span class={css.gaugeMore}>+</span>
+      </Show>
+    </span>
+  );
+};

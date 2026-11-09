@@ -83,6 +83,7 @@ const explore = {
   legendPublic: "public",
   legendSealed: "sealed until reveal",
   legendAnswered: "you answered",
+  legendEpochs: "one cell per epoch left",
 };
 
 export type Messages = typeof explore;

@@ -6,7 +6,7 @@
 
 import { For, Show, type Component, type JSX } from "solid-js";
 
-import { FormMosaic, VisGlyph } from "~/ui/components/glyphs";
+import { EpochGauge, FormMosaic, VisGlyph } from "~/ui/components/glyphs";
 import { t } from "~/i18n";
 import css from "./explore.module.css";
 
@@ -114,6 +114,10 @@ export const Legend: Component = () => (
       <span class={css.legendText}>{t("explore.legendSealed")}</span>
       <span class={css.legendCheck}>✓</span>
       <span class={css.legendText}>{t("explore.legendAnswered")}</span>
+      <span class={css.legendMark}>
+        <EpochGauge seconds={250} secondsPerEpoch={100} />
+      </span>
+      <span class={css.legendText}>{t("explore.legendEpochs")}</span>
     </span>
   </div>
 );

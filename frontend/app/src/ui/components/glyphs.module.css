@@ -104,3 +104,34 @@
   background: transparent;
   border-color: var(--line);
 }
+
+/* ===== EpochGauge ===== */
+
+/* The level's colour, computed, arrives as --gauge. A cell still to run takes
+   it, outline and fill; a spent cell keeps a control outline, so all three
+   always show. */
+.gauge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.cell {
+  width: 13px;
+  height: 7px;
+  border-radius: 2px;
+  box-sizing: border-box;
+  border: 1px solid var(--control-line);
+}
+.cellOn {
+  border-color: var(--gauge);
+  background: linear-gradient(var(--gauge), var(--gauge)) no-repeat 0 0 /
+    var(--fill) 100%;
+}
+
+.gaugeMore {
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--gauge);
+}

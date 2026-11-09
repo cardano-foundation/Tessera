@@ -27,14 +27,18 @@ import {
 import { Mark } from "~/ui/components/Mark";
 import { Note } from "~/ui/components/Note";
 import { SegmentedToggle } from "~/ui/components/SegmentedToggle";
-import { FormMosaic, RoleChips, VisGlyph } from "~/ui/components/glyphs";
+import {
+  EpochGauge,
+  FormMosaic,
+  RoleChips,
+  VisGlyph,
+} from "~/ui/components/glyphs";
 import { QuestionList, RespondContexts } from "~/ui/respond/Question";
 import { Bars } from "~/ui/results/Card";
 import { BOUNDARY_PAIRS, TEXT_PAIRS, contrast } from "~/ui/tokens";
 import { usePageTitle } from "~/ui/pageTitle";
 import kit from "~/ui/kit.module.css";
 import { DetailMock } from "./DetailMock";
-import { TimeLeftMock } from "./TimeLeftMock";
 import { SAMPLE } from "./sample";
 import { forceStates } from "./states";
 import css from "./design.module.css";
@@ -72,10 +76,6 @@ export default function Design(): JSX.Element {
 
       <Section title="Disclosures">
         <Themes>{() => <DetailMock />}</Themes>
-      </Section>
-
-      <Section title="Time left (candidates)">
-        <Themes>{() => <TimeLeftMock />}</Themes>
       </Section>
 
       <Section title="Questions">
@@ -492,6 +492,13 @@ const Surfaces: Component = () => (
         <p class={kit.small}>Closed:</p>
         <FormMosaic count={5} muted />
         <RoleChips roles={ROLE_VALUES} muted />
+      </div>
+
+      <div class={css.row}>
+        <p class={kit.small}>Epochs left:</p>
+        <For each={[340, 250, 140, 30]}>
+          {(seconds) => <EpochGauge seconds={seconds} secondsPerEpoch={100} />}
+        </For>
       </div>
 
       <Note kind="ok">Published: the survey is on chain.</Note>

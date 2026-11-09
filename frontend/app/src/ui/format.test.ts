@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, test } from "vitest";
 
 import { setLocale } from "~/i18n";
 import {
+  epochGauge,
   explorerTxUrl,
   fileRef,
   formatAda,
@@ -57,5 +58,39 @@ describe("formatAda", () => {
     // Which space ICU picks (narrow no-break, no-break) varies by version; that
     // it is not the English comma is the point.
     expect(formatAda(512_793_397_078n)).toMatch(/^512\s793$/);
+  });
+});
+
+describe("epochGauge", () => {
+  const E = 100;
+  test("fills whole epochs, then the current one's remainder", () => {
+    expect(epochGauge(2 * E + 40, E)).toEqual({
+      fills: [1, 1, 0.4],
+      level: 3,
+      more: false,
+    });
+    expect(epochGauge(E + 25, E)).toEqual({
+      fills: [1, 0.25, 0],
+      level: 2,
+      more: false,
+    });
+  });
+
+  test("shows more than three epochs as +", () => {
+    expect(epochGauge(3 * E + 1, E)).toEqual({
+      fills: [1, 1, 1],
+      level: 3,
+      more: true,
+    });
+    expect(epochGauge(3 * E, E).more).toBe(false);
+  });
+
+  test("keeps the last epoch's level until the end", () => {
+    expect(epochGauge(1, E).level).toBe(1);
+    expect(epochGauge(0, E)).toEqual({
+      fills: [0, 0, 0],
+      level: 1,
+      more: false,
+    });
   });
 });

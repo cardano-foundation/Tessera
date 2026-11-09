@@ -325,6 +325,10 @@
   color: var(--muted);
   margin-top: 2px;
 }
+.endsGauge {
+  display: flex;
+  margin-top: 5px;
+}
 .ends.closed {
   color: var(--muted);
 }
@@ -414,6 +418,12 @@
   font-size: 13px;
   font-weight: 500;
   color: var(--body);
+}
+
+.cardGauge {
+  display: inline-flex;
+  vertical-align: middle;
+  margin-left: 8px;
 }
 
 /* A direct flex item of the meta row, not a chip value: an inline mosaic
