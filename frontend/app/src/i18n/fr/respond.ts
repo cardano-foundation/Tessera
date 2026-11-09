@@ -41,7 +41,7 @@ const respond: Messages = {
   // --- Unverified cancellation claim --------------------------------------
   cancelClaimLead: "Demande d'annulation non vérifiée.",
   cancelClaimBody:
-    "Une annulation de ce sondage a été publiée mais n'a pas pu être vérifiée comme provenant du propriétaire ; elle est donc ignorée — vous pouvez toujours répondre.",
+    "Une annulation de ce sondage a été publiée mais n'a pas pu être vérifiée comme provenant du propriétaire ; elle est donc ignorée. Vous pouvez toujours répondre.",
 
   // --- Définition invalide (le widget n'en affiche jamais) ----------------
   untalliableTitle: "La définition de ce sondage est invalide",
@@ -56,9 +56,9 @@ const respond: Messages = {
 
   // --- Vote deadline --------------------------------------------------------
   deadlinePassed:
-    "Le vote s'est clos pendant que cette page était ouverte — une réponse envoyée maintenant serait exclue du dépouillement.",
+    "Le vote s'est clos pendant que cette page était ouverte : une réponse envoyée maintenant serait exclue du dépouillement.",
   deadlineSoon:
-    "Le vote se clôt dans environ {m} min — envoyez maintenant, sinon votre réponse risque d'arriver trop tard.",
+    "Le vote se clôt dans environ {m} min. Envoyez maintenant, sinon votre réponse risque d'arriver trop tard.",
 
   // --- Labels-absent banner -----------------------------------------------
   labelsAbsentTitle: "Libellés de présentation indisponibles",
@@ -67,11 +67,13 @@ const respond: Messages = {
     ") n'a pas pu être récupéré ou a échoué à sa vérification de hash ; les libellés des options sont donc affichés sous forme d'indices. ",
   labelsAbsentCanRespond: "Vous pouvez toujours répondre",
   labelsAbsentTextAfter:
-    " — votre réponse référence des indices d'options, validés et comptabilisés normalement.",
+    " : votre réponse référence des indices d'options, validés et comptabilisés normalement.",
 
   // --- Rationale section ---------------------------------------------------
-  ratToggle: "Joindre un document de justification",
-  ratToggleHint: "(off-chain, ancré par hash)",
+  ratToggle: "Ajouter une justification",
+  ratToggleHint: "Facultative, publiée avec votre réponse",
+  technicalDetails: "Détails techniques",
+  technicalDetailsHint: "Référence du sondage, charge on-chain",
   ratSourceLabel: "Source de la justification",
   ratModeWrite: "Rédiger et épingler",
   ratModeManual: "Coller l'ancre",
@@ -84,12 +86,12 @@ const respond: Messages = {
   ratWriteLabel: "Justification",
   ratWritePlaceholder: "Pourquoi vous avez répondu ainsi…",
   ratNoPinningBefore:
-    "Aucun fournisseur IPFS n'est configuré — ajoutez un jeton dans",
+    "Aucun fournisseur IPFS n'est configuré. Ajoutez un jeton dans",
   ratSettingsLink: "Paramètres",
   ratNoPinningAfter:
     "pour épingler depuis ici, ou passez à « Coller l'ancre ».",
   ratWriteHint:
-    "À l'envoi, ceci est épinglé sur vos fournisseurs IPFS et ancré (URI + hash blake2b-256) sur votre réponse. Informatif uniquement — n'affecte jamais la validation ni les décomptes.",
+    "À l'envoi, ceci est épinglé sur vos fournisseurs IPFS et ancré (URI + hash blake2b-256) sur votre réponse. Informatif uniquement ; n'affecte jamais la validation ni les décomptes.",
 
   // --- Submit bar ----------------------------------------------------------
   switchNetwork: "Basculez votre portefeuille sur {network} pour envoyer",
@@ -98,13 +100,13 @@ const respond: Messages = {
   submittedTitle: "Réponse envoyée",
   submittedText:
     "Votre réponse a été publiée sous le label de métadonnées 17. Elle peut mettre quelques instants à apparaître dans le décompte, le temps que l'indexeur se mette à jour.",
-  viewResults: "Voir les résultats →",
+  viewResults: "Voir les résultats",
 
   // --- Empty / loading / error --------------------------------------------
   loading: "Chargement…",
   notFound: "Sondage introuvable.",
   loadError:
-    "Impossible de charger depuis le réseau — il peut s'agir d'une erreur transitoire.",
+    "Impossible de charger depuis le réseau. Il peut s'agir d'une erreur transitoire.",
   retry: "Réessayer",
 };
 

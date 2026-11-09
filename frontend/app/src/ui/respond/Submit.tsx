@@ -18,6 +18,7 @@ import {
 import { SubmissionReceipt } from "~/ui/components/SubmissionReceipt";
 import { t } from "~/i18n";
 import body from "./body.module.css";
+import kit from "~/ui/kit.module.css";
 import css from "./respond.module.css";
 
 export const SubmitBar: Component<{
@@ -104,7 +105,7 @@ export const SubmitBar: Component<{
                   <button
                     onClick={() => props.finish.finish(props.onQueue)}
                     disabled={!enabled()}
-                    class={css.queueBtn}
+                    class={kit.button}
                   >
                     {t("cart.addToCart")}
                   </button>
@@ -120,15 +121,13 @@ export const SubmitBar: Component<{
                     )
                   }
                   disabled={!enabled()}
-                  class={body.submitBtn}
-                  classList={{ [body.submitBtnEnabled]: enabled() }}
+                  class={`${kit.button} ${props.queueing ? kit.primary : kit.cta}`}
                 >
                   {props.submitting
                     ? props.busyText
                     : props.queueing
                       ? t("cart.addToCart")
-                      : props.idleText}{" "}
-                  <span class={body.submitArrow}>→</span>
+                      : props.idleText}
                 </button>
               </div>
             </>

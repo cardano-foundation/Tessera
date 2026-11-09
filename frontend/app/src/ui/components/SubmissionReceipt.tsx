@@ -7,6 +7,7 @@
 import { For, Show, type Component } from "solid-js";
 
 import { TxLink } from "./TxLink";
+import kit from "~/ui/kit.module.css";
 import css from "./SubmissionReceipt.module.css";
 
 export interface ReceiptAction {
@@ -37,7 +38,7 @@ export const SubmissionReceipt: Component<{
           <button
             type="button"
             onClick={() => a.onClick()}
-            class={i() === 0 ? css.primary : css.secondary}
+            class={i() === 0 ? `${kit.button} ${kit.primary}` : kit.button}
           >
             {a.label}
           </button>

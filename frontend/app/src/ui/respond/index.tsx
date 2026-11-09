@@ -23,7 +23,9 @@ import {
 } from "cardano-tessera-respond-ui";
 import { walletResponder } from "~/domain/roles";
 import { usePresentation } from "~/enrichment/usePresentation";
+import { Disclosure } from "~/ui/components/Disclosure";
 import { Empty } from "~/ui/components/Empty";
+import { Note } from "~/ui/components/Note";
 import { SurveyRef } from "~/ui/components/SurveyRef";
 import { OnchainPreview } from "~/ui/components/OnchainPreview";
 import { ErrorBox, ProblemList } from "~/ui/components/Feedback";
@@ -40,8 +42,9 @@ import { RationaleSection, createRationale } from "./Rationale";
 import { SubmitBar, SubmittedPanel } from "./Submit";
 import { createDeadline } from "./deadline";
 import { createOnchainPreview, createSubmission } from "./submission";
-import css from "./respond.module.css";
 import { usePageTitle } from "~/ui/pageTitle";
+import kit from "~/ui/kit.module.css";
+import css from "./respond.module.css";
 
 export const Respond: Component = () => {
   const app = useApp();
@@ -182,8 +185,8 @@ export const Respond: Component = () => {
       style={{ "--submit-bar-height": `${barHeight()}px` }}
     >
       <RespondContexts>
-        <A href={`/survey/${encodeURIComponent(key())}`} class={css.backLink}>
-          <span class={css.backArrow}>←</span> {t("respond.backToResults")}
+        <A href={`/survey/${encodeURIComponent(key())}`} class={kit.back}>
+          {t("respond.backToResults")}
         </A>
 
         <Show when={submission.submitting() && submission.steps().length > 1}>
@@ -232,20 +235,15 @@ export const Respond: Component = () => {
                 onPickRole={draft.pickRole}
               >
                 <div class={css.headerTop}>
-                  <span class={css.respondLabel}>
-                    {t("respond.respondLabel")}
-                  </span>
-                  <Show when={app.ui.pro}>
-                    <SurveyRef keyStr={s().key} />
-                  </Show>
+                  <span class={kit.label}>{t("respond.respondLabel")}</span>
                 </div>
               </SurveyHeader>
 
               <Show when={s().cancellationClaimed}>
-                <div class={css.cancelClaim}>
+                <Note kind="warn" style={{ "margin-top": "12px" }}>
                   <strong>{t("respond.cancelClaimLead")}</strong>{" "}
                   {t("respond.cancelClaimBody")}
-                </div>
+                </Note>
               </Show>
 
               <FormGate
@@ -257,9 +255,7 @@ export const Respond: Component = () => {
                 <Show when={draft.prior()}>
                   <RespondedBanner role={draft.role()} />
                 </Show>
-                <Show
-                  when={draft.restored() || (app.ui.pro && rationaleRestored())}
-                >
+                <Show when={draft.restored() || rationaleRestored()}>
                   <RestoredBanner onDiscard={discard} />
                 </Show>
                 <Show when={sealedMode()}>
@@ -286,9 +282,7 @@ export const Respond: Component = () => {
                   pastLast={finish.pastLast}
                 />
 
-                <Show when={app.ui.pro}>
-                  <RationaleSection r={rationale} />
-                </Show>
+                <RationaleSection r={rationale} />
 
                 <Show when={submission.problems().length > 0}>
                   <ProblemList
@@ -300,14 +294,21 @@ export const Respond: Component = () => {
                   <ErrorBox message={submission.error()!} />
                 </Show>
 
-                <Show when={app.ui.pro}>
+                <Disclosure
+                  class={css.section}
+                  summary={t("respond.technicalDetails")}
+                  hint={t("respond.technicalDetailsHint")}
+                >
+                  <div class={css.refRow}>
+                    <SurveyRef keyStr={s().key} />
+                  </div>
                   <OnchainPreview
                     payload={preview.payload()}
                     sealed={sealedMode() !== null}
                     paddingSize={preview.paddingSize()}
                     onchainSize={preview.onchainSize()}
                   />
-                </Show>
+                </Disclosure>
               </FormGate>
             </Show>
           )}

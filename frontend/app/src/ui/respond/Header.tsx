@@ -8,6 +8,7 @@ import type { Component } from "solid-js";
 
 import { shortRef } from "~/ui/format";
 import { t } from "~/i18n";
+import kit from "~/ui/kit.module.css";
 import body from "./body.module.css";
 import css from "./respond.module.css";
 
@@ -16,7 +17,11 @@ export const RestoredBanner: Component<{ onDiscard: () => void }> = (props) => (
     <div class={`${body.bannerBody} ${css.restoredBody}`}>
       <div class={body.bannerTitle}>{t("respond.restoredAnswers")}</div>
     </div>
-    <button type="button" onClick={props.onDiscard} class={css.discardBtn}>
+    <button
+      type="button"
+      onClick={props.onDiscard}
+      class={`${kit.button} ${css.discardBtn}`}
+    >
       {t("respond.discardRestored")}
     </button>
   </div>
@@ -34,7 +39,7 @@ export const LabelsAbsentBanner: Component<{ keyStr: string }> = (props) => (
       <div class={body.bannerTitle}>{t("respond.labelsAbsentTitle")}</div>
       <div class={body.bannerText}>
         {t("respond.labelsAbsentTextBefore")}
-        <span class={css.refInline}>{shortRef(props.keyStr)}</span>
+        <span class={css.code}>{shortRef(props.keyStr)}</span>
         {t("respond.labelsAbsentTextMid")}
         <b>{t("respond.labelsAbsentCanRespond")}</b>
         {t("respond.labelsAbsentTextAfter")}

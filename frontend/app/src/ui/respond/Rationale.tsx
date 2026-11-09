@@ -11,8 +11,10 @@ import { hexToBytes } from "cip-179/domain";
 
 import { useApp } from "~/state";
 import { IPFS_PROVIDERS } from "~/enrichment/providers";
+import { Disclosure } from "~/ui/components/Disclosure";
 import { SegmentedToggle } from "~/ui/components/SegmentedToggle";
 import { t } from "~/i18n";
+import kit from "~/ui/kit.module.css";
 import body from "./body.module.css";
 import css from "./respond.module.css";
 
@@ -92,7 +94,7 @@ export function createRationale(kept?: RationaleInputs): Rationale {
   const [hash, setHash] = createSignal(kept?.hash ?? "");
 
   /** Whether a pasted anchor is what this submission would carry. */
-  const pasting = (): boolean => app.ui.pro && on() && mode() === "manual";
+  const pasting = (): boolean => on() && mode() === "manual";
 
   return {
     on,
@@ -120,8 +122,7 @@ export function createRationale(kept?: RationaleInputs): Rationale {
       setHash("");
     },
     hasPinning,
-    willPin: () =>
-      app.ui.pro && on() && mode() === "write" && text().trim() !== "",
+    willPin: () => on() && mode() === "write" && text().trim() !== "",
 
     parseManual: () => {
       if (!pasting()) return { ok: true, anchor: undefined };
@@ -154,7 +155,7 @@ export function createRationale(kept?: RationaleInputs): Rationale {
     },
 
     resolve: async (manual) => {
-      if (!app.ui.pro || !on()) return undefined;
+      if (!on()) return undefined;
       if (mode() === "manual") return manual;
       const body = text().trim();
       if (body === "") return undefined;
@@ -174,87 +175,80 @@ export function createRationale(kept?: RationaleInputs): Rationale {
  * The section that drives it. One call site, so it takes the state whole rather
  * than restating its fields as props.
  */
+/** Open is attached: closing the disclosure leaves the rationale out. */
 export const RationaleSection: Component<{ r: Rationale }> = (props) => (
-  <div class={body.card}>
-    <label class={css.ratToggleLabel}>
-      <input
-        type="checkbox"
-        checked={props.r.on()}
-        onChange={(e) => props.r.setOn(e.currentTarget.checked)}
-        class={css.ratCheckbox}
+  <Disclosure
+    class={css.section}
+    summary={t("respond.ratToggle")}
+    hint={t("respond.ratToggleHint")}
+    open={props.r.on()}
+    onToggle={props.r.setOn}
+  >
+    <div class={css.ratBody}>
+      <SegmentedToggle
+        ariaLabel={t("respond.ratSourceLabel")}
+        wrapStyle={{ "align-self": "flex-start" }}
+        value={props.r.mode()}
+        onChange={props.r.setMode}
+        options={[
+          { value: "write", label: t("respond.ratModeWrite") },
+          { value: "manual", label: t("respond.ratModeManual") },
+        ]}
       />
-      <span class={css.ratToggleText}>
-        {t("respond.ratToggle")}{" "}
-        <span class={css.ratToggleHint}>{t("respond.ratToggleHint")}</span>
-      </span>
-    </label>
-    <Show when={props.r.on()}>
-      <div class={css.ratBody}>
-        <SegmentedToggle
-          ariaLabel={t("respond.ratSourceLabel")}
-          wrapStyle={{ "align-self": "flex-start" }}
-          value={props.r.mode()}
-          onChange={props.r.setMode}
-          options={[
-            { value: "write", label: t("respond.ratModeWrite") },
-            { value: "manual", label: t("respond.ratModeManual") },
-          ]}
-        />
 
+      <Show
+        when={props.r.mode() === "write"}
+        fallback={
+          <>
+            <label class={css.ratField}>
+              <span class={kit.fieldLabel}>{t("respond.ratDocUri")}</span>
+              <input
+                type="text"
+                value={props.r.uri()}
+                placeholder={t("respond.ratDocUriPlaceholder")}
+                onInput={(e) => props.r.setUri(e.currentTarget.value)}
+                class={`${kit.field} ${css.code}`}
+              />
+            </label>
+            <label class={css.ratField}>
+              <span class={kit.fieldLabel}>{t("respond.ratHashLabel")}</span>
+              <input
+                type="text"
+                value={props.r.hash()}
+                placeholder={t("respond.ratHashPlaceholder")}
+                onInput={(e) => props.r.setHash(e.currentTarget.value)}
+                class={`${kit.field} ${css.code}`}
+              />
+            </label>
+            <p class={body.ratHint}>{t("respond.ratManualHint")}</p>
+          </>
+        }
+      >
+        <label class={css.ratField}>
+          <span class={kit.fieldLabel}>{t("respond.ratWriteLabel")}</span>
+          <textarea
+            value={props.r.text()}
+            rows={4}
+            placeholder={t("respond.ratWritePlaceholder")}
+            onInput={(e) => props.r.setText(e.currentTarget.value)}
+            class={kit.field}
+          />
+        </label>
         <Show
-          when={props.r.mode() === "write"}
+          when={props.r.hasPinning()}
           fallback={
-            <>
-              <label class={css.ratField}>
-                <span class={css.ratLabel}>{t("respond.ratDocUri")}</span>
-                <input
-                  type="text"
-                  value={props.r.uri()}
-                  placeholder={t("respond.ratDocUriPlaceholder")}
-                  onInput={(e) => props.r.setUri(e.currentTarget.value)}
-                  class={css.ratMonoInput}
-                />
-              </label>
-              <label class={css.ratField}>
-                <span class={css.ratLabel}>{t("respond.ratHashLabel")}</span>
-                <input
-                  type="text"
-                  value={props.r.hash()}
-                  placeholder={t("respond.ratHashPlaceholder")}
-                  onInput={(e) => props.r.setHash(e.currentTarget.value)}
-                  class={css.ratMonoInput}
-                />
-              </label>
-              <p class={body.ratHint}>{t("respond.ratManualHint")}</p>
-            </>
+            <p class={css.ratWarn}>
+              {t("respond.ratNoPinningBefore")}{" "}
+              <A href="/settings" class={kit.link}>
+                {t("respond.ratSettingsLink")}
+              </A>{" "}
+              {t("respond.ratNoPinningAfter")}
+            </p>
           }
         >
-          <label class={css.ratField}>
-            <span class={css.ratLabel}>{t("respond.ratWriteLabel")}</span>
-            <textarea
-              value={props.r.text()}
-              rows={4}
-              placeholder={t("respond.ratWritePlaceholder")}
-              onInput={(e) => props.r.setText(e.currentTarget.value)}
-              class={css.ratTextarea}
-            />
-          </label>
-          <Show
-            when={props.r.hasPinning()}
-            fallback={
-              <p class={css.ratWarn}>
-                {t("respond.ratNoPinningBefore")}{" "}
-                <A href="/settings" class={css.settingsLink}>
-                  {t("respond.ratSettingsLink")}
-                </A>{" "}
-                {t("respond.ratNoPinningAfter")}
-              </p>
-            }
-          >
-            <p class={body.ratHint}>{t("respond.ratWriteHint")}</p>
-          </Show>
+          <p class={body.ratHint}>{t("respond.ratWriteHint")}</p>
         </Show>
-      </div>
-    </Show>
-  </div>
+      </Show>
+    </div>
+  </Disclosure>
 );

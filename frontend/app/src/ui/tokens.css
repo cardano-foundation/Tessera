@@ -147,6 +147,7 @@
   --role-keyholder-bg: var(--l-warn-bg);
   --shadow-card: 0 1px 2px rgba(0, 6, 41, 0.06);
   --shadow-menu: 0 16px 40px -16px rgba(0, 6, 41, 0.3);
+  --scrim: rgba(0, 6, 41, 0.45);
   --accent-shadow: rgba(0, 51, 173, 0.35);
 }
 
@@ -194,6 +195,7 @@
   --role-keyholder-bg: var(--d-warn-bg);
   --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.4);
   --shadow-menu: 0 16px 40px -16px rgba(0, 0, 0, 0.7);
+  --scrim: rgba(0, 0, 0, 0.6);
   --accent-shadow: rgba(148, 170, 227, 0.4);
 }
 

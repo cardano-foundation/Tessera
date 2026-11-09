@@ -44,7 +44,7 @@ const respond = {
   // --- Unverified cancellation claim --------------------------------------
   cancelClaimLead: "Unverified cancellation claim.",
   cancelClaimBody:
-    "A cancellation for this survey was published but couldn't be verified as the owner's, so it's ignored — you can still respond.",
+    "A cancellation for this survey was published but couldn't be verified as the owner's, so it's ignored. You can still respond.",
 
   // --- Invalid definition (the widget never renders one) ------------------
   untalliableTitle: "This survey's definition is invalid",
@@ -60,10 +60,10 @@ const respond = {
 
   // --- Vote deadline --------------------------------------------------------
   deadlinePassed:
-    "Voting closed while this page was open — a response submitted now would be excluded from the tally.",
+    "Voting closed while this page was open: a response submitted now would be excluded from the tally.",
   /** {m} is the number of minutes left before responses stop counting. */
   deadlineSoon:
-    "Voting closes in about {m} min — submit now, or your response may miss the deadline.",
+    "Voting closes in about {m} min. Submit now, or your response may miss the deadline.",
 
   // --- Labels-absent banner -----------------------------------------------
   labelsAbsentTitle: "Presentation labels unavailable",
@@ -73,12 +73,14 @@ const respond = {
     ") couldn't be fetched or failed its hash check, so option labels are shown as indices. ",
   labelsAbsentCanRespond: "You can still respond",
   labelsAbsentTextAfter:
-    " — your answer references option indices, validated and tallied normally.",
+    ": your answer references option indices, validated and tallied normally.",
 
   // --- Rationale section ---------------------------------------------------
   /** Followed by a styled (off-chain, hash-anchored) hint span. */
-  ratToggle: "Attach a rationale document",
-  ratToggleHint: "(off-chain, hash-anchored)",
+  ratToggle: "Add a rationale",
+  ratToggleHint: "Optional, published with your response",
+  technicalDetails: "Technical details",
+  technicalDetailsHint: "Survey ref, on-chain payload",
   ratSourceLabel: "Rationale source",
   ratModeWrite: "Write & pin",
   ratModeManual: "Paste anchor",
@@ -91,11 +93,11 @@ const respond = {
   ratWriteLabel: "Rationale",
   ratWritePlaceholder: "Why you answered this way…",
   /** Wraps an inline link reading "Settings" (ratSettingsLink). */
-  ratNoPinningBefore: "No IPFS provider is configured — add a token in",
+  ratNoPinningBefore: "No IPFS provider is configured. Add a token in",
   ratSettingsLink: "Settings",
   ratNoPinningAfter: "to pin from here, or switch to “Paste anchor”.",
   ratWriteHint:
-    "On submit, this is pinned to your IPFS providers and anchored (URI + blake2b-256 hash) on your response. Informational only — never affects validation or tallies.",
+    "On submit, this is pinned to your IPFS providers and anchored (URI + blake2b-256 hash) on your response. Informational only; it never affects validation or tallies.",
 
   // --- Submit bar ----------------------------------------------------------
   /** {network} is a chain name, shown verbatim. */
@@ -105,12 +107,12 @@ const respond = {
   submittedTitle: "Response submitted",
   submittedText:
     "Your response was published under metadata label 17. It may take a few moments to appear in the tally as the indexer catches up.",
-  viewResults: "View results →",
+  viewResults: "View results",
 
   // --- Empty / loading / error --------------------------------------------
   loading: "Loading…",
   notFound: "Survey not found.",
-  loadError: "Couldn't load from the network — this may be a transient error.",
+  loadError: "Couldn't load from the network. This may be a transient error.",
   retry: "Retry",
 };
 

@@ -1,10 +1,7 @@
-/* Co-located styles for SubmitProgress.tsx (submission progress modal). */
-
 .backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(40, 33, 20, 0.45);
-  backdrop-filter: blur(2px);
+  background: var(--scrim);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -12,13 +9,13 @@
   z-index: 80;
 }
 
-/* The focusable dialog card; `outline: none` was merged inline at the call site
-   (it's programmatically focused but should not show a focus ring). */
+/* Focused by script so the dialog is announced; it isn't a control, so no
+   focus ring. */
 .card {
-  background: #fff;
+  background: var(--card);
   border: 1px solid var(--line);
   border-radius: var(--r-card);
-  box-shadow: 0 24px 60px -20px rgba(70, 55, 30, 0.5);
+  box-shadow: var(--shadow-menu);
   padding: 24px 26px;
   width: 100%;
   max-width: 380px;
@@ -26,9 +23,8 @@
 }
 
 .title {
-  font-size: 18px;
-  font-weight: 800;
-  letter-spacing: -0.01em;
+  font-size: 20px;
+  font-weight: 400;
   margin: 0;
   color: var(--ink);
 }
@@ -68,17 +64,16 @@
   gap: 11px;
 }
 
-/* Base label: weight 600, ink colour. The active/pending modifiers override. */
 .label {
-  font-size: 13.5px;
-  font-weight: 600;
-  color: var(--ink);
+  font-size: 14px;
+  color: var(--body);
 }
 .labelActive {
-  font-weight: 700;
+  font-weight: 500;
+  color: var(--ink);
 }
 .labelPending {
-  color: var(--faint);
+  color: var(--muted);
 }
 
 /* ===== StepIcon ===== */
@@ -88,7 +83,7 @@
   width: 16px;
   height: 16px;
   border-radius: 50%;
-  border: 2px solid var(--line);
+  border: 2px solid var(--control-line);
   flex: none;
 }
 

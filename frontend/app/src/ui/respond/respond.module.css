@@ -1,15 +1,3 @@
-/*
- * Co-located styles for Respond.tsx (CSS Modules).
- *
- * Static styles live here; design tokens (`var(--…)`) come from theme.css
- * `:root`. State-driven styling (selected option, skip toggle, ready/disabled
- * buttons) uses modifier classes toggled via `classList`. The one continuous
- * value — the rating input's fallback width — is a plain class; nothing here is
- * truly numeric-continuous, so no CSS-var bridge is needed.
- */
-
-/* --- Screen shell --------------------------------------------------------- */
-
 /* The submit bar is fixed over the bottom of the screen, and its height
    varies as its line wraps: the form's end scrolls clear of it by the
    height it reports. */
@@ -19,36 +7,6 @@
   padding: 22px 24px calc(var(--submit-bar-height, 0px) + 64px);
 }
 
-.backLink {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  font-size: 13.5px;
-  font-weight: 600;
-  color: var(--muted);
-  text-decoration: none;
-  padding: 6px 0;
-}
-
-.backArrow {
-  font-size: 15px;
-}
-
-/* --- Unverified-cancellation callout -------------------------------------- */
-
-.cancelClaim {
-  margin-top: 12px;
-  padding: 11px 14px;
-  border: 1px solid var(--warn-line);
-  background: var(--warn-bg);
-  border-radius: var(--r-md);
-  font-size: 13px;
-  color: var(--warn);
-  line-height: 1.45;
-}
-
-/* --- Survey header -------------------------------------------------------- */
-
 .headerTop {
   display: flex;
   align-items: center;
@@ -57,119 +15,48 @@
   margin-bottom: 12px;
 }
 
-.respondLabel {
-  font-family: var(--mono);
-  font-size: 11px;
-  color: var(--dim);
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-
 /* Looks like a question's Skip button. */
 .discardBtn {
   flex: none;
-  font-family: inherit;
-  font-size: 12px;
-  font-weight: 700;
-  cursor: pointer;
-  border-radius: var(--r-chip);
-  padding: 6px 12px;
-  border: 1px solid var(--line);
-  background: #fff;
-  color: var(--muted);
+  min-height: 32px;
+  padding: 4px 12px;
+  font-size: 13px;
 }
-
-/* --- Banners (restored / labels-absent) ---------------------------------- */
 
 /* Centred against the taller discard button beside it. */
 .restoredBody {
   align-self: center;
 }
 
-.refInline {
-  font-family: var(--mono);
-  font-size: 11.5px;
+.code {
+  font-family: var(--code);
+  font-size: 0.9em;
 }
 
-/* --- Rationale section ---------------------------------------------------- */
-
-.ratToggleLabel {
+/* The rationale and technical details disclosures under the questions. */
+.section {
+  margin-top: 16px;
+}
+.refRow {
   display: flex;
-  align-items: center;
-  gap: 10px;
-  cursor: pointer;
-}
-
-.ratCheckbox {
-  width: 16px;
-  height: 16px;
-  accent-color: var(--accent);
-}
-
-.ratToggleText {
-  font-size: 13.5px;
-  font-weight: 600;
-  flex: 1;
-}
-
-.ratToggleHint {
-  color: var(--dim);
-  font-weight: 400;
+  margin-bottom: 12px;
 }
 
 .ratBody {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  margin-top: 12px;
+  gap: 12px;
 }
 
 .ratField {
   display: block;
 }
 
-.ratLabel {
-  display: block;
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--muted);
-  margin-bottom: 6px;
-}
-
-.ratInput {
-  width: 100%;
-  border: 1px solid var(--line);
-  border-radius: var(--r-control);
-  padding: 12px 14px;
-  font-family: var(--mono);
-  font-size: 15px;
-  color: var(--ink);
-  box-sizing: border-box;
-}
-
-.ratMonoInput {
-  composes: ratInput;
-  font-family: var(--mono);
-  font-size: 12.5px;
-}
-
-.ratTextarea {
-  composes: ratInput;
-  font-family: inherit;
-  font-size: 13px;
-  line-height: 1.5;
-  resize: vertical;
-}
-
 .ratWarn {
-  font-size: 11.5px;
+  font-size: 13px;
   color: var(--warn);
   line-height: 1.45;
   margin: 0;
-}
-
-.settingsLink {
-  color: var(--accent);
 }
 
 /* --- Submit bar ----------------------------------------------------------- */
@@ -180,8 +67,7 @@
   right: 0;
   bottom: 0;
   z-index: 30;
-  background: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(10px);
+  background: var(--chrome);
   border-top: 1px solid var(--line);
 }
 
@@ -200,20 +86,4 @@
   display: flex;
   align-items: center;
   gap: 10px;
-}
-
-.queueBtn {
-  background: #fff;
-  color: var(--ink);
-  border: 1px solid var(--line);
-  border-radius: var(--r-md);
-  padding: 13px 18px;
-  font-family: inherit;
-  font-size: 13px;
-  font-weight: 700;
-  cursor: pointer;
-}
-.queueBtn:disabled {
-  color: var(--faint);
-  cursor: not-allowed;
 }
