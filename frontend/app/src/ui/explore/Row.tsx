@@ -107,10 +107,12 @@ const StuckBadge: Component = () => (
   <WarnBadge text={t("explore.badgeNotOnChain")} />
 );
 
-const GovLine: Component<{ actionId: string; title: string | null }> = (
-  props,
-) => (
-  <div class={css.govLine}>
+const GovLine: Component<{
+  actionId: string;
+  title: string | null;
+  muted: boolean;
+}> = (props) => (
+  <div class={css.govLine} classList={{ [css.govLineClosed]: props.muted }}>
     {"◇ "}
     {t("explore.govLinkedAction", { id: shortGovId(props.actionId) })}
     {props.title
@@ -128,7 +130,7 @@ const GridRow: Component<EntryProps> = (props) => {
     // click still opens the survey in a new tab natively.
     <A href={`/survey/${encodeURIComponent(props.a.key)}`} class={css.row}>
       <div class={css.formCell}>
-        <FormMosaic count={def().questions.length} />
+        <FormMosaic count={def().questions.length} muted={closed()} />
         <span class={css.formCount}>{def().questions.length}</span>
       </div>
       <div class={css.centerCell}>
@@ -161,10 +163,16 @@ const GridRow: Component<EntryProps> = (props) => {
           {def().description || t("explore.noPresentation")}
         </div>
         <For each={props.a.govLinks}>
-          {(link) => <GovLine actionId={link.actionId} title={link.title} />}
+          {(link) => (
+            <GovLine
+              actionId={link.actionId}
+              title={link.title}
+              muted={closed()}
+            />
+          )}
         </For>
       </div>
-      <RoleChips roles={def().eligibleRoles} />
+      <RoleChips roles={def().eligibleRoles} muted={closed()} />
       <div>
         <div class={css.ends} classList={{ [css.closed]: closed() }}>
           {ends()}
@@ -232,17 +240,27 @@ const CardRow: Component<EntryProps> = (props) => {
         </div>
       </Show>
       <For each={props.a.govLinks}>
-        {(link) => <GovLine actionId={link.actionId} title={link.title} />}
+        {(link) => (
+          <GovLine
+            actionId={link.actionId}
+            title={link.title}
+            muted={closed()}
+          />
+        )}
       </For>
 
       <div class={css.cardMeta}>
         <span class={css.cardForm}>
-          <FormMosaic count={def().questions.length} size={16} />
+          <FormMosaic
+            count={def().questions.length}
+            size={16}
+            muted={closed()}
+          />
           {def().questions.length}
         </span>
         <Show when={def().eligibleRoles.length > 0}>
           <MetaChip label={t("explore.metaEligible")}>
-            <RoleChips roles={def().eligibleRoles} />
+            <RoleChips roles={def().eligibleRoles} muted={closed()} />
           </MetaChip>
         </Show>
         <MetaChip label={t("explore.metaEnds")}>

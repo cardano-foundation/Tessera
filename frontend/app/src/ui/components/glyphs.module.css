@@ -22,6 +22,11 @@
   background: var(--accent);
   border-color: var(--accent);
 }
+.tileMuted {
+  composes: tile;
+  background: var(--control-line);
+  border-color: var(--control-line);
+}
 
 /* ===== VisGlyph: lock ===== */
 
@@ -93,4 +98,9 @@
   border-radius: var(--r-2xs);
   padding: 2.5px 7px;
   white-space: nowrap;
+}
+.chipMuted {
+  color: var(--muted);
+  background: transparent;
+  border-color: var(--line);
 }

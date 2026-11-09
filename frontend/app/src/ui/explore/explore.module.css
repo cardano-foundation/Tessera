@@ -242,6 +242,9 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+.govLineClosed {
+  color: var(--muted);
+}
 
 /* ===== grid row ===== */
 .row {
