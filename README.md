@@ -54,7 +54,7 @@ document, hash, and URL to your own tooling.
 | `packages/mithril`            | Tally inputs read from a Mithril ledger snapshot, for comparison with Koios; an estimate, not an audit (its README).                                                                                                                                    |
 | `packages/amaru-store-reader` | The verifier's inputs read from an Amaru node's own stores, a Rust crate outside the pnpm workspace; the recipe is in its README.                                                                                                                       |
 | `packages/amaru`              | The verifier's inputs from what `amaru-store-reader` printed, instead of Koios.                                                                                                                                                                         |
-| `examples/`                   | Minimal React and Svelte host apps for the widget, built in CI so framework compatibility regressions fail a build.                                                                                                                                     |
+| `examples/`                   | Minimal React host app for the widget, built in CI so framework compatibility regressions fail a build.                                                                                                                                                 |
 | `backend/server`              | Tier-1 serving backend: cached chain reads, response validation, weight snapshots, artifact finalization. Node or Turso.                                                                                                                                |
 | `backend/deps`                | Indexer submodules (Adder / Yaci Store / Oura) for a future Tier-2; design notes in `backend/*.md`.                                                                                                                                                     |
 
@@ -113,7 +113,7 @@ entered in Settings, stored only in the browser.
 ## Development
 
 The repo is a pnpm workspace over the paths above, plus the `examples/` host
-apps. Packages are consumed from TypeScript source (Vite aliases / `exports`
+app. Packages are consumed from TypeScript source (Vite aliases / `exports`
 pointing at `src`), so cross-package edits are live with no build step.
 
 From the repository root:

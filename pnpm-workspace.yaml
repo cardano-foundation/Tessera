@@ -15,7 +15,6 @@ packages:
   - packages/verifier
   - backend/server
   - examples/react-host
-  - examples/svelte-host
 
 allowBuilds:
   "@parcel/watcher": false

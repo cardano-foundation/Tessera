@@ -31,8 +31,7 @@ epoch calendar a host feeds the widget as `tipEpoch`), `cip-179` (metadatum
 codec, domain model, and validation rules), `cardano-tessera-respond` (the
 framework-free `<tessera-respond>` answering widget), and
 `cardano-tessera-respond-react` (React wrapper — see `examples/react-host`,
-which reads a recorded preprod bundle through the client; a Svelte host lives
-in `examples/svelte-host`). Pin the versions current on npm when the test run
+which reads a recorded preprod bundle through the client). Pin the versions current on npm when the test run
 starts and record them with its results.
 
 ## Fixtures

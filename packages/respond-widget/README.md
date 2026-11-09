@@ -127,9 +127,8 @@ the loop the widget leaves open: proving `proveCredentials` via `required_signer
 ## Frameworks
 
 The element is framework-agnostic; what varies is how each framework writes
-DOM properties and listens to `CustomEvent`s. Minimal host apps for React and
-Svelte live in [`examples/`](../../examples) and are built in CI against the
-current widget.
+DOM properties and listens to `CustomEvent`s. A minimal React host app lives in
+[`examples/`](../../examples) and is built in CI against the current widget.
 
 **React.** Use
 [`cardano-tessera-respond-react`](../respond-react#readme): React ≤18 writes
@@ -165,8 +164,34 @@ only guards against confusion with Svelte's own directives):
 ></tessera-respond>
 ```
 
-For typed templates, declare the tag once in a `.d.ts`; see
-[`examples/svelte-host/src/tessera.d.ts`](../../examples/svelte-host/src/tessera.d.ts).
+For typed templates, declare the tag once in a `.d.ts` (Svelte checks
+`key in element` at runtime, so camelCase entries are set as DOM properties):
+
+```ts
+declare namespace svelteHTML {
+  interface IntrinsicElements {
+    "tessera-respond": Partial<
+      import("cardano-tessera-respond/artifact").TesseraRespondElementProps
+    > & {
+      "ontessera:response"?: (
+        e: CustomEvent<
+          import("cardano-tessera-respond/artifact").RespondResult
+        >,
+      ) => void;
+      "ontessera:change"?: (
+        e: CustomEvent<
+          import("cardano-tessera-respond/artifact").RespondChangeDetail
+        >,
+      ) => void;
+      "ontessera:invalid"?: (
+        e: CustomEvent<
+          import("cardano-tessera-respond/artifact").RespondInvalidDetail
+        >,
+      ) => void;
+    };
+  }
+}
+```
 
 **Vue 3.** Tell the compiler the tag is a custom element
 (`compilerOptions.isCustomElement: (tag) => tag === "tessera-respond"` in the
@@ -769,13 +794,7 @@ Each demo/test surface covers a different failure mode:
 | `demo/index.html`       | Plain-HTML host for the **built** bundle, fully offline. Shows the sealed chunks lazy-loading in the network tab.                |
 | `test/artifact.test.ts` | The automated twin of `demo/`: mounts the built artifact in happy-dom, offline, and asserts the whole loop from props to events. |
 | `test/tokens.test.ts`   | Gate on the shipped sheet: tokens used match those defined, no literal colors or fonts.                                          |
-| `examples/*`            | React and Svelte host apps (repo root), built in CI so a framework-compat regression fails the build.                            |
-
-What the examples' build does **not** prove is declarative prop-setting: real
-browsers upgrade the element before Svelte assigns its props (its templates go
-through `importNode`), happy-dom does not, so a scripted run falls back to
-attributes and proves nothing. `pnpm --filter example-svelte-host dev` plus one
-click is the only check for that path.
+| `examples/react-host`   | React host app (repo root), built in CI so a framework-compat regression fails the build.                                        |
 
 In the workspace the package is consumed straight from `src` (its `exports` map
 points at TypeScript source, like every sibling), so cross-package edits are live
