@@ -52,7 +52,7 @@
     "tessera"
   ],
   "peerDependencies": {
-    "cip-179": "^0.6.1"
+    "cip-179": "^0.7.0"
   },
   "devDependencies": {
     "cip-179": "workspace:*",

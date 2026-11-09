@@ -19,6 +19,11 @@ Speaks contract `2.3`.
   answer when `limit` is not given. `DEFAULT_SECTION_LIMIT` (10) is now the
   open sections' default only.
 
+### Changed
+
+- **Breaking:** the `cip-179` peer is `^0.7.0` (was `^0.6.1`), the release
+  whose `@evolution-sdk/evolution` peer is `^0.8.0`.
+
 ## [0.6.0] - 2026-11-04
 
 Speaks contract `2.2`.
