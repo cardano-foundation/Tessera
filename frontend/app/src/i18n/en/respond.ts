@@ -112,6 +112,8 @@ const respond = {
   // --- Empty / loading / error --------------------------------------------
   loading: "Loading…",
   notFound: "Survey not found.",
+  withheld:
+    "This survey is not shown on this website: it was reported and judged unlawful. It remains on the Cardano blockchain.",
   loadError: "Couldn't load from the network. This may be a transient error.",
   retry: "Retry",
 };

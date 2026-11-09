@@ -55,7 +55,10 @@ import type {
   SurveySection,
   SurveySectionHead,
 } from "cardano-tessera-client";
-import { SURVEY_SECTIONS } from "cardano-tessera-client";
+import {
+  SURVEY_SECTIONS,
+  SurveyUnavailableError,
+} from "cardano-tessera-client";
 import {
   aggregateSurveyList,
   pageSurveySections,
@@ -66,6 +69,8 @@ import {
   aggregateSurveys,
   bytesToHex,
   findSurvey,
+  hexToBytes,
+  parseRefKey,
   refKey,
   type ChainTip,
   type SurveyAggregate,
@@ -149,6 +154,11 @@ export interface SurveySnapshot {
   readonly snap: Accessor<SurveyList | undefined>;
   readonly loading: Accessor<boolean>;
   readonly error: Accessor<unknown>;
+  /**
+   * The survey is on chain, but the backend no longer shows it: it was
+   * reported and judged unlawful. True only once a read without it is in.
+   */
+  readonly withheld: Accessor<boolean>;
 }
 
 /** One Explore section as shown: its page of rows, and how to turn it. */
@@ -538,7 +548,28 @@ export const AppProvider: ParentComponent = (props) => {
     );
     byKeyRefetches.add(refetch);
     onCleanup(() => byKeyRefetches.delete(refetch));
+    // A by-key read leaves out a survey the backend withholds just as it does
+    // an unknown one; only the bundle route tells them apart, with a 451. So a
+    // page that would say "no such survey" asks it once.
+    const [withheld] = createResource(
+      () => {
+        const read = byKey.error ? undefined : byKey();
+        return source instanceof IndexerDataSource &&
+          read &&
+          !findSurvey(read.surveys, key())
+          ? parseRefKey(key())
+          : false;
+      },
+      (ref) =>
+        source
+          .surveyBundle({ txId: hexToBytes(ref.txId), index: ref.index })
+          .then(
+            () => false,
+            (err: unknown) => err instanceof SurveyUnavailableError,
+          ),
+    );
     return {
+      withheld: () => withheld() === true,
       snap: () => shown() ?? (byKey.error ? undefined : byKey()),
       loading: () =>
         !shown() &&

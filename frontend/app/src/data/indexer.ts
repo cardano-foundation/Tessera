@@ -59,8 +59,22 @@ export class IndexerDataSource implements DataSource {
     return this.ready(await this.client.surveysByRefs(keys));
   }
 
+  /**
+   * The whole bundle, less the responses whose text the backend withholds:
+   * what remains of one (its choices, without its custom answers) would read
+   * as a response that left those blank, and its absence is not a verdict.
+   * `redactions` still names them, so a screen can say how many are hidden.
+   */
   async surveyBundle(ref: SurveyRef): Promise<SurveyBundlePayload> {
-    return this.ready(await this.client.wholeBundle(ref));
+    const bundle = this.ready(await this.client.wholeBundle(ref));
+    if (!bundle.redactions?.length) return bundle;
+    const hidden = new Set(bundle.redactions);
+    return {
+      ...bundle,
+      responses: bundle.responses.filter(
+        (r) => !hidden.has(`${r.txHash}:${r.responseIndex}`),
+      ),
+    };
   }
 
   async respondedKeys(credentialKeys: readonly string[]): Promise<string[]> {

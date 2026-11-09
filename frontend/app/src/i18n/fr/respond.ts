@@ -105,6 +105,8 @@ const respond: Messages = {
   // --- Empty / loading / error --------------------------------------------
   loading: "Chargement…",
   notFound: "Sondage introuvable.",
+  withheld:
+    "Ce sondage n'est pas affiché sur ce site : il a été signalé et jugé illicite. Il reste sur la blockchain Cardano.",
   loadError:
     "Impossible de charger depuis le réseau. Il peut s'agir d'une erreur transitoire.",
   retry: "Réessayer",

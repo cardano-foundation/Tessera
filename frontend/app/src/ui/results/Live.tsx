@@ -233,7 +233,11 @@ export const LiveResults: Component<{
         </For>
       </div>
 
-      <IndividualResponses def={props.def} records={filteredRecords()} />
+      <IndividualResponses
+        def={props.def}
+        keyStr={props.keyStr}
+        records={filteredRecords()}
+      />
 
       <p class={css.tallyFootnote}>
         {t("survey.tallyFootnote", { n: n(publicResponses().length) })}

@@ -9,6 +9,7 @@ import {
 import { A, useParams } from "@solidjs/router";
 import type { Role, SealedSubmissionMode, SurveyDefinition } from "cip-179";
 
+import { SurveyUnavailableError } from "cardano-tessera-client";
 import { useApp } from "~/state";
 import { dedupeResponses, findSurvey, refKey } from "cip-179/domain";
 import type { Responder } from "cardano-tessera-respond-core";
@@ -70,6 +71,10 @@ export const Respond: Component = () => {
     () => indexed()?.record.ref,
     (ref) => app.source.surveyBundle(ref),
   );
+  // Not shown by the backend: read without it, or, when the list loaded before
+  // the decision was published, its bundle answering 451.
+  const withheld = (): boolean =>
+    found.withheld() || bundle.error instanceof SurveyUnavailableError;
   // External-content surveys: render labels from the off-chain presentation doc
   // when available. `definition()` is the enriched (display) definition; it
   // falls back to the on-chain one, which is always answerable since indices and
@@ -180,7 +185,7 @@ export const Respond: Component = () => {
 
   const formOpen = (): boolean => {
     const s = survey();
-    if (!s) return false;
+    if (!s || withheld()) return false;
     return (
       !sent() &&
       (viewStatus(s) === "public" || viewStatus(s) === "sealed") &&
@@ -208,7 +213,7 @@ export const Respond: Component = () => {
         </Show>
 
         <Show
-          when={survey()}
+          when={!withheld() && survey()}
           fallback={
             <Empty
               loading={found.loading()}
@@ -216,7 +221,9 @@ export const Respond: Component = () => {
               onRetry={() => app.reload()}
               text={{
                 loading: t("respond.loading"),
-                notFound: t("respond.notFound"),
+                notFound: withheld()
+                  ? t("respond.withheld")
+                  : t("respond.notFound"),
                 error: t("respond.loadError"),
                 retry: t("respond.retry"),
               }}

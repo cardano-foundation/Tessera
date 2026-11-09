@@ -264,8 +264,19 @@ const survey = {
   // Empty / loading / error
   loading: "Loading…",
   notFound: "Survey not found.",
+  withheld:
+    "This survey is not shown on this website: it was reported and judged unlawful. It remains on the Cardano blockchain.",
   loadError: "Couldn't load from the network. This may be a transient error.",
   retry: "Retry",
+
+  // Reporting, and what this website hides
+  report: "Report this survey",
+  reportResponse: "Report",
+  reportResponseTitle: "Report this response",
+  hiddenResponsesOne:
+    "One response is hidden on this website: it was reported and judged unlawful. The final result still counts it.",
+  hiddenResponsesMany:
+    "{n} responses are hidden on this website: they were reported and judged unlawful. The final result still counts them.",
 };
 
 export type Messages = typeof survey;

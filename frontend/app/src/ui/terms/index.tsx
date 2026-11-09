@@ -7,6 +7,7 @@ import type { JSX } from "solid-js";
 
 import { REPOSITORY_URL } from "~/ui/components/Footer";
 import { usePageTitle } from "~/ui/pageTitle";
+import { REPORT_EMAIL } from "~/ui/report";
 import kit from "~/ui/kit.module.css";
 import css from "./terms.module.css";
 
@@ -53,8 +54,20 @@ export default function Terms(): JSX.Element {
           </li>
           <li>
             <b>Content from others.</b> Anyone can publish a survey. We do not
-            review or endorse surveys, the documents they link to, or their
-            responses.
+            review surveys, the documents they link to, or their responses
+            before they appear, and we do not endorse them.
+          </li>
+          <li>
+            <b>Reporting content.</b> To report content you believe is unlawful,
+            use the Report link next to it or write to{" "}
+            <a class={kit.link} href={`mailto:${REPORT_EMAIL}`}>
+              {REPORT_EMAIL}
+            </a>
+            . We stop showing content on this website when it is clearly
+            unlawful, such as personal data about someone else, content a court
+            or authority ordered removed, or illegal material. We do not hide
+            content because someone disagrees with it, a decision can be
+            reversed, and hidden content remains on the blockchain.
           </li>
           <li>
             <b>Open source and open data.</b> Tessera is open source under the
