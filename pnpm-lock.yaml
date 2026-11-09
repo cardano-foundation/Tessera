@@ -15,8 +15,8 @@ importers:
   backend/server:
     dependencies:
       '@evolution-sdk/evolution':
-        specifier: ^0.5.16
-        version: 0.5.16
+        specifier: ^0.8.0
+        version: 0.8.0
       '@hono/node-server':
         specifier: ^2.1.6
         version: 2.1.6(hono@4.13.17)
@@ -98,8 +98,8 @@ importers:
   frontend/app:
     dependencies:
       '@evolution-sdk/evolution':
-        specifier: ^0.5.16
-        version: 0.5.16
+        specifier: ^0.8.0
+        version: 0.8.0
       '@fontsource-variable/chivo':
         specifier: ^5.3.0
         version: 5.3.0
@@ -194,8 +194,8 @@ importers:
         version: 2.4.0
     devDependencies:
       '@evolution-sdk/evolution':
-        specifier: ^0.5.16
-        version: 0.5.16
+        specifier: ^0.8.0
+        version: 0.8.0
       '@mattpiz/tlock-js':
         specifier: 0.10.0
         version: 0.10.0
@@ -259,8 +259,8 @@ importers:
   packages/koios:
     dependencies:
       '@evolution-sdk/evolution':
-        specifier: ^0.5.16
-        version: 0.5.16
+        specifier: ^0.8.0
+        version: 0.8.0
       cardano-tessera-client:
         specifier: workspace:*
         version: link:../client
@@ -316,8 +316,8 @@ importers:
         version: link:../cip179
     devDependencies:
       '@evolution-sdk/evolution':
-        specifier: ^0.5.16
-        version: 0.5.16
+        specifier: ^0.8.0
+        version: 0.8.0
       '@mattpiz/tlock-js':
         specifier: 0.10.0
         version: 0.10.0
@@ -392,8 +392,8 @@ importers:
   packages/respond-widget:
     devDependencies:
       '@evolution-sdk/evolution':
-        specifier: ^0.5.16
-        version: 0.5.16
+        specifier: ^0.8.0
+        version: 0.8.0
       '@mattpiz/tlock-js':
         specifier: 0.10.0
         version: 0.10.0
@@ -440,8 +440,8 @@ importers:
   packages/verifier:
     dependencies:
       '@evolution-sdk/evolution':
-        specifier: ^0.5.16
-        version: 0.5.16
+        specifier: ^0.8.0
+        version: 0.8.0
       '@mattpiz/tlock-js':
         specifier: 0.10.0
         version: 0.10.0
@@ -725,8 +725,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@evolution-sdk/evolution@0.5.16':
-    resolution: {integrity: sha512-W2uKEybDrGRMuRjTpyol8mBjWAbbfPpSr/d1ufDwDKI4h2WjvwoiCIn3xDDIskCqnEdfsQBU3Fj3LvluSqu5jQ==}
+  '@evolution-sdk/evolution@0.8.0':
+    resolution: {integrity: sha512-Nj5n16AA5wM0n7WpLbKKgQTetOlOcoYghe8qk++N5xSy98mA72tlsNaKxDEHAAtrzQLBxgx2LamIRzPfER6pCA==}
 
   '@fontsource-variable/chivo-mono@5.3.0':
     resolution: {integrity: sha512-S96WUAZDi9vm1YY35jhLhArRcfEp0Qcnh4xGdtVl8Ffm4QbRcfpArkyklHlsug8xv4Y9MfVn/DWIerOB1PQUMA==}
@@ -2100,7 +2100,7 @@ snapshots:
   '@esbuild/win32-x64@0.28.2':
     optional: true
 
-  '@evolution-sdk/evolution@0.5.16':
+  '@evolution-sdk/evolution@0.8.0':
     dependencies:
       '@noble/curves': 2.4.0
       '@noble/hashes': 2.4.0

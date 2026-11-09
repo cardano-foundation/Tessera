@@ -6,6 +6,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 This package follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html);
 while `< 1.0.0`, breaking changes bump the **minor** version.
 
+## [Unreleased]
+
+### Changed
+
+- **Breaking:** the `@evolution-sdk/evolution` peer is `^0.8.0` (was
+  `^0.5.9`). `cip-179/evolution`'s API is unchanged; 0.7.0 hardened the
+  CBOR decoder it uses on transactions and metadata from the chain against
+  forged lengths and deep nesting.
+
 ## [0.6.1] - 2026-10-21
 
 ### Added

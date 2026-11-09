@@ -64,7 +64,7 @@
     "governance"
   ],
   "devDependencies": {
-    "@evolution-sdk/evolution": "^0.5.16",
+    "@evolution-sdk/evolution": "^0.8.0",
     "@mattpiz/tlock-js": "0.10.0",
     "@types/node": "^26.6.6",
     "cardano-tessera-respond-core": "workspace:*",
