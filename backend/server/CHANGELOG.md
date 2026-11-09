@@ -15,7 +15,7 @@ no dual-serving. A consumer compares majors and refuses a mismatch; it may warn
 on a minor it does not know. Every bump has a line here, and the README's
 Endpoints section changes in the same commit.
 
-## [Unreleased]
+## [2.3] - 2026-11-05
 
 `2.3`. A changed default is a major by this changelog's rule, but only
 Tessera's own app reads `sections`, and a major would make every host on the
