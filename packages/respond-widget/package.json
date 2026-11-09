@@ -66,18 +66,18 @@
   "devDependencies": {
     "@evolution-sdk/evolution": "^0.5.16",
     "@mattpiz/tlock-js": "0.10.0",
-    "@types/node": "^25.9.8",
+    "@types/node": "^26.6.6",
     "cardano-tessera-respond-core": "workspace:*",
     "cardano-tessera-respond-ui": "workspace:*",
     "cip-179": "workspace:*",
-    "happy-dom": "^20.14.5",
-    "rolldown": "1.2.10",
-    "rolldown-plugin-dts": "^0.28.8",
+    "happy-dom": "^21.0.4",
+    "rolldown": "1.3.0",
+    "rolldown-plugin-dts": "^0.30.0",
     "solid-element": "^1.9.2",
-    "solid-js": "^1.9.15",
+    "solid-js": "^1.9.18",
     "typescript": "^7.0.2",
-    "vite": "^8.3.1",
-    "vite-plugin-solid": "^2.11.14",
-    "vitest": "^5.0.1"
+    "vite": "^8.3.6",
+    "vite-plugin-solid": "^2.11.15",
+    "vitest": "^5.1.0"
   }
 }

@@ -25,7 +25,7 @@
     "@fontsource/ibm-plex-mono": "^5.3.0",
     "@mattpiz/tlock-js": "0.10.0",
     "@noble/hashes": "^2.4.0",
-    "@solidjs/router": "^1.0.0",
+    "@solidjs/router": "^1.0.1",
     "cardano-tessera-client": "workspace:*",
     "cardano-tessera-core": "workspace:*",
     "cardano-tessera-koios": "workspace:*",
@@ -33,14 +33,14 @@
     "cardano-tessera-respond-core": "workspace:*",
     "cardano-tessera-respond-ui": "workspace:*",
     "cip-179": "workspace:*",
-    "solid-js": "^1.9.15"
+    "solid-js": "^1.9.18"
   },
   "devDependencies": {
-    "@types/node": "^25.9.8",
+    "@types/node": "^26.6.6",
     "solid-element": "^1.9.2",
     "typescript": "^7.0.2",
-    "vite": "^8.3.1",
-    "vite-plugin-solid": "^2.11.14",
-    "vitest": "^5.0.1"
+    "vite": "^8.3.6",
+    "vite-plugin-solid": "^2.11.15",
+    "vitest": "^5.1.0"
   }
 }

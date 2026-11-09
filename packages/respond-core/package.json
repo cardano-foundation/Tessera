@@ -37,6 +37,6 @@
     "@evolution-sdk/evolution": "^0.5.16",
     "@mattpiz/tlock-js": "0.10.0",
     "typescript": "^7.0.2",
-    "vitest": "^5.0.1"
+    "vitest": "^5.1.0"
   }
 }

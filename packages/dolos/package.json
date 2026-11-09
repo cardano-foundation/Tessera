@@ -27,9 +27,8 @@
     "cip-179": "workspace:*"
   },
   "devDependencies": {
-    "@types/node": "^25.9.8",
-    "tsx": "^4.23.15",
+    "@types/node": "^26.6.6",
     "typescript": "^7.0.2",
-    "vitest": "^5.0.1"
+    "vitest": "^5.1.0"
   }
 }

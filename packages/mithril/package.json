@@ -18,13 +18,13 @@
     "cardano-tessera-client": "workspace:*",
     "cardano-tessera-core": "workspace:*",
     "cardano-tessera-koios": "workspace:*",
-    "cborg": "^6.1.2",
+    "cborg": "^6.2.1",
     "cip-179": "workspace:*"
   },
   "devDependencies": {
-    "@types/node": "^25.9.8",
+    "@types/node": "^26.6.6",
     "tsx": "^4.23.15",
     "typescript": "^7.0.2",
-    "vitest": "^5.0.1"
+    "vitest": "^5.1.0"
   }
 }

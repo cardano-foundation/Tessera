@@ -7,9 +7,10 @@ import { dts } from "rolldown-plugin-dts";
 // doesn't.
 export default defineConfig({
   input: { "tessera-respond.es": "src/element.tsx" },
-  plugins: [dts({ generator: "oxc", emitDtsOnly: true })],
-  // respond-ui's modules import solid-js: kept for their side effects, they
-  // would bring its `declare global` blocks into every host's types.
-  treeshake: { moduleSideEffects: false },
+  plugins: [dts({ generator: "oxc", dtsOnly: true })],
+  // respond-ui's modules import solid-js: inlined, its `declare global`
+  // blocks would reach every host's types. The artifact bundles Solid, so no
+  // published type may name it; external, an unused import is dropped.
+  external: [/^solid-js(\/|$)/],
   output: { dir: "dist" },
 });

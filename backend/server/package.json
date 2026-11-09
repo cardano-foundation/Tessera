@@ -20,21 +20,21 @@
   },
   "dependencies": {
     "@evolution-sdk/evolution": "^0.5.16",
-    "@hono/node-server": "^2.1.1",
+    "@hono/node-server": "^2.1.6",
     "@libsql/client": "^0.18.0",
     "@mattpiz/tlock-js": "0.10.0",
     "cardano-tessera-client": "workspace:*",
     "cardano-tessera-core": "workspace:*",
     "cardano-tessera-koios": "workspace:*",
     "cip-179": "workspace:*",
-    "hono": "^4.13.9"
+    "hono": "^4.13.17"
   },
   "devDependencies": {
-    "@types/node": "^25.9.8",
+    "@types/node": "^26.6.6",
     "cardano-tessera-verifier": "workspace:*",
     "esbuild": "^0.28.2",
     "tsx": "^4.23.15",
     "typescript": "^7.0.2",
-    "vitest": "^5.0.1"
+    "vitest": "^5.1.0"
   }
 }
