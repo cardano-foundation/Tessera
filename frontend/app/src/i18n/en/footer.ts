@@ -1,9 +1,9 @@
-/** Site footer on every screen; `terms` also titles the /terms page. */
+/** Site footer on every screen. */
 const footer = {
-  terms: "Terms and privacy",
+  terms: "Terms",
   source: "Source code",
-  /** Under the /terms title; {date} is a long localized date. */
-  termsUpdated: "Last updated {date}",
+  /** Accessible name of a footer link; {label} is its visible text. */
+  newTab: "{label}, opens in a new tab",
 };
 
 export type Messages = typeof footer;

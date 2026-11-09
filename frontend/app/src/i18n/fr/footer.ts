@@ -1,9 +1,9 @@
 import type { Messages } from "../en/footer";
 
 const footer: Messages = {
-  terms: "Conditions et confidentialité",
+  terms: "Conditions",
   source: "Code source",
-  termsUpdated: "Dernière mise à jour le {date}",
+  newTab: "{label}, s'ouvre dans un nouvel onglet",
 };
 
 export default footer;
