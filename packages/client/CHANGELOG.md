@@ -9,6 +9,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 This package follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html);
 while `< 1.0.0`, breaking changes bump the **minor** version.
 
+## [Unreleased]
+
+Speaks contract `2.4`.
+
+### Added
+
+- `SurveyUnavailableError`, a `TesseraHttpError` with status `451`, thrown by
+  `bundle` and `wholeBundle` for a survey the backend no longer shows.
+- `SurveyBundlePayload.redactions`: the responses of a page whose text the
+  backend withholds. `collectSurveyBundle` merges them across pages.
+
 ## [0.7.0] - 2026-11-09
 
 Speaks contract `2.3`.

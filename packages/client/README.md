@@ -49,6 +49,12 @@ Every snapshot-derived method (`surveys`, `surveysByRefs`, `changes`,
 `{ ready: true, body } | { ready: false }`; the false branch is the backend's
 own `503 {"error":"snapshot not ready"}`, an ordinary state before its first
 refresh. Any other non-2xx answer throws `TesseraHttpError` with the status.
+A survey the backend no longer shows, because it was reported and judged
+unlawful, throws `SurveyUnavailableError` (a `TesseraHttpError`, status
+`451`) from `bundle` and `wholeBundle`: show it as unavailable here, not as
+nonexistent. A bundle's `redactions` names the responses whose text the
+backend withholds (their `custom` answers, rationale, and sealed
+ciphertext); they still count in the final result.
 The first of those reads also fetches `/health` and refuses a backend serving
 another network than the one given, or another contract major than
 `API_VERSION`'s; a minor the client does not know is accepted.

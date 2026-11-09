@@ -83,6 +83,19 @@ export class TesseraHttpError extends Error {
   }
 }
 
+/**
+ * A survey the backend no longer shows (`451`): content reported and judged
+ * unlawful. It is still on chain and its result is still computed; this
+ * backend withholds it. Show that it is unavailable here, not that it does
+ * not exist.
+ */
+export class SurveyUnavailableError extends TesseraHttpError {
+  constructor(url: string, body: string) {
+    super(url, 451, body);
+    this.name = "SurveyUnavailableError";
+  }
+}
+
 /** A survey named either by its record's ref or by its key (`<txHash>:<index>`). */
 export type SurveyId = SurveyRef | string;
 
@@ -135,7 +148,8 @@ export interface TesseraClient {
   /**
    * One page of a survey's bundle (`GET /api/surveys/{txHash}/{index}`); pass
    * the previous page's `nextCursor` to continue. An unknown survey is a
-   * {@link TesseraHttpError} with status 404.
+   * {@link TesseraHttpError} with status 404, a survey the backend no longer
+   * shows a {@link SurveyUnavailableError}.
    */
   bundle(
     survey: SurveyId,
@@ -278,6 +292,8 @@ export function createTesseraClient(
       if (error === NOT_READY_BODY) return { ready: false };
       throw new TesseraHttpError(url, res.status, text);
     }
+    if (res.status === 451)
+      throw new SurveyUnavailableError(url, await res.text());
     if (!res.ok) throw new TesseraHttpError(url, res.status, await res.text());
     return { ready: true, body: decode(await res.json()) };
   };

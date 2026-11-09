@@ -11,7 +11,8 @@ export const MAX_BUNDLE_RESYNCS = 3;
 
 /**
  * Read a survey's whole bundle from a paged source: page one, then each
- * continuation, responses concatenated and verdicts merged in arrival order.
+ * continuation, responses concatenated and verdicts and redactions merged in
+ * arrival order.
  *
  * A bundle feeds a tally rather than a scrolling list, where a silently
  * skipped response is a wrong result. A page that reports `resync` was minted
@@ -27,6 +28,7 @@ export async function collectSurveyBundle(
     const first = await fetchPage(null);
     const responses = [...first.responses];
     const verdicts = { ...first.verdicts };
+    const redactions = [...(first.redactions ?? [])];
     let cursor = first.nextCursor ?? null;
     let restart = false;
     while (cursor !== null) {
@@ -37,6 +39,7 @@ export async function collectSurveyBundle(
       }
       responses.push(...page.responses);
       Object.assign(verdicts, page.verdicts);
+      redactions.push(...(page.redactions ?? []));
       cursor = page.nextCursor ?? null;
     }
     if (!restart)
@@ -44,6 +47,7 @@ export async function collectSurveyBundle(
         ...first,
         responses,
         ...(first.verdicts !== undefined && { verdicts }),
+        ...(redactions.length > 0 && { redactions }),
         nextCursor: null,
       };
     if (attempt >= MAX_BUNDLE_RESYNCS)
