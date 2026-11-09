@@ -226,9 +226,20 @@ const survey: Messages = {
   // Empty / loading / error
   loading: "Chargement…",
   notFound: "Sondage introuvable.",
+  withheld:
+    "Ce sondage n'est pas affiché sur ce site : il a été signalé et jugé illicite. Il reste sur la blockchain Cardano.",
   loadError:
     "Échec du chargement depuis le réseau. Il peut s'agir d'une erreur transitoire.",
   retry: "Réessayer",
+
+  // Signalement, et ce que ce site masque
+  report: "Signaler ce sondage",
+  reportResponse: "Signaler",
+  reportResponseTitle: "Signaler cette réponse",
+  hiddenResponsesOne:
+    "Une réponse est masquée sur ce site : elle a été signalée et jugée illicite. Le résultat final la compte toujours.",
+  hiddenResponsesMany:
+    "{n} réponses sont masquées sur ce site : elles ont été signalées et jugées illicites. Le résultat final les compte toujours.",
 };
 
 export default survey;

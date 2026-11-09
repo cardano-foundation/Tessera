@@ -15,6 +15,7 @@ are signed and submitted by the user's CIP-30 wallet.
 | `/survey/:key/link`    | **Link** — owner tool: produce the survey-linked CIP-108 anchor (form or uploaded document), host its bytes, and submit the advertising Info Action. |
 | `/create`              | **Create** — author a survey (roles, questions, end epoch, public/sealed) and submit it.                                                             |
 | `/settings`            | **Settings** — network info, backend URL override, Koios token (direct mode), IPFS pinning provider tokens, language (en/fr).                        |
+| `/terms`               | **Terms and privacy** — terms of use and privacy policy, linked from the footer on every screen. English only: the version legal review covers.      |
 
 ## Data modes
 
@@ -186,6 +187,10 @@ Content-Security-Policy:
 
 Vite fingerprints asset filenames with a content hash, so `/assets/*` is served
 as immutable.
+
+So that publishing a survey earns no search ranking, `/survey/*` is served
+with `X-Robots-Tag: noindex`, and links from user content carry
+`rel="ugc nofollow"`.
 
 [cip179]: https://github.com/cardano-foundation/CIPs/tree/master/CIP-0179
 [drand]: https://drand.love/

@@ -1,0 +1,68 @@
+name: Hide content
+
+# Records a moderation decision (backend/server/OPERATIONS.md). Runs are
+# public: the target is masked before use and never logged; the run name shows
+# only the action, network and case id. The `moderation` environment holds the
+# credentials and requires a reviewer.
+on:
+  workflow_dispatch:
+    inputs:
+      network:
+        description: Network whose website the report is about
+        type: choice
+        options: [preview, preprod]
+      action:
+        description: Hide, or show again
+        type: choice
+        options: [hide, unhide]
+      target:
+        description: The page URL from the report, or survey:/response:/govAction:<key>
+        type: string
+        required: true
+      case:
+        description: Case id in the legal team's case system (no personal data)
+        type: string
+        required: true
+
+run-name: ${{ inputs.action }} on ${{ inputs.network }}, case ${{ inputs.case }}
+
+concurrency:
+  group: hide-${{ inputs.network }}
+  cancel-in-progress: false
+
+permissions: {}
+
+jobs:
+  decide:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: moderation
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+
+      # One step, so no step's env header shows the target before the mask.
+      - name: Record the decision
+        working-directory: backend/server
+        env:
+          NETWORK: ${{ inputs.network }}
+          ACTION: ${{ inputs.action }}
+          CASE_ID: ${{ inputs.case }}
+          TURSO_DATABASE_URL: ${{ vars[format('TURSO_DATABASE_URL_{0}', inputs.network)] }}
+          # Named statically: a computed secret name sends every secret.
+          TURSO_AUTH_TOKEN: ${{ inputs.network == 'preview' && secrets.TURSO_AUTH_TOKEN_PREVIEW || inputs.network == 'preprod' && secrets.TURSO_AUTH_TOKEN_PREPROD || '' }}
+        run: |
+          : "${TURSO_DATABASE_URL:?no TURSO_DATABASE_URL_* variable for $NETWORK in the moderation environment}"
+          target=$(jq -r .inputs.target "$GITHUB_EVENT_PATH")
+          echo "::add-mask::$target"
+          pnpm exec tsx src/hide.ts "$ACTION" "$target" --case "$CASE_ID"

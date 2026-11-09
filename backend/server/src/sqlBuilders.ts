@@ -63,6 +63,18 @@ function searchSql(terms: readonly string[]): SqlQuery {
   };
 }
 
+/**
+ * Leaves the hidden surveys out, bound as one JSON array probed per row read.
+ * TRUE when nothing is hidden.
+ */
+function visibleSql(hidden: readonly string[]): SqlQuery {
+  if (hidden.length === 0) return { sql: "1", params: [] };
+  return {
+    sql: `survey_key NOT IN ${JSON_KEY_SET}`,
+    params: [JSON.stringify(hidden)],
+  };
+}
+
 /** `owner IN (…)` over the caller's credentials; FALSE when none given. */
 function mineSql(credentials: readonly string[]): SqlQuery {
   if (credentials.length === 0) return { sql: "0", params: [] };
@@ -94,6 +106,7 @@ function filterSql(
 export function surveyPageSql(q: SurveyPageQuery): SqlQuery {
   const search = searchSql(q.searchTerms);
   const filter = filterSql(q);
+  const visible = visibleSql(q.hidden);
   const cursor = q.cursor
     ? {
         sql: `(bucket > ? OR (bucket = ? AND (slot < ? OR (slot = ? AND survey_key > ?))))`,
@@ -115,7 +128,7 @@ export function surveyPageSql(q: SurveyPageQuery): SqlQuery {
                final_state, artifact_hash,
                ${BUCKET} AS bucket
         FROM survey_index
-        WHERE ${search.sql} AND ${filter.sql}
+        WHERE ${search.sql} AND ${filter.sql} AND ${visible.sql}
       )
       SELECT survey_key AS surveyKey, slot, end_epoch AS endEpoch, sealed,
              cancelled, gov_linked AS govLinked, talliable, owner, haystack,
@@ -133,6 +146,7 @@ export function surveyPageSql(q: SurveyPageQuery): SqlQuery {
       q.tipEpoch,
       ...search.params,
       ...filter.params,
+      ...visible.params,
       ...cursor.params,
       q.limit,
     ],
@@ -182,6 +196,7 @@ function sectionSql(
 ): SqlQuery {
   const search = searchSql(q.searchTerms);
   const filter = filterSql(q);
+  const visible = visibleSql(q.hidden);
   const sortKey = sectionSortKeySql(q, section);
   const after = cursor
     ? {
@@ -196,7 +211,8 @@ function sectionSql(
                ${sortKey.sql} AS sortKey
                ${total ? ", COUNT(*) OVER () AS total" : ""}
         FROM survey_index
-        WHERE ${search.sql} AND ${filter.sql} AND ${SECTION_WHERE[section]}
+        WHERE ${search.sql} AND ${filter.sql} AND ${visible.sql}
+          AND ${SECTION_WHERE[section]}
       )
       WHERE ${after.sql}
       ORDER BY sortKey DESC, surveyKey
@@ -205,6 +221,7 @@ function sectionSql(
       ...sortKey.params,
       ...search.params,
       ...filter.params,
+      ...visible.params,
       q.tipEpoch,
       ...after.params,
       isOpenSection(section) ? q.limit : q.closedLimit,
@@ -230,11 +247,16 @@ export const surveySectionPageSql = (
 ): SqlQuery => sectionSql(q, cursor.bucket, cursor, false);
 
 /** The `mine` chip alone — the one count the banked envelope can't carry. */
-export const ownedCountSql = (credentials: readonly string[]): SqlQuery => {
+export const ownedCountSql = (
+  credentials: readonly string[],
+  hidden: readonly string[],
+): SqlQuery => {
   const mine = mineSql(credentials);
+  const visible = visibleSql(hidden);
   return {
-    sql: `SELECT COUNT(*) AS n FROM survey_index WHERE ${mine.sql}`,
-    params: mine.params,
+    sql: `SELECT COUNT(*) AS n FROM survey_index
+          WHERE ${mine.sql} AND ${visible.sql}`,
+    params: [...mine.params, ...visible.params],
   };
 };
 
@@ -242,9 +264,11 @@ export function surveyCountsSql(
   tipEpoch: number,
   credentials: readonly string[],
   searchTerms: readonly string[],
+  hidden: readonly string[],
 ): SqlQuery {
   const search = searchSql(searchTerms);
   const mine = mineSql(credentials);
+  const visible = visibleSql(hidden);
   return {
     sql: `
       SELECT COUNT(*) AS "all",
@@ -254,8 +278,15 @@ export function surveyCountsSql(
              COALESCE(SUM(CASE WHEN sealed = 0 AND ${ACTIVE} THEN 1 ELSE 0 END), 0) AS "public",
              COALESCE(SUM(CASE WHEN ${mine.sql} THEN 1 ELSE 0 END), 0) AS mine
       FROM survey_index
-      WHERE ${search.sql}`,
-    params: [tipEpoch, tipEpoch, tipEpoch, ...mine.params, ...search.params],
+      WHERE ${search.sql} AND ${visible.sql}`,
+    params: [
+      tipEpoch,
+      tipEpoch,
+      tipEpoch,
+      ...mine.params,
+      ...search.params,
+      ...visible.params,
+    ],
   };
 }
 
@@ -327,14 +358,16 @@ const SURVEY_INDEX_RECONCILE = `
 
 const SNAPSHOT_META_UPSERT = `
   INSERT INTO snapshot_meta
-    (id, tip, incomplete, fetched_at, list_counts, settling)
-  VALUES (1, ?, ?, ?, ?, ?)
+    (id, tip, incomplete, fetched_at, list_counts, settling, hidden, hide_seq)
+  VALUES (1, ?, ?, ?, ?, ?, ?, ?)
   ON CONFLICT(id) DO UPDATE SET
     tip = excluded.tip,
     incomplete = excluded.incomplete,
     fetched_at = excluded.fetched_at,
     list_counts = excluded.list_counts,
-    settling = excluded.settling`;
+    settling = excluded.settling,
+    hidden = excluded.hidden,
+    hide_seq = excluded.hide_seq`;
 
 /** The envelope write — the end-of-run publish, never part of a reconcile. */
 export const snapshotMetaUpsertSql = (meta: SnapshotMeta): SqlQuery => ({
@@ -345,6 +378,8 @@ export const snapshotMetaUpsertSql = (meta: SnapshotMeta): SqlQuery => ({
     meta.fetchedAt,
     meta.listCounts,
     meta.settling,
+    meta.hidden,
+    meta.hideSeq,
   ],
 });
 
@@ -866,44 +901,88 @@ const changesAxisSql = (
         params: [position.stamp, publishedAt, position.stamp, position.key],
       };
 
-/** The rows stamped after `position`, in the delta's own order. */
+/** The visible rows stamped after `position`, in the delta's own order. */
 export const changedSurveysSql = (
   position: AxisPosition,
   publishedAt: number,
   limit: number,
+  hidden: readonly string[],
 ): SqlQuery => {
   const axis = changesAxisSql("changed_at", position, publishedAt);
+  const visible = visibleSql(hidden);
   return {
     sql: `SELECT ${SURVEY_ROW_COLUMNS}, changed_at AS changedAt
           FROM survey_index
-          WHERE ${axis.sql}
+          WHERE ${axis.sql} AND ${visible.sql}
           ORDER BY changed_at, survey_key
           LIMIT ?`,
-    params: [...axis.params, limit],
+    params: [...axis.params, ...visible.params, limit],
   };
 };
 
 /**
- * The keys tombstoned after `position` that no row holds — a swept survey
- * that re-landed is not a removal, and needs no un-tombstoning to say so.
+ * The keys tombstoned after `position` that no visible row holds — a swept
+ * survey that re-landed is not a removal, a hidden one is.
  */
 export const removedSurveysSql = (
   position: AxisPosition,
   publishedAt: number,
   limit: number,
+  hidden: readonly string[],
 ): SqlQuery => {
   const axis = changesAxisSql("deleted_at", position, publishedAt);
+  const visible = visibleSql(hidden);
   return {
     sql: `SELECT survey_key AS surveyKey, deleted_at AS deletedAt
           FROM survey_tombstone
           WHERE ${axis.sql}
             AND NOT EXISTS (SELECT 1 FROM survey_index
-                            WHERE survey_index.survey_key = survey_tombstone.survey_key)
+                            WHERE survey_index.survey_key = survey_tombstone.survey_key
+                              AND ${visible.sql})
           ORDER BY deleted_at, survey_key
           LIMIT ?`,
-    params: [...axis.params, limit],
+    params: [...axis.params, ...visible.params, limit],
   };
 };
+
+/**
+ * Stamps a changed hide state under `generation`: tombstones newly hidden
+ * surveys, restamps shown ones and those linking a changed action. No index
+ * finds the latter, so an action decision scans `survey_index` once.
+ */
+export const hideChangeSql = (
+  generation: number,
+  hiddenSurveys: readonly string[],
+  shownSurveys: readonly string[],
+  govActions: readonly string[],
+): SqlQuery[] => [
+  ...(hiddenSurveys.length === 0
+    ? []
+    : [
+        {
+          sql: `INSERT INTO survey_tombstone (survey_key, deleted_at)
+                SELECT value, ? FROM json_each(?)
+                WHERE 1
+                ON CONFLICT(survey_key) DO UPDATE SET
+                  deleted_at = excluded.deleted_at`,
+          params: [generation, JSON.stringify(hiddenSurveys)],
+        },
+      ]),
+  ...(shownSurveys.length === 0
+    ? []
+    : [
+        {
+          sql: `UPDATE survey_index SET changed_at = ?
+                WHERE survey_key IN ${JSON_KEY_SET}`,
+          params: [generation, JSON.stringify(shownSurveys)],
+        },
+      ]),
+  ...govActions.map((actionId) => ({
+    sql: `UPDATE survey_index SET changed_at = ?
+          WHERE gov_links <> '[]' AND instr(gov_links, ?) > 0`,
+    params: [generation, JSON.stringify(actionId)],
+  })),
+];
 
 /** Persist untalliable verdicts; re-reaching one is a no-op. */
 export const putUntalliableSql = (

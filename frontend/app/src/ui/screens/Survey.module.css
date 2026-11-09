@@ -228,3 +228,8 @@
   font-family: var(--code);
   font-size: 12px;
 }
+
+.report {
+  margin-top: 28px;
+  font-size: 13px;
+}

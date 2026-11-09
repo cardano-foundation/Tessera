@@ -30,6 +30,7 @@ import type {
   ValidatedResponseRow,
 } from "./store";
 import {
+  NOTHING_HIDDEN,
   OPERATIONAL_RETENTION_SECONDS,
   TALLY_BUCKET_SECONDS,
   tallyBucket,
@@ -278,6 +279,7 @@ describe("store-node migration to chain-dated change stamps", () => {
         changesCursorAt(0),
         published,
         10,
+        [],
       );
       expect(changes.rows.map((r) => [r.surveyKey, r.changedAt])).toEqual([
         // Its own transaction, when nothing later touched it.
@@ -291,8 +293,14 @@ describe("store-node migration to chain-dated change stamps", () => {
       // The property the backfill exists for: chain time lands below the
       // published generation, so a live cursor is not re-sent the corpus.
       expect(
-        (await store.surveyChanges(changesCursorAt(published), published, 10))
-          .rows,
+        (
+          await store.surveyChanges(
+            changesCursorAt(published),
+            published,
+            10,
+            [],
+          )
+        ).rows,
       ).toEqual([]);
     } finally {
       store.close();
@@ -345,6 +353,8 @@ describe("store-node migration to per-response rows", () => {
         fetchedAt: 100,
         listCounts: null,
         settling: null,
+        hidden: JSON.stringify(NOTHING_HIDDEN),
+        hideSeq: 0,
       });
       expect((await store.snapshotMeta())?.fetchedAt).toBe(100);
     } finally {
@@ -463,6 +473,7 @@ describe("store-node survey_index paging SQL", () => {
   const page = (q: Partial<SurveyPageQuery>) =>
     store.surveyIndexPage({
       tipEpoch: TIP_EPOCH,
+      hidden: [],
       filter: "all",
       credentials: [],
       searchTerms: [],
@@ -509,7 +520,7 @@ describe("store-node survey_index paging SQL", () => {
       "cb:0",
       "bb:0",
     ]);
-    expect(await store.surveyIndexCounts(TIP_EPOCH, [], [])).toMatchObject({
+    expect(await store.surveyIndexCounts(TIP_EPOCH, [], [], [])).toMatchObject({
       all: 7,
       linked: 2,
       active: 4,
@@ -543,6 +554,7 @@ describe("store-node survey_index paging SQL", () => {
     );
     const q = {
       tipEpoch: TIP_EPOCH,
+      hidden: [],
       filter: "all" as const,
       credentials: [],
       searchTerms: [],
@@ -1464,7 +1476,7 @@ describe("store-node change selection", () => {
       2,
     );
     expect(tombstones()).toEqual([{ surveyKey: "bb:0", deletedAt: 2 }]);
-    expect(await store.surveyChanges(changesCursorAt(1), 2, 10)).toEqual({
+    expect(await store.surveyChanges(changesCursorAt(1), 2, 10, [])).toEqual({
       rows: [],
       removed: [{ surveyKey: "bb:0", deletedAt: 2 }],
     });
@@ -1479,7 +1491,7 @@ describe("store-node change selection", () => {
       [],
       3,
     );
-    const relanded = await store.surveyChanges(changesCursorAt(1), 3, 10);
+    const relanded = await store.surveyChanges(changesCursorAt(1), 3, 10, []);
     expect(relanded.rows.map((r) => [r.surveyKey, r.changedAt])).toEqual([
       ["bb:0", 3],
     ]);
@@ -1498,7 +1510,7 @@ describe("store-node change selection", () => {
     );
     expect(tombstones()).toEqual([{ surveyKey: "bb:0", deletedAt: 4 }]);
     expect(
-      (await store.surveyChanges(changesCursorAt(3), 4, 10)).removed,
+      (await store.surveyChanges(changesCursorAt(3), 4, 10, [])).removed,
     ).toEqual([{ surveyKey: "bb:0", deletedAt: 4 }]);
   });
 
@@ -1544,7 +1556,7 @@ describe("store-node change selection", () => {
       delta.rows.map((r) => r.surveyKey);
     // Everything after generation 1, published at 3: the row stamped 4 waits.
     expect(
-      keysOf(await store.surveyChanges(changesCursorAt(1), 3, 10)),
+      keysOf(await store.surveyChanges(changesCursorAt(1), 3, 10, [])),
     ).toEqual(["aa:0", "aaa:0", "aaaa:0"]);
     // Continuing from a key inside generation 3, published at 4.
     expect(
@@ -1556,14 +1568,15 @@ describe("store-node change selection", () => {
           },
           4,
           10,
+          [],
         ),
       ),
     ).toEqual(["aaaa:0", "a:0"]);
-    expect(keysOf(await store.surveyChanges(changesCursorAt(1), 3, 2))).toEqual(
-      ["aa:0", "aaa:0"],
-    );
     expect(
-      keysOf(await store.surveyChanges(changesCursorAt(4), 4, 10)),
+      keysOf(await store.surveyChanges(changesCursorAt(1), 3, 2, [])),
+    ).toEqual(["aa:0", "aaa:0"]);
+    expect(
+      keysOf(await store.surveyChanges(changesCursorAt(4), 4, 10, [])),
     ).toEqual([]);
   });
 
@@ -1579,12 +1592,19 @@ describe("store-node change selection", () => {
       { stamp: 5, key: null },
       { stamp: 5, key: "aa:0" },
     ]) {
-      expect(planOf(changedSurveysSql(position, 9, 10))).toEqual([
-        "SEARCH survey_index USING INDEX survey_index_changed (changed_at>? AND changed_at<?)",
-      ]);
-      expect(planOf(removedSurveysSql(position, 9, 10))[0]).toBe(
-        "SEARCH survey_tombstone USING COVERING INDEX survey_tombstone_deleted (deleted_at>? AND deleted_at<?)",
-      );
+      // With surveys hidden, the same seek, and the hidden set read once.
+      for (const hidden of [[], ["bb:0"]]) {
+        expect(planOf(changedSurveysSql(position, 9, 10, hidden))[0]).toBe(
+          "SEARCH survey_index USING INDEX survey_index_changed (changed_at>? AND changed_at<?)",
+        );
+        const removed = planOf(removedSurveysSql(position, 9, 10, hidden));
+        expect(removed[0]).toBe(
+          "SEARCH survey_tombstone USING COVERING INDEX survey_tombstone_deleted (deleted_at>? AND deleted_at<?)",
+        );
+        expect(removed.filter((d) => d.startsWith("SCAN"))).toEqual(
+          hidden.length === 0 ? [] : ["SCAN json_each VIRTUAL TABLE INDEX 1:"],
+        );
+      }
     }
   });
 });

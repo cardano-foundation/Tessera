@@ -237,6 +237,7 @@ export function decodeSurveyBundle(json: unknown): SurveyBundlePayload {
   const o = obj(json, "");
   const verdicts = opt(o.verdicts, "verdicts", (x, p) => dict(x, p, bool));
   const govLinks = opt(o.govLinks, "govLinks", (x, p) => list(x, p, govLink));
+  const redactions = opt(o.redactions, "redactions", (x, p) => list(x, p, str));
   const fetchedAt = opt(o.fetchedAt, "fetchedAt", num);
   return {
     survey: decodeSurveyRecord(o.survey),
@@ -249,6 +250,7 @@ export function decodeSurveyBundle(json: unknown): SurveyBundlePayload {
     tip: tip(o.tip, "tip"),
     ...(verdicts === undefined ? {} : { verdicts }),
     ...(govLinks === undefined ? {} : { govLinks }),
+    ...(redactions === undefined ? {} : { redactions }),
     ...(fetchedAt === undefined ? {} : { fetchedAt }),
     ...paging(o),
   };

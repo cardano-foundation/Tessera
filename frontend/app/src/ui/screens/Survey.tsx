@@ -21,6 +21,7 @@ import {
   type SurveyAggregate,
 } from "cip-179/domain";
 import type { TallyArtifact } from "cip-179/tally";
+import { SurveyUnavailableError } from "cardano-tessera-client";
 
 import { useApp } from "~/state";
 import { computeAlignment } from "~/domain/anchorLink";
@@ -47,6 +48,7 @@ import { PublishLocked, QueuedNote } from "~/ui/components/CartDrawer";
 import type { Action } from "~/wallet/action";
 import { t, n } from "~/i18n";
 import { usePageTitle } from "~/ui/pageTitle";
+import { reportHref, reportedUrl } from "~/ui/report";
 import kit from "~/ui/kit.module.css";
 import css from "./Survey.module.css";
 
@@ -78,6 +80,9 @@ export const Survey: Component = () => {
   const retryBundle = (): void => {
     void Promise.resolve(refetchBundle()).catch(() => {});
   };
+  // The bundle's 451 covers a list loaded before the hide.
+  const withheld = (): boolean =>
+    found.withheld() || bundle.error instanceof SurveyUnavailableError;
 
   // The final tally artifact, read by the hash the survey's final state names:
   // the by-hash address is the one a browser may cache for good, while a
@@ -163,13 +168,13 @@ export const Survey: Component = () => {
       </A>
 
       <Show
-        when={survey()}
+        when={!withheld() && survey()}
         fallback={
           <Empty
             loading={found.loading()}
             error={found.error()}
             onRetry={() => app.reload()}
-            text={emptyText()}
+            text={emptyText(withheld())}
           />
         }
       >
@@ -275,10 +280,13 @@ export const Survey: Component = () => {
                   loading={bundle.loading}
                   error={bundle.error}
                   onRetry={retryBundle}
-                  text={emptyText()}
+                  text={emptyText(false)}
                 />
               }
             >
+              <Show when={bundle()?.redactions?.length}>
+                {(count) => <HiddenResponsesNote count={count()} />}
+              </Show>
               <Results
                 s={sv()}
                 def={def() ?? sv().record.definition}
@@ -289,6 +297,14 @@ export const Survey: Component = () => {
                 verdicts={verdicts()}
                 nowUnix={now()}
               />
+            </Show>
+
+            <Show when={indexed()}>
+              <p class={css.report}>
+                <a class={kit.link} href={reportHref(reportedUrl(key()))}>
+                  {t("survey.report")}
+                </a>
+              </p>
             </Show>
           </>
         )}
@@ -349,6 +365,18 @@ const FinalityNoticeCard: Component<{ notice: FinalityNotice }> = (props) => {
     </Note>
   );
 };
+
+/**
+ * Hidden responses are left out of everything below; the final result, computed
+ * from the chain, still counts them.
+ */
+const HiddenResponsesNote: Component<{ count: number }> = (props) => (
+  <Note kind="warn" style={{ "margin-top": "14px" }}>
+    {props.count === 1
+      ? t("survey.hiddenResponsesOne")
+      : t("survey.hiddenResponsesMany", { n: n(props.count) })}
+  </Note>
+);
 
 /**
  * Shown when the on-chain definition is spec-invalid (non-v5 or structurally
@@ -697,9 +725,9 @@ const LabelsUnavailable: Component<{ keyStr: string }> = (props) => (
 );
 
 /** Read through a getter at each call site, so it re-reads on a locale switch. */
-const emptyText = (): EmptyText => ({
+const emptyText = (withheld: boolean): EmptyText => ({
   loading: t("survey.loading"),
-  notFound: t("survey.notFound"),
+  notFound: withheld ? t("survey.withheld") : t("survey.notFound"),
   error: t("survey.loadError"),
   retry: t("survey.retry"),
 });

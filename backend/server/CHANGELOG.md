@@ -15,6 +15,20 @@ no dual-serving. A consumer compares majors and refuses a mismatch; it may warn
 on a minor it does not know. Every bump has a line here, and the README's
 Endpoints section changes in the same commit.
 
+## [Unreleased]
+
+`2.4`: a minor, since a `2.3` consumer already treats the new `451` as an
+error.
+
+### Added
+
+- Hidden content, after a report is judged unlawful. A hidden survey is absent
+  from `GET /api/surveys`, its counts and `GET /api/responded`, in `removed` on
+  the change selection, and `451` on `GET /api/surveys/{txHash}/{index}`.
+- `redactions` on a bundle page: its hidden responses' keys. They are served
+  without `custom` answers, `rationale` or sealed ciphertext.
+- A hidden governance action's `GovLink.title` is `null`.
+
 ## [2.3] - 2026-11-05
 
 `2.3`. A changed default is a major by this changelog's rule, but only

@@ -9,6 +9,7 @@ import {
 import { A, useParams } from "@solidjs/router";
 import type { Role, SealedSubmissionMode, SurveyDefinition } from "cip-179";
 
+import { SurveyUnavailableError } from "cardano-tessera-client";
 import { useApp } from "~/state";
 import { dedupeResponses, findSurvey, refKey } from "cip-179/domain";
 import type { Responder } from "cardano-tessera-respond-core";
@@ -70,6 +71,9 @@ export const Respond: Component = () => {
     () => indexed()?.record.ref,
     (ref) => app.source.surveyBundle(ref),
   );
+  // The bundle's 451 covers a list loaded before the hide.
+  const withheld = (): boolean =>
+    found.withheld() || bundle.error instanceof SurveyUnavailableError;
   // External-content surveys: render labels from the off-chain presentation doc
   // when available. `definition()` is the enriched (display) definition; it
   // falls back to the on-chain one, which is always answerable since indices and
@@ -164,7 +168,6 @@ export const Respond: Component = () => {
   const sealedUnsupported = (): boolean => survey()?.sealedUnsupported ?? false;
 
   let submitButton: HTMLButtonElement | undefined;
-  const [barHeight, setBarHeight] = createSignal(0);
   const prompts: HTMLElement[] = [];
   const finish = createFinish(
     draft,
@@ -179,12 +182,19 @@ export const Respond: Component = () => {
     return undefined;
   };
 
+  const formOpen = (): boolean => {
+    const s = survey();
+    if (!s || withheld()) return false;
+    return (
+      !sent() &&
+      (viewStatus(s) === "public" || viewStatus(s) === "sealed") &&
+      draft.role() !== null
+    );
+  };
+
   return (
-    <main
-      class={css.main}
-      style={{ "--submit-bar-height": `${barHeight()}px` }}
-    >
-      <RespondContexts>
+    <RespondContexts>
+      <main class={css.main}>
         <A href={`/survey/${encodeURIComponent(key())}`} class={kit.back}>
           {t("respond.backToResults")}
         </A>
@@ -202,7 +212,7 @@ export const Respond: Component = () => {
         </Show>
 
         <Show
-          when={survey()}
+          when={!withheld() && survey()}
           fallback={
             <Empty
               loading={found.loading()}
@@ -210,7 +220,9 @@ export const Respond: Component = () => {
               onRetry={() => app.reload()}
               text={{
                 loading: t("respond.loading"),
-                notFound: t("respond.notFound"),
+                notFound: withheld()
+                  ? t("respond.withheld")
+                  : t("respond.notFound"),
                 error: t("respond.loadError"),
                 retry: t("respond.retry"),
               }}
@@ -314,44 +326,37 @@ export const Respond: Component = () => {
           )}
         </Show>
 
-        {/* sticky submit bar — only when an open, eligible form is showing */}
-        <Show
-          when={
-            survey() &&
-            !sent() &&
-            (viewStatus(survey()!) === "public" ||
-              viewStatus(survey()!) === "sealed") &&
-            draft.role() !== null
-          }
-        >
-          <Show when={!app.cartLocked()} fallback={<PublishLocked />}>
-            <SubmitBar
-              progress={draft.progress()}
-              drafts={draft.drafts}
-              left={draft.left()}
-              answered={draft.answered()}
-              finish={finish}
-              replacing={draft.prior() !== undefined}
-              submitting={submission.submitting()}
-              mismatch={mismatch()}
-              blocked={submitBlocked()}
-              warning={deadline.warning()}
-              network={app.config.network}
-              idleText={
-                sealedMode()
-                  ? t("respond.encryptAndSubmit")
-                  : t("respond.signAndSubmit")
-              }
-              busyText={submission.busyText()}
-              queueing={submission.queueing()}
-              onSubmit={() => void submit(false)}
-              onQueue={() => void submit(true)}
-              submitRef={(el) => (submitButton = el)}
-              onHeight={setBarHeight}
-            />
-          </Show>
+        <Show when={formOpen() && app.cartLocked()}>
+          <PublishLocked />
         </Show>
-      </RespondContexts>
-    </main>
+      </main>
+      {/* Outside <main> so it sticks across the full width and comes to rest
+          above the site footer. */}
+      <Show when={formOpen() && !app.cartLocked()}>
+        <SubmitBar
+          progress={draft.progress()}
+          drafts={draft.drafts}
+          left={draft.left()}
+          answered={draft.answered()}
+          finish={finish}
+          replacing={draft.prior() !== undefined}
+          submitting={submission.submitting()}
+          mismatch={mismatch()}
+          blocked={submitBlocked()}
+          warning={deadline.warning()}
+          network={app.config.network}
+          idleText={
+            sealedMode()
+              ? t("respond.encryptAndSubmit")
+              : t("respond.signAndSubmit")
+          }
+          busyText={submission.busyText()}
+          queueing={submission.queueing()}
+          onSubmit={() => void submit(false)}
+          onQueue={() => void submit(true)}
+          submitRef={(el) => (submitButton = el)}
+        />
+      </Show>
+    </RespondContexts>
   );
 };

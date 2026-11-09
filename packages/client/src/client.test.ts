@@ -10,6 +10,7 @@ import {
   MAX_CREDENTIALS,
   MAX_PAGE_LIMIT,
   MAX_TX_STATUS_HASHES,
+  SurveyUnavailableError,
   TesseraHttpError,
   createTesseraClient,
   type TesseraClientOptions,
@@ -452,11 +453,28 @@ describe("bundle", () => {
     expect(page.responses).toEqual([responseAt("cc".repeat(32))]);
     expect(page.nextCursor).toBe("150:cc:0");
     expect(page.verdicts).toEqual({ [`${"cc".repeat(32)}:0`]: true });
+    expect("redactions" in page).toBe(false);
 
     ready(await client.bundle(KEY, "150:cc:0"));
     expect(urls().filter((u) => u.includes("/api/surveys/"))).toEqual([
       `${BASE}/api/surveys/${TX}/3`,
       `${BASE}/api/surveys/${TX}/3?cursor=150%3Acc%3A0`,
+    ]);
+  });
+
+  it("decodes the page's redactions", async () => {
+    const { client } = clientOver((url) =>
+      url.includes("/api/surveys/")
+        ? {
+            body: {
+              ...(bundlePage([responseAt("cc".repeat(32))], null) as object),
+              redactions: [`${"cc".repeat(32)}:0`],
+            },
+          }
+        : undefined,
+    );
+    expect(ready(await client.bundle(KEY)).redactions).toEqual([
+      `${"cc".repeat(32)}:0`,
     ]);
   });
 
@@ -485,6 +503,17 @@ describe("bundle", () => {
     const err = await client.bundle(KEY).catch((e: unknown) => e);
     expect(err).toBeInstanceOf(TesseraHttpError);
     expect((err as TesseraHttpError).status).toBe(404);
+  });
+
+  it("surfaces a survey the backend no longer shows as its own error", async () => {
+    const { client } = clientOver(() => ({
+      status: 451,
+      body: { error: "unavailable here" },
+    }));
+    const err = await client.wholeBundle(KEY).catch((e: unknown) => e);
+    expect(err).toBeInstanceOf(SurveyUnavailableError);
+    expect(err).toBeInstanceOf(TesseraHttpError);
+    expect((err as TesseraHttpError).status).toBe(451);
   });
 });
 

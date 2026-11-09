@@ -43,10 +43,15 @@ import type {
 
 import { changesCursorAt, encodeChangesCursor } from "./changes";
 import { loadConfig } from "./config";
+import { publishHides } from "./hiding";
 import { createApp, keyedCache } from "./http";
 import { materializeSnapshot } from "./materialize";
 import { ALL_SLOTS, testStore, type TestStore } from "./testing/store";
-import { type ValidatedResponseRow } from "./store";
+import {
+  NOTHING_HIDDEN,
+  type HideKind,
+  type ValidatedResponseRow,
+} from "./store";
 
 function appWith(store: TestStore) {
   return createApp(loadConfig({}), store);
@@ -84,6 +89,8 @@ async function seed(
     fetchedAt,
     listCounts: JSON.stringify(snapshot.listCounts),
     settling: null,
+    hidden: JSON.stringify(NOTHING_HIDDEN),
+    hideSeq: 0,
   });
 }
 
@@ -476,9 +483,15 @@ describe("GET /api/surveys selection: paging, filters, search, refs", () => {
         tipEpoch: number,
         credentials: readonly string[],
         searchTerms: readonly string[],
+        hidden: readonly string[],
       ) => {
         aggregates++;
-        return store.surveyIndexCounts(tipEpoch, credentials, searchTerms);
+        return store.surveyIndexCounts(
+          tipEpoch,
+          credentials,
+          searchTerms,
+          hidden,
+        );
       },
     };
     const app = appWith(counting);
@@ -488,7 +501,7 @@ describe("GET /api/surveys selection: paging, filters, search, refs", () => {
     const body = await getBody(app, "");
     expect(aggregates).toBe(0);
     expect(body["counts"]).toEqual(
-      await store.surveyIndexCounts(tip.epoch, [], []),
+      await store.surveyIndexCounts(tip.epoch, [], [], []),
     );
     // Credentials add only the indexed owner count, never the aggregate.
     const mine = await getBody(app, "?credentials=key:11");
@@ -999,6 +1012,165 @@ describe("GET /api/surveys/{txHash}/{index}", () => {
       headers: { "If-None-Match": first.headers.get("ETag")! },
     });
     expect(again.status).toBe(304);
+  });
+});
+
+describe("hidden content", () => {
+  const KEY_A = `${TX_A}:0`;
+  const KEY_B = `${TX_B}:1`;
+  const decide = (
+    store: TestStore,
+    kind: HideKind,
+    key: string,
+    action: "hide" | "unhide" = "hide",
+  ) => store.appendHideDecision({ kind, key, action, caseId: "case-1", at: 1 });
+  /** A refresh that changed nothing but the hide state, at `fetchedAt`. */
+  const republish = async (store: TestStore, fetchedAt: number) => {
+    const previous = (await store.snapshotMeta())!;
+    const hides = await publishHides(store, previous, fetchedAt);
+    const { mine: _mine, ...listCounts } = await store.surveyIndexCounts(
+      tip.epoch,
+      [],
+      [],
+      hides.state.survey,
+    );
+    await store.publishSnapshotMeta({
+      ...previous,
+      fetchedAt,
+      listCounts: JSON.stringify(listCounts),
+      hidden: hides.hidden,
+      hideSeq: hides.hideSeq,
+    });
+  };
+  const get = async (
+    app: ReturnType<typeof appWith>,
+    path: string,
+  ): Promise<Record<string, unknown>> => {
+    const res = await app.request(path);
+    expect(res.status).toBe(200);
+    return (await res.json()) as Record<string, unknown>;
+  };
+  const txHashes = (body: Record<string, unknown>): string[] =>
+    (body["surveys"] as { txHash: string }[]).map((s) => s.txHash);
+
+  it("takes a hidden survey out of every selection, and 451s its bundle", async () => {
+    const store = await seededStore();
+    const app = appWith(store);
+    await decide(store, "survey", KEY_A);
+    // Nothing changes before a refresh publishes the decision.
+    expect(txHashes(await get(app, "/api/surveys"))).toEqual([TX_A, TX_B]);
+    await republish(store, FETCHED_AT + 60);
+
+    const page = await get(app, "/api/surveys?credentials=key:11");
+    expect(txHashes(page)).toEqual([TX_B]);
+    expect(page["counts"]).toMatchObject({ all: 1, active: 0, mine: 0 });
+    // A search aggregates live, and leaves it out too.
+    expect((await get(app, "/api/surveys?q=alpha"))["counts"]).toMatchObject({
+      all: 0,
+    });
+    const sections = await get(app, "/api/surveys?sections");
+    expect(txHashes(sections)).toEqual([TX_B]);
+    expect(
+      (await get(app, `/api/surveys?refs=${KEY_A},${KEY_B}`))["responseCounts"],
+    ).toEqual({ [KEY_B]: 1 });
+    expect(
+      (await get(app, "/api/responded?credentials=script:22"))["surveyKeys"],
+    ).toEqual([KEY_B]);
+
+    const bundle = await app.request(`/api/surveys/${TX_A}/0`);
+    expect(bundle.status).toBe(451);
+    expect(bundle.headers.get("Cache-Control")).toBe("no-cache");
+    expect((await app.request(`/api/surveys/${TX_B}/1`)).status).toBe(200);
+  });
+
+  it("reports a hidden survey as removed, and an un-hidden one as a changed row", async () => {
+    const store = await seededStore();
+    const app = appWith(store);
+    const walked = encodeChangesCursor(changesCursorAt(FETCHED_AT));
+    await decide(store, "survey", KEY_B);
+    await republish(store, FETCHED_AT + 60);
+    const hidden = await get(
+      app,
+      `/api/surveys?changes=${encodeURIComponent(walked)}`,
+    );
+    expect(txHashes(hidden)).toEqual([]);
+    expect(hidden["removed"]).toEqual([KEY_B]);
+
+    await decide(store, "survey", KEY_B, "unhide");
+    await republish(store, FETCHED_AT + 120);
+    const shown = await get(
+      app,
+      `/api/surveys?changes=${encodeURIComponent(hidden["nextCursor"] as string)}`,
+    );
+    expect(txHashes(shown)).toEqual([TX_B]);
+    expect(shown["removed"]).toEqual([]);
+    expect((await app.request(`/api/surveys/${TX_B}/1`)).status).toBe(200);
+  });
+
+  it("withholds a hidden response's text, keeping its choices", async () => {
+    const store = testStore();
+    const TX_R = "ab".repeat(32);
+    const base = response(surveyA, cred1, 980_000, TX_R);
+    const withText: ResponseRecord = {
+      ...base,
+      response: {
+        ...base.response,
+        answers: {
+          type: "public",
+          answers: [
+            { type: "singleChoice", questionIndex: 0, optionIndex: 1 },
+            { type: "custom", questionIndex: 1, value: "a name" },
+          ],
+        },
+        rationale: { uri: "https://example.com/r", hash: new Uint8Array(32) },
+      },
+    };
+    await seed(store, [], [withText]);
+    await decide(store, "response", `${TX_R}:0`);
+    await republish(store, FETCHED_AT + 60);
+
+    const body = await get(appWith(store), `/api/surveys/${TX_A}/0`);
+    expect(body["redactions"]).toEqual([`${TX_R}:0`]);
+    const served = fromJsonSafe(body) as unknown as SurveyBundlePayload;
+    const redacted = served.responses.find((r) => r.txHash === TX_R)!;
+    expect(redacted.response.rationale).toBeUndefined();
+    expect(redacted.response.answers).toEqual({
+      type: "public",
+      answers: [{ type: "singleChoice", questionIndex: 0, optionIndex: 1 }],
+    });
+    // The others are served as stored, and so is everything finalization
+    // reads.
+    expect(
+      served.responses.filter((r) => r.txHash !== TX_R).map((r) => r.txHash),
+    ).toEqual(["cc".repeat(32), "ee".repeat(32), "dd".repeat(32)]);
+    const [stored] = await store
+      .responseRowsForSurveys([KEY_A])
+      .then((rows) => rows.filter((r) => r.txHash === TX_R));
+    expect(stored!.record).toContain("a name");
+    // An unpublished page has no redactions at all.
+    expect(
+      (await get(appWith(store), `/api/surveys/${TX_B}/1`))["redactions"],
+    ).toBeUndefined();
+  });
+
+  it("withholds a hidden governance action's title, and restamps its surveys", async () => {
+    const store = testStore();
+    await seed(store, [govLinkA]);
+    const app = appWith(store);
+    await decide(store, "govAction", govLinkA.actionId);
+    await republish(store, FETCHED_AT + 60);
+    const untitled = { ...govLinkA, title: null };
+    expect((await get(app, "/api/surveys"))["govLinks"]).toEqual([untitled]);
+    expect((await get(app, `/api/surveys/${TX_A}/0`))["govLinks"]).toEqual([
+      untitled,
+    ]);
+    // A mirror holding the title learns about it from the change selection.
+    const delta = await get(
+      app,
+      `/api/surveys?changes=${encodeURIComponent(encodeChangesCursor(changesCursorAt(FETCHED_AT)))}`,
+    );
+    expect(txHashes(delta)).toEqual([TX_A]);
+    expect(delta["govLinks"]).toEqual([untitled]);
   });
 });
 

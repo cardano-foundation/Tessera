@@ -956,3 +956,40 @@ the reason costs more than reading it.
   answer instead of with every responder. Removed in ruleset 13 (TALLY-SPEC.md
   §5); the app decrypts in the browser for a finalized sealed survey's one-vote
   view, detail and CSV, through the reveal its pre-artifact view already had.
+
+---
+
+## 11. Hiding content
+
+Nothing reviews a survey or response before it is shown. When a report is
+judged unlawful, this website stops showing it. The chain and every result are
+untouched: finalization reads the stored rows, and an artifact carries no free
+text.
+
+| Hidden          | Key                                 | Served as                                                                                       |
+| --------------- | ----------------------------------- | ----------------------------------------------------------------------------------------------- |
+| Survey          | `survey:<txHash>:<index>`           | absent from lists, counts and `/api/responded`; `removed` in the change selection; bundle `451` |
+| Response        | `response:<txHash>:<responseIndex>` | without `custom` answers, rationale or sealed ciphertext; named in `redactions`                 |
+| Governance link | `govAction:<gov_action1…>`          | `title: null`                                                                                   |
+
+The `hide` script appends decisions to `hide_log`; a key's state is its latest
+row, and its case id points to the legal team's record. It runs from a
+reviewed workflow (OPERATIONS.md), so no HTTP route writes. Serving never reads
+the log: each refresh whose log position moved tombstones newly hidden
+surveys, restamps shown ones, and publishes the state in `snapshot_meta`. A
+decision takes effect with the next `fetchedAt`, ETags and change selection.
+
+Costs: a quiet refresh adds one single-row read. A refresh publishing a change
+also recomputes the counts, and an action decision scans `survey_index` once,
+since no index finds a title inside `gov_links`. Serving reads nothing more:
+the list statements bind the hidden keys as one JSON array, and are unchanged
+when nothing is hidden. The envelope grows with the hidden set, fine at dozens;
+thousands would need a keyed table.
+
+Emergency direct-Koios mode shows everything. A mirror receives a hidden survey
+as a removal.
+
+Not taken: an admin HTTP endpoint (a first write path); a hide list in the
+public repository (it points at what it hides, and needs a deploy); decisions
+on chain (public and permanent); wallet-signed flag thresholds (wallets are
+free, and a doxxing victim may have none).

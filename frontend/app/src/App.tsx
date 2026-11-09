@@ -3,6 +3,7 @@ import { Route, Router } from "@solidjs/router";
 
 import { AppProvider } from "~/state";
 import { DirectModeBanner } from "~/ui/components/DirectModeBanner";
+import { Footer } from "~/ui/components/Footer";
 import { Header } from "~/ui/components/Header";
 import { LoadError } from "~/ui/components/LoadError";
 import { Explore } from "~/ui/explore";
@@ -11,6 +12,7 @@ import { Respond } from "~/ui/respond";
 import { Create } from "~/ui/create";
 import { Settings } from "~/ui/screens/Settings";
 import { LinkSurvey } from "~/ui/screens/LinkSurvey";
+import css from "./App.module.css";
 
 // Dev-only reference host for the embeddable `<tessera-respond>` widget.
 // Lazily loaded behind the `import.meta.env.DEV` guard below so
@@ -22,19 +24,27 @@ const DevWidgetHost = import.meta.env.DEV
 
 const Design = lazy(() => import("~/ui/design"));
 
+const Terms = lazy(() => import("~/ui/terms"));
+
 const Layout: ParentComponent = (props) => (
   <AppProvider>
-    <Header />
-    <DirectModeBanner />
-    {/* Last-resort safety net: a screen reading the snapshot accessor while it
-        is in error state throws (Solid resource semantics). Without a boundary
-        that surfaces as an uncaught rejection; here it becomes a recoverable
-        error screen. The header stays outside it so navigation survives. */}
-    <ErrorBoundary
-      fallback={(err, reset) => <LoadError err={err} reset={reset} />}
-    >
-      {props.children}
-    </ErrorBoundary>
+    <div class={css.shell}>
+      <Header />
+      <DirectModeBanner />
+      <div class={css.content}>
+        {/* Last-resort safety net: a screen reading the snapshot accessor while
+            it is in error state throws (Solid resource semantics). Without a
+            boundary that surfaces as an uncaught rejection; here it becomes a
+            recoverable error screen. The header stays outside it so navigation
+            survives. */}
+        <ErrorBoundary
+          fallback={(err, reset) => <LoadError err={err} reset={reset} />}
+        >
+          {props.children}
+        </ErrorBoundary>
+      </div>
+      <Footer />
+    </div>
   </AppProvider>
 );
 
@@ -47,6 +57,7 @@ export default function App() {
       <Route path="/survey/:key/link" component={LinkSurvey} />
       <Route path="/create" component={Create} />
       <Route path="/settings" component={Settings} />
+      <Route path="/terms" component={Terms} />
       <Route path="/design" component={Design} />
       {import.meta.env.DEV && DevWidgetHost && (
         <Route path="/dev/widget/:key" component={DevWidgetHost} />

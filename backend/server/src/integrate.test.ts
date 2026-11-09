@@ -314,7 +314,7 @@ async function expectOracleMatch(
   expect(
     byTx((await store.sweepInputs(ALL_SLOTS, null, 0)).cancellations),
   ).toEqual(byTx(oracle.cancellations));
-  const counts = await store.surveyIndexCounts(tip.epoch, [], []);
+  const counts = await store.surveyIndexCounts(tip.epoch, [], [], []);
   expect(listCountsOf(oracle.surveys, tip.epoch)).toEqual({
     all: counts.all,
     linked: counts.linked,

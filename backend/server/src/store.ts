@@ -873,6 +873,67 @@ export interface SnapshotMeta {
    * the depth could not be read.
    */
   readonly settling: string | null;
+  /** Wire JSON of the published {@link Hidden}. */
+  readonly hidden: string;
+  /** The `hide_log` position {@link hidden} was read at; 0 before any decision. */
+  readonly hideSeq: number;
+}
+
+/** What a decision in `hide_log` can withhold from this website. */
+export type HideKind = "survey" | "response" | "govAction";
+
+/**
+ * The keys withheld, by kind, each list sorted: survey keys, response keys
+ * ("<txHash>:<responseIndex>") and governance action ids.
+ */
+export type Hidden = Readonly<Record<HideKind, readonly string[]>>;
+
+export const NOTHING_HIDDEN: Hidden = {
+  survey: [],
+  response: [],
+  govAction: [],
+};
+
+/** The hide state a stored envelope published. */
+export const snapshotHidden = (meta: SnapshotMeta): Hidden =>
+  JSON.parse(meta.hidden) as Hidden;
+
+/** One decision, as the `hide` script appends it. */
+export interface HideDecision {
+  readonly kind: HideKind;
+  readonly key: string;
+  readonly action: "hide" | "unhide";
+  readonly caseId: string;
+  /** Unix seconds. */
+  readonly at: number;
+}
+
+/** A decision as logged, with its position. */
+export interface HideLogRow extends HideDecision {
+  readonly seq: number;
+}
+
+/** The decision log, which a refresh publishes and serving never reads. */
+export interface HideStore {
+  appendHideDecision(decision: HideDecision): Promise<void>;
+  /** The whole log, oldest first — the script's `list`. */
+  hideLog(): Promise<HideLogRow[]>;
+  /** The log's latest position, 0 when empty: a quiet refresh's only read. */
+  hideLogSeq(): Promise<number>;
+  /** The keys whose latest decision is `hide`, and the position read at. */
+  hideState(): Promise<{ readonly seq: number; readonly hidden: Hidden }>;
+  /**
+   * Stamps a published change for the change selection: tombstones newly
+   * hidden surveys, restamps shown ones and those linking a changed action.
+   */
+  stampHideChange(
+    generation: number,
+    change: {
+      readonly hiddenSurveys: readonly string[];
+      readonly shownSurveys: readonly string[];
+      readonly govActions: readonly string[];
+    },
+  ): Promise<void>;
 }
 
 /**
@@ -975,6 +1036,8 @@ export interface SurveyChanges {
 export interface SurveyPageQuery {
   /** The snapshot tip's epoch — the open/closed boundary. */
   readonly tipEpoch: number;
+  /** The published hidden survey keys, left out of every section and count. */
+  readonly hidden: readonly string[];
   readonly filter: SurveyListFilter;
   /** `credentialKey` strings the `mine` filter matches owners against. */
   readonly credentials: readonly string[];
@@ -1066,18 +1129,22 @@ export interface SnapshotStore {
     q: SurveySectionQuery,
     cursor: import("cardano-tessera-core").SurveyCursor,
   ): Promise<SurveySectionRow[]>;
-  /** Global chip counts over the search-matching set. */
+  /** Global chip counts over the search-matching set, hidden surveys left out. */
   surveyIndexCounts(
     tipEpoch: number,
     credentials: readonly string[],
     searchTerms: readonly string[],
+    hidden: readonly string[],
   ): Promise<SurveyListCounts>;
   /**
    * Surveys owned by any of `credentials` — the `mine` chip, the one count
    * the banked {@link BankedListCounts} cannot carry. O(owned) via the
    * `survey_index_owner` index.
    */
-  ownedSurveyCount(credentials: readonly string[]): Promise<number>;
+  ownedSurveyCount(
+    credentials: readonly string[],
+    hidden: readonly string[],
+  ): Promise<number>;
   /** The banked scan row, whole — one read serves the walker and both floors. */
   scanState(): Promise<BankedScan>;
   /**
@@ -1113,12 +1180,14 @@ export interface SnapshotStore {
   /**
    * The change selection's read: rows and removals strictly after `cursor`
    * and at or below `publishedAt`, at most `limit` of each. Two keyed reads
-   * in one round trip — a refresh cannot land between them.
+   * in one round trip — a refresh cannot land between them. A `hidden`
+   * survey is never a changed row, and its tombstone reads as a removal.
    */
   surveyChanges(
     cursor: ChangesCursor,
     publishedAt: number,
     limit: number,
+    hidden: readonly string[],
   ): Promise<SurveyChanges>;
   /** The stored projections of `keys`, in key order; unknown keys are absent. */
   surveyRowsByKeys(keys: readonly string[]): Promise<SurveyIndexRow[]>;
@@ -1214,8 +1283,9 @@ export interface SnapshotStore {
   close(): void;
 }
 
-/** What the backend wires together: snapshot + tally + scan + links + health. */
+/** What the backend wires together: snapshot + hides + tally + scan + links + health. */
 export type BackendStore = SnapshotStore &
+  HideStore &
   TallyStore &
   ScanCacheStore &
   GovLinkStore &

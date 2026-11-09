@@ -333,6 +333,9 @@
   font-size: 11.5px;
   font-weight: 500;
 }
+.responseReport {
+  font-size: 11.5px;
+}
 .responseTx {
   margin-left: auto;
   font-family: var(--code);

@@ -21,8 +21,9 @@
  * Three axes, one profile each: the settled archive (closed, finalized
  * surveys and their responses), one open survey's settled participation, and
  * the records inside the settlement window. The first two must be flat; the
- * third is the per-new-record term and may grow with itself. `BENCH_DUMP=1`
- * prints each profile's heaviest statements.
+ * third is the per-new-record term and may grow with itself. Every profile
+ * carries a populated hide log, so the hidden-content filters are in every
+ * plan measured. `BENCH_DUMP=1` prints each profile's heaviest statements.
  */
 
 import { DatabaseSync } from "node:sqlite";
@@ -46,8 +47,9 @@ import { integrateSegment } from "./integrate";
 import { materializeSnapshot } from "./materialize";
 import { pruneTxProofCache } from "./proofCache";
 import { SCAN_GENERATION, SETTLEMENT_MARGIN_SLOTS } from "./refresh";
-import { finalStateEntries } from "./store";
-import type { BackendStore, SqlDriver, SqlQuery } from "./store";
+import { publishHides } from "./hiding";
+import { finalStateEntries, NOTHING_HIDDEN } from "./store";
+import type { BackendStore, HideKind, SqlDriver, SqlQuery } from "./store";
 import { nodeSqlDriver } from "./store-node";
 import { sqlBackendStore } from "./store-sql";
 import { ALL_SLOTS } from "./testing/store";
@@ -283,6 +285,8 @@ async function seed(store: BackendStore, profile: Profile): Promise<Corpus> {
     fetchedAt: TIP.time,
     listCounts: JSON.stringify(snapshot.listCounts),
     settling: null,
+    hidden: JSON.stringify(NOTHING_HIDDEN),
+    hideSeq: 0,
   };
   await store.reconcileSegment(
     ALL_SLOTS,
@@ -329,6 +333,13 @@ async function seed(store: BackendStore, profile: Profile): Promise<Corpus> {
     trickle: null,
     network: CONFIG.app.network,
   });
+  // Decisions of every kind, published by the first run.
+  const decide = (kind: HideKind, key: string) =>
+    store.appendHideDecision({ kind, key, action: "hide", caseId: "c", at: 1 });
+  for (const s of surveys.slice(0, 3)) await decide("survey", refKey(s.ref));
+  for (const r of responses.slice(-3))
+    await decide("response", `${r.txHash}:${r.responseIndex}`);
+  await decide("govAction", "gov_action1qqqqqq");
   const govFloor = TIP_EPOCH + 1;
   await store.putSettlementFloor(govFloor);
   await store.putFinalizationFloor(TIP_EPOCH);
@@ -376,20 +387,14 @@ async function steadyRun(
     ]),
   ];
   const range = { fromSlot: HORIZON, toSlot: TIP.slot };
-  const meta = {
-    tip: JSON.stringify({ epoch: TIP.epoch }),
-    incomplete: false,
-    fetchedAt: TIP.time + 1,
-    listCounts: previous?.listCounts ?? null,
-    settling: null,
-  };
+  const generation = TIP.time + 1;
   const integration = await integrateSegment(store, noKoios, {
     records: segment,
     range,
     tip: TIP,
     govPass: { links: [], scope: new Set(govEpochs), floor: govFloor },
     settledBelowSlot: HORIZON,
-    generation: meta.fetchedAt,
+    generation,
   });
   await store.putScanState({
     cursor: { slot: TIP.slot, txHash: "" },
@@ -421,13 +426,20 @@ async function steadyRun(
       finalizationFloor: finalFloor,
     },
   );
-  await store.markFinalStates(
-    finalStateEntries(finalized.emitted),
-    meta.fetchedAt,
-  );
+  await store.markFinalStates(finalStateEntries(finalized.emitted), generation);
   await pruneTxProofCache(store, false, TIP);
-  if (integration.changes > 0) await store.surveyIndexCounts(TIP.epoch, [], []);
-  await store.publishSnapshotMeta(meta);
+  const hides = await publishHides(store, previous, generation);
+  if (integration.changes > 0 || hides.changed)
+    await store.surveyIndexCounts(TIP.epoch, [], [], hides.state.survey);
+  await store.publishSnapshotMeta({
+    tip: JSON.stringify({ epoch: TIP.epoch }),
+    incomplete: false,
+    fetchedAt: generation,
+    listCounts: previous?.listCounts ?? null,
+    settling: null,
+    hidden: hides.hidden,
+    hideSeq: hides.hideSeq,
+  });
   await store.putRefreshRun({
     startedAt: TIP.time + 1,
     durationMs: 1,
@@ -469,12 +481,13 @@ const costOf = ({ trips, statements }: Meter): Cost => ({
 
 /**
  * Seed a profile, run one refresh to bank what the first touch banks, then
- * measure two: a quiet run that re-lists the window unchanged, and an active
- * run in which one more response to the open survey has landed.
+ * measure three: a quiet run that re-lists the window unchanged, a run that
+ * publishes new moderation decisions and nothing else, and an active run in
+ * which one more response to the open survey has landed.
  */
 async function measure(
   profile: Profile,
-): Promise<{ quiet: Cost; active: Cost }> {
+): Promise<{ quiet: Cost; active: Cost; hide: Cost }> {
   const { store, meter } = meteredStore();
   try {
     const corpus = await seed(store, profile);
@@ -494,6 +507,23 @@ async function measure(
           .join("\n"),
       );
     meter.reset();
+    await store.appendHideDecision({
+      kind: "survey",
+      key: refKey(corpus.stored.surveys[3]!.ref),
+      action: "hide",
+      caseId: "c",
+      at: 2,
+    });
+    await store.appendHideDecision({
+      kind: "govAction",
+      key: "gov_action1qqqqqq",
+      action: "unhide",
+      caseId: "c",
+      at: 2,
+    });
+    await steadyRun(store, corpus, corpus.segment);
+    const hide = costOf(meter);
+    meter.reset();
     const landed = responseAt(
       corpus.nextTx,
       TIP.slot - 10,
@@ -505,7 +535,7 @@ async function measure(
       responses: [...corpus.segment.responses, landed],
     });
     const active = costOf(meter);
-    return { quiet, active };
+    return { quiet, active, hide };
   } finally {
     store.close();
   }
@@ -524,18 +554,21 @@ describe("scaling bench: one steady-state refresh against corpus size", () => {
   it("reads nothing proportional to the archive or to settled participation", async () => {
     const lines: string[] = [];
     const flat: Record<string, Cost[]> = {};
+    const flatHide: Record<string, Cost[]> = {};
     for (const [axis, sizes] of AXES) {
       for (const size of sizes) {
         const profile = { ...BASE, [axis]: size };
-        const { quiet, active } = await measure(profile);
+        const { quiet, active, hide } = await measure(profile);
         lines.push(
           `${axis.padEnd(14)} ${String(size).padStart(6)} | quiet ${String(quiet.trips).padStart(2)} trips ${String(quiet.statements).padStart(3)} stmts ${String(quiet.rows).padStart(6)} rows ${String(quiet.bytes).padStart(8)} B` +
             ` | active ${String(active.trips).padStart(2)} trips ${String(active.statements).padStart(3)} stmts ${String(active.rows).padStart(6)} rows ${String(active.bytes).padStart(8)} B` +
+            ` | hide ${String(hide.trips).padStart(2)} trips ${String(hide.statements).padStart(3)} stmts ${String(hide.rows).padStart(6)} rows` +
             (quiet.scans.length + active.scans.length > 0
               ? ` | scans: ${[...new Set([...quiet.scans, ...active.scans])].join("; ")}`
               : ""),
         );
         (flat[axis] ??= []).push(quiet);
+        (flatHide[axis] ??= []).push(hide);
         // A quiet steady-state run keys every read: no corpus table is scanned.
         expect(quiet.scans, `${axis}=${size} quiet run scans`).toEqual([]);
         // An active run scans exactly one thing: the banked chip counts'
@@ -543,6 +576,12 @@ describe("scaling bench: one steady-state refresh against corpus size", () => {
         expect(
           [...new Set(active.scans.map((s) => s.split(" ← ")[0]))],
           `${axis}=${size} active run scans`,
+        ).toEqual(["SCAN survey_index"]);
+        // So does a run publishing decisions, for the same recompute, and for
+        // the surveys a governance action's title rides on.
+        expect(
+          [...new Set(hide.scans.map((s) => s.split(" ← ")[0]))],
+          `${axis}=${size} hide run scans`,
         ).toEqual(["SCAN survey_index"]);
       }
     }
@@ -560,6 +599,11 @@ describe("scaling bench: one steady-state refresh against corpus size", () => {
         largest!.rows,
         `${axis}: rows returned at 100× the base`,
       ).toBeLessThanOrEqual(base!.rows + 5);
+      const [hideBase, , hideLargest] = flatHide[axis]!;
+      expect(
+        hideLargest!.rows,
+        `${axis}: rows a hide run returns at 100× the base`,
+      ).toBeLessThanOrEqual(hideBase!.rows + 5);
     }
   }, 120_000);
 });

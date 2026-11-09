@@ -55,7 +55,10 @@ import type {
   SurveySection,
   SurveySectionHead,
 } from "cardano-tessera-client";
-import { SURVEY_SECTIONS } from "cardano-tessera-client";
+import {
+  SURVEY_SECTIONS,
+  SurveyUnavailableError,
+} from "cardano-tessera-client";
 import {
   aggregateSurveyList,
   pageSurveySections,
@@ -66,6 +69,8 @@ import {
   aggregateSurveys,
   bytesToHex,
   findSurvey,
+  hexToBytes,
+  parseRefKey,
   refKey,
   type ChainTip,
   type SurveyAggregate,
@@ -149,6 +154,8 @@ export interface SurveySnapshot {
   readonly snap: Accessor<SurveyList | undefined>;
   readonly loading: Accessor<boolean>;
   readonly error: Accessor<unknown>;
+  /** Hidden by the backend after a report. True only once a read without it is in. */
+  readonly withheld: Accessor<boolean>;
 }
 
 /** One Explore section as shown: its page of rows, and how to turn it. */
@@ -538,7 +545,27 @@ export const AppProvider: ParentComponent = (props) => {
     );
     byKeyRefetches.add(refetch);
     onCleanup(() => byKeyRefetches.delete(refetch));
+    // A by-key read omits a hidden survey like an unknown one; only the bundle
+    // route's 451 tells them apart.
+    const [withheld] = createResource(
+      () => {
+        const read = byKey.error ? undefined : byKey();
+        return source instanceof IndexerDataSource &&
+          read &&
+          !findSurvey(read.surveys, key())
+          ? parseRefKey(key())
+          : false;
+      },
+      (ref) =>
+        source
+          .surveyBundle({ txId: hexToBytes(ref.txId), index: ref.index })
+          .then(
+            () => false,
+            (err: unknown) => err instanceof SurveyUnavailableError,
+          ),
+    );
     return {
+      withheld: () => withheld() === true,
       snap: () => shown() ?? (byKey.error ? undefined : byKey()),
       loading: () =>
         !shown() &&

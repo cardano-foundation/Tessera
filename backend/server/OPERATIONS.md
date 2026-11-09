@@ -246,3 +246,44 @@ rewinds to the `SINCE` floor, and the walker re-derives forward over as many
 crons as the history needs, exactly as on a fresh database. The bump acts on a
 banked generation and needs one to act on: a database whose `scan_state` row is
 absent re-derives from the floor on its next run whatever the constant says.
+
+## Hide reported content
+
+Reports arrive by email with the page URL. Once legal decides, record the
+decision with the **Hide content** workflow (Actions → Run workflow, from
+`main`):
+
+- `network`: the website's network (preview or preprod; mainnet once its
+  backend is on Vercel);
+- `action`: `hide` or `unhide`;
+- `target`: the reported URL as is; a `#response=…` URL names a response. A
+  governance action's title is `govAction:<gov_action1…>`;
+- `case`: the legal case id. It is public, so no names, emails or excerpts.
+
+A `moderation` reviewer other than the starter approves the run. It refuses a
+target this network never indexed (usually the wrong `network`) and a no-op,
+and takes effect at the next refresh. Check the page, then reply to the
+reporter.
+
+The run log never shows the target. `pnpm --filter cardano-tessera-backend hide list`
+prints the decisions without keys. Locally, the script reads the Turso
+credentials from the environment only, never `.env`; without them it writes the
+SQLite file of `NETWORK`.
+
+A point-in-time restore (see Roll back) rewinds the decision log too: re-apply
+the later decisions from the workflow's run history.
+
+### Set up the moderation environment
+
+Once, by a repository admin:
+
+1. Create an organization team of approvers (for example
+   `tessera-moderation`), legal included.
+2. Settings → Environments → New environment `moderation`:
+   - Required reviewers: that team, with "Prevent self-review" on.
+   - Deployment branches: protected branches only.
+   - Secrets `TURSO_AUTH_TOKEN_PREVIEW`/`_PREPROD` and variables
+     `TURSO_DATABASE_URL_PREVIEW`/`_PREPROD`, as in `testnets`. A token minted
+     for it (`turso db tokens create <db>`) can be revoked alone.
+3. Starting a run needs write access; give it to legal only if they should
+   start runs.

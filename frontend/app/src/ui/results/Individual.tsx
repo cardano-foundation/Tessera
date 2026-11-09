@@ -10,6 +10,7 @@ import {
 
 import { roleColors, roleLabel, safeExternalHref } from "~/ui/format";
 import { TxLink } from "~/ui/components/TxLink";
+import { reportHref, reportedUrl } from "~/ui/report";
 import { t, n } from "~/i18n";
 import kit from "~/ui/kit.module.css";
 import css from "./results.module.css";
@@ -30,6 +31,7 @@ const RESPONSE_PAGE = 50;
  */
 export const IndividualResponses: Component<{
   def: SurveyDefinition;
+  keyStr: string;
   records: ResponseRecord[];
 }> = (props) => {
   const [open, setOpen] = createSignal(false);
@@ -57,7 +59,9 @@ export const IndividualResponses: Component<{
       <Show when={open()}>
         <div class={css.individualList}>
           <For each={shown()}>
-            {(rec) => <ResponseCard rec={rec} def={props.def} />}
+            {(rec) => (
+              <ResponseCard rec={rec} def={props.def} keyStr={props.keyStr} />
+            )}
           </For>
         </div>
         <Show when={remaining() > 0}>
@@ -79,6 +83,7 @@ export const IndividualResponses: Component<{
 const ResponseCard: Component<{
   rec: ResponseRecord;
   def: SurveyDefinition;
+  keyStr: string;
 }> = (props) => {
   const r = () => props.rec.response;
   const publicAnswers = (): readonly AnswerItem[] | null => {
@@ -108,7 +113,7 @@ const ResponseCard: Component<{
                 <a
                   href={href()}
                   target="_blank"
-                  rel="noopener noreferrer"
+                  rel="ugc nofollow noopener noreferrer"
                   title={t("survey.responseRationaleTitle")}
                   class={`${kit.link} ${css.responseRationale}`}
                 >
@@ -121,6 +126,13 @@ const ResponseCard: Component<{
         <span class={css.responseTx}>
           <TxLink hash={props.rec.txHash} color="var(--muted)" />
         </span>
+        <a
+          href={reportHref(reportedUrl(props.keyStr, props.rec))}
+          title={t("survey.reportResponseTitle")}
+          class={`${kit.link} ${css.responseReport}`}
+        >
+          {t("survey.reportResponse")}
+        </a>
       </div>
 
       <Show

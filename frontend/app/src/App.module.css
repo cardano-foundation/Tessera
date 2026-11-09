@@ -1,0 +1,11 @@
+/* The footer rests at the bottom of the window on a short page. */
+.shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+}
+
+/* A block, not a flex container, so a screen's centred <main> keeps its width. */
+.content {
+  flex: 1 0 auto;
+}

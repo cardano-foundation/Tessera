@@ -9,6 +9,7 @@ describe("collectSurveyBundle", () => {
     records: readonly string[],
     nextCursor: string | null | undefined,
     resync = false,
+    redactions?: readonly string[],
   ): SurveyBundlePayload =>
     ({
       survey: { txHash: "aa" },
@@ -18,6 +19,7 @@ describe("collectSurveyBundle", () => {
       verdicts: Object.fromEntries(records.map((r) => [r, true])),
       ...(nextCursor !== undefined && { nextCursor }),
       ...(resync && { resync: true }),
+      ...(redactions !== undefined && { redactions }),
     }) as unknown as SurveyBundlePayload;
 
   it("returns an unpaged answer from the first call", async () => {
@@ -42,6 +44,20 @@ describe("collectSurveyBundle", () => {
     expect(bundle.verdicts).toEqual({ r1: true, r2: true, r3: true });
     // The collected bundle is complete, so it carries no continuation of its own.
     expect(bundle.nextCursor).toBeNull();
+  });
+
+  it("merges the redactions of every page, and has none when none has", async () => {
+    const pages = [
+      page(["r1"], "c1"),
+      page(["r2"], "c2", false, ["r2"]),
+      page(["r3"], null, false, ["r3"]),
+    ];
+    let i = 0;
+    expect(
+      (await collectSurveyBundle(async () => pages[i++]!)).redactions,
+    ).toEqual(["r2", "r3"]);
+    const plain = await collectSurveyBundle(async () => page(["r1"], null));
+    expect("redactions" in plain).toBe(false);
   });
 
   it("restarts rather than stitching two snapshots together", async () => {

@@ -151,7 +151,8 @@ and the answers of `/api/responded` and `/api/responses`.
   page; `verdicts` is scoped to the page. A reader wanting every response follows
   the cursor (`collectSurveyBundle` in `cardano-tessera-client`), restarting if a
   page comes back with `resync` — the snapshot moved under it. `404` for an
-  unknown ref, `400` for a malformed cursor.
+  unknown ref, `400` for a malformed cursor, `451` for a hidden survey
+  (below). `redactions` lists the page's hidden responses.
 - `GET /api/responded?credentials=key:<hex>,script:<hex>` — survey keys with at
   least one response from any of the given credentials (a wallet's payment +
   stake in one request); feeds the Explore "answered" flags.
@@ -186,6 +187,13 @@ or not a row changed, so a conditional GET tells a poller nothing about the
 rows. `fetchedAt` is when the producing scan _started_ reading — the instant
 its `tip` was taken — so a staleness derived from it counts from when the data
 was true, not from when the refresh finished writing it.
+
+Content judged unlawful after a report is hidden with the `hide` script (see
+OPERATIONS.md) from the next refresh on; the chain and results are untouched.
+A hidden survey is absent from every selection and count, `removed` in the
+change selection, and `451` on its bundle route. A hidden response is named in
+`redactions` and served without its `custom` answers, `rationale` or sealed
+ciphertext. A hidden governance action's title is `null`.
 
 Payloads use the `cip-179/tally` JSON-safe wire form (bytes → hex under
 `$bytes`, big integers → decimal strings under `$bigint`) so they round-trip

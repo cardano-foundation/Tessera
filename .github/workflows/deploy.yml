@@ -115,6 +115,8 @@ jobs:
       fail-fast: false
       matrix:
         network: ${{ fromJSON(needs.target.outputs.networks) }}
+    # Secrets are named statically, matched on the network: a computed name
+    # (`secrets[format(…)]`) sends every secret to the runner.
     env:
       VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
     steps:
@@ -142,13 +144,13 @@ jobs:
         working-directory: backend/server
         env:
           TURSO_DATABASE_URL: ${{ vars[format('TURSO_DATABASE_URL_{0}', matrix.network)] }}
-          TURSO_AUTH_TOKEN: ${{ secrets[format('TURSO_AUTH_TOKEN_{0}', matrix.network)] }}
+          TURSO_AUTH_TOKEN: ${{ matrix.network == 'preview' && secrets.TURSO_AUTH_TOKEN_PREVIEW || matrix.network == 'preprod' && secrets.TURSO_AUTH_TOKEN_PREPROD || matrix.network == 'mainnet' && secrets.TURSO_AUTH_TOKEN_MAINNET || '' }}
         run: pnpm migrate
       - name: Deploy backend
         working-directory: backend/server
         env:
           VERCEL_PROJECT_ID: ${{ vars[format('VERCEL_PROJECT_ID_BACKEND_{0}', matrix.network)] }}
-          VERCEL_TOKEN: ${{ secrets[format('VERCEL_TOKEN_BACKEND_{0}', matrix.network)] }}
+          VERCEL_TOKEN: ${{ matrix.network == 'preview' && secrets.VERCEL_TOKEN_BACKEND_PREVIEW || matrix.network == 'preprod' && secrets.VERCEL_TOKEN_BACKEND_PREPROD || matrix.network == 'mainnet' && secrets.VERCEL_TOKEN_BACKEND_MAINNET || '' }}
         run: vercel deploy --prebuilt --prod
 
       - name: Build and deploy app
@@ -156,7 +158,7 @@ jobs:
         env:
           TESSERA_NETWORK: ${{ matrix.network }}
           VERCEL_PROJECT_ID: ${{ vars[format('VERCEL_PROJECT_ID_APP_{0}', matrix.network)] }}
-          VERCEL_TOKEN: ${{ secrets[format('VERCEL_TOKEN_APP_{0}', matrix.network)] }}
+          VERCEL_TOKEN: ${{ matrix.network == 'preview' && secrets.VERCEL_TOKEN_APP_PREVIEW || matrix.network == 'preprod' && secrets.VERCEL_TOKEN_APP_PREPROD || matrix.network == 'mainnet' && secrets.VERCEL_TOKEN_APP_MAINNET || '' }}
         run: |
           vercel pull --yes --environment production
           vercel build --prod

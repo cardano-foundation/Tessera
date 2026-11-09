@@ -33,6 +33,10 @@ import type {
   BankedScriptLookup,
   FinalStateEntry,
   FinalStates,
+  HideDecision,
+  HideKind,
+  HideLogRow,
+  Hidden,
   CancellationRow,
   StoredValidation,
   DbGovEpochRow,
@@ -82,6 +86,7 @@ import {
   cachedByTxHashSql,
   cancellationsBySurveysSql,
   changedSurveysSql,
+  hideChangeSql,
   storedValidationsSql,
   cachedScriptLookupsSql,
   markFinalStatesSql,
@@ -199,8 +204,23 @@ const PARKED_SCRIPT_SURVEYS = `
 
 const SNAPSHOT_META_SELECT = `
   SELECT tip, incomplete, fetched_at AS fetchedAt, list_counts AS listCounts,
-         settling
+         settling, hidden, hide_seq AS hideSeq
   FROM snapshot_meta WHERE id = 1`;
+
+const HIDE_LOG_SELECT = `
+  SELECT seq, kind, key, action, case_id AS caseId, at
+  FROM hide_log ORDER BY seq`;
+
+/** The keys whose latest decision is `hide`, read along `hide_log_key`. */
+const HIDDEN_KEYS_SELECT = `
+  SELECT kind, key FROM hide_log h
+  WHERE action = 'hide'
+    AND seq = (SELECT MAX(seq) FROM hide_log
+               WHERE kind = h.kind AND key = h.key)
+  ORDER BY kind, key`;
+
+/** `MAX` of the rowid alias is one seek to the table's last entry. */
+const HIDE_LOG_SEQ_SELECT = `SELECT COALESCE(MAX(seq), 0) AS seq FROM hide_log`;
 
 /** Stored link slices inside the caller's end-epoch horizon. Binds: (minEndEpoch). */
 const SURVEY_GOV_LINKS_SELECT = `
@@ -1026,6 +1046,49 @@ export function sqlBackendStore(driver: SqlDriver): BackendStore {
       );
     },
 
+    async appendHideDecision(d: HideDecision): Promise<void> {
+      await write(
+        query(
+          `INSERT INTO hide_log (kind, key, action, case_id, at)
+           VALUES (?, ?, ?, ?, ?)`,
+          d.kind,
+          d.key,
+          d.action,
+          d.caseId,
+          d.at,
+        ),
+      );
+    },
+    async hideLog(): Promise<HideLogRow[]> {
+      return db.all<HideLogRow>(query(HIDE_LOG_SELECT));
+    },
+    async hideLogSeq(): Promise<number> {
+      return (await first<{ seq: number }>(query(HIDE_LOG_SEQ_SELECT)))!.seq;
+    },
+    async hideState(): Promise<{ seq: number; hidden: Hidden }> {
+      const [seqRows, keyRows] = await db.batchAll([
+        query(HIDE_LOG_SEQ_SELECT),
+        query(HIDDEN_KEYS_SELECT),
+      ]);
+      const hidden = { survey: [], response: [], govAction: [] } as Record<
+        HideKind,
+        string[]
+      >;
+      for (const r of (keyRows ?? []) as { kind: HideKind; key: string }[])
+        hidden[r.kind].push(r.key);
+      return { seq: (seqRows![0] as { seq: number }).seq, hidden };
+    },
+    async stampHideChange(generation, change): Promise<void> {
+      await db.batchWrite(
+        hideChangeSql(
+          generation,
+          change.hiddenSurveys,
+          change.shownSurveys,
+          change.govActions,
+        ),
+      );
+    },
+
     async publishSnapshotMeta(meta: SnapshotMeta): Promise<void> {
       await write(snapshotMetaUpsertSql(meta));
     },
@@ -1036,6 +1099,8 @@ export function sqlBackendStore(driver: SqlDriver): BackendStore {
         fetchedAt: number;
         listCounts: string | null;
         settling: string | null;
+        hidden: string;
+        hideSeq: number;
       }>(query(SNAPSHOT_META_SELECT));
       if (!row) return null;
       return { ...row, incomplete: row.incomplete !== 0 };
@@ -1101,14 +1166,20 @@ export function sqlBackendStore(driver: SqlDriver): BackendStore {
       tipEpoch: number,
       credentials: readonly string[],
       searchTerms: readonly string[],
+      hidden: readonly string[],
     ): Promise<SurveyListCounts> {
       const row = await first<Record<string, number>>(
-        surveyCountsSql(tipEpoch, credentials, searchTerms),
+        surveyCountsSql(tipEpoch, credentials, searchTerms, hidden),
       );
       return countsFromDb(row ?? {});
     },
-    async ownedSurveyCount(credentials: readonly string[]): Promise<number> {
-      const row = await first<{ n: number }>(ownedCountSql(credentials));
+    async ownedSurveyCount(
+      credentials: readonly string[],
+      hidden: readonly string[],
+    ): Promise<number> {
+      const row = await first<{ n: number }>(
+        ownedCountSql(credentials, hidden),
+      );
       return row?.n ?? 0;
     },
     async scanState(): Promise<BankedScan> {
@@ -1162,10 +1233,11 @@ export function sqlBackendStore(driver: SqlDriver): BackendStore {
       cursor: ChangesCursor,
       publishedAt: number,
       limit: number,
+      hidden: readonly string[],
     ): Promise<SurveyChanges> {
       const [rows, removed] = await db.batchAll([
-        changedSurveysSql(cursor.rows, publishedAt, limit),
-        removedSurveysSql(cursor.removed, publishedAt, limit),
+        changedSurveysSql(cursor.rows, publishedAt, limit, hidden),
+        removedSurveysSql(cursor.removed, publishedAt, limit, hidden),
       ]);
       return {
         rows: ((rows ?? []) as (DbSurveyRow & { changedAt: number })[]).map(
