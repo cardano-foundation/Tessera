@@ -11,9 +11,7 @@
  *    transaction-building both go through it — no token needed. A token is only
  *    for the direct-Koios path (no backend). Applies on save.
  *
- * The Plain/Pro detail toggle also lives here, but
- * it is session-only in-memory state — unlike the tokens above, it is not
- * persisted to localStorage.
+ * Theme and language live in the header's settings menu.
  */
 
 import { For, Show, createSignal, type Component, type JSX } from "solid-js";
@@ -33,32 +31,28 @@ import {
 } from "~/config";
 import { formatUnixDate } from "~/tlock/drand";
 import { IPFS_PROVIDERS } from "~/enrichment/providers";
-import { SegmentedToggle } from "~/ui/components/SegmentedToggle";
-import { LOCALES, locale, setLocale, t, n } from "~/i18n";
-import css from "./Settings.module.css";
+import { t, n } from "~/i18n";
 import { usePageTitle } from "~/ui/pageTitle";
+import kit from "~/ui/kit.module.css";
+import css from "./Settings.module.css";
 
 export const Settings: Component = () => {
   usePageTitle(() => t("settings.title"));
   return (
     <main class={css.main}>
-      <h1 class={css.title}>{t("settings.title")}</h1>
+      <h1 class={kit.pageTitle}>{t("settings.title")}</h1>
       <p class={css.lead}>{t("settings.lead")}</p>
 
       <ProvidersSection />
       <KoiosSection />
-      <DisplaySection />
     </main>
   );
 };
 
-/**
- * A settings section: a mono kicker title sitting *above* the white card (like
- * the numbered heads on the Create page), then the card body.
- */
+/** A settings section: a mono kicker above the card, then the card body. */
 const Section: Component<{ head: string; children: JSX.Element }> = (props) => (
   <div class={css.section}>
-    <div class={css.sectionHead}>{props.head}</div>
+    <div class={`${kit.label} ${css.sectionHead}`}>{props.head}</div>
     <div class={css.panel}>{props.children}</div>
   </div>
 );
@@ -72,7 +66,7 @@ const ProvidersSection: Component = () => {
 
   return (
     <Section head={t("settings.storageSectionHead")}>
-      <h2 class={css.heading}>{t("settings.storageHeading")}</h2>
+      <h2 class={kit.heading}>{t("settings.storageHeading")}</h2>
       <p class={css.prose}>
         {t("settings.storageProse1")}
         <b>{t("settings.storageProseAuthor")}</b>
@@ -95,16 +89,8 @@ const ProvidersSection: Component = () => {
                 classList={{ [css.providerCardOn]: on() }}
               >
                 <div class={css.providerRow}>
-                  <span
-                    class={css.providerLabel}
-                    classList={{ [css.providerLabelOn]: on() }}
-                  >
-                    {p.label}
-                  </span>
-                  <span
-                    class={css.statusBadge}
-                    classList={{ [css.statusBadgeOn]: on() }}
-                  >
+                  <span class={css.providerLabel}>{p.label}</span>
+                  <span class={`${kit.chip} ${on() ? kit.chipOk : ""}`}>
                     {on()
                       ? t("settings.providerSet")
                       : t("settings.providerNotSet")}
@@ -120,9 +106,9 @@ const ProvidersSection: Component = () => {
                   aria-label={t("settings.providerTokenLabel", {
                     provider: p.label,
                   })}
-                  class={css.tokenInput}
+                  class={`${kit.field} ${css.code}`}
                 />
-                <p class={css.providerHint}>{p.hint}</p>
+                <p class={kit.fieldHint}>{p.hint}</p>
               </div>
             );
           }}
@@ -202,7 +188,7 @@ const KoiosSection: Component = () => {
 
   return (
     <Section head={t("settings.koiosSectionHead")}>
-      <h2 class={css.heading}>{t("settings.koiosHeading")}</h2>
+      <h2 class={kit.heading}>{t("settings.koiosHeading")}</h2>
       <p class={css.prose}>{t("settings.koiosProse")}</p>
 
       <dl class={css.factGrid}>
@@ -228,10 +214,7 @@ const KoiosSection: Component = () => {
           <span class={css.endpoint}>{app.config.koiosUrl}</span>
         </FactRow>
         <FactRow label={t("settings.activeTokenLabel")}>
-          <span
-            class={css.statusBadge}
-            classList={{ [css.statusBadgeOn]: !!app.koiosToken() }}
-          >
+          <span class={`${kit.chip} ${app.koiosToken() ? kit.chipOk : ""}`}>
             {app.koiosToken()
               ? t("settings.tokenYours")
               : t("settings.tokenNone")}
@@ -242,7 +225,9 @@ const KoiosSection: Component = () => {
         </FactRow>
       </dl>
 
-      <label class={css.tokenLabel}>{t("settings.koiosTokenLabel")}</label>
+      <label for="koios-token" class={`${kit.fieldLabel} ${css.fieldLabel}`}>
+        {t("settings.koiosTokenLabel")}
+      </label>
       <div class={css.tokenRow}>
         <input
           type="password"
@@ -254,26 +239,27 @@ const KoiosSection: Component = () => {
             setSaved(false);
           }}
           placeholder={t("settings.koiosTokenPlaceholder")}
-          aria-label={t("settings.koiosTokenAria")}
-          class={css.koiosInput}
+          id="koios-token"
+          class={`${kit.field} ${css.code}`}
         />
         <button
-          class={css.btnPrimary}
-          classList={{ [css.btnPrimaryOn]: dirty() }}
+          class={`${kit.button} ${kit.primary}`}
           disabled={!dirty()}
           onClick={save}
         >
           {t("settings.save")}
         </button>
-        <button class={css.btnGhost} disabled={!stored()} onClick={reset}>
+        <button class={kit.button} disabled={!stored()} onClick={reset}>
           {t("settings.clearToken")}
         </button>
       </div>
       <Show when={saved()}>
-        <div class={css.savedMsg}>{t("settings.savedMsg")}</div>
+        <div class={css.savedMsg} role="status">{t("settings.savedMsg")}</div>
       </Show>
 
-      <label class={css.tokenLabel}>{t("settings.indexerUrlLabel")}</label>
+      <label for="indexer-url" class={`${kit.fieldLabel} ${css.fieldLabel}`}>
+        {t("settings.indexerUrlLabel")}
+      </label>
       <div class={css.tokenRow}>
         <input
           type="text"
@@ -282,25 +268,26 @@ const KoiosSection: Component = () => {
           value={urlDraft()}
           onInput={(e) => setUrlDraft(e.currentTarget.value)}
           placeholder={envIndexerUrl() ?? t("settings.indexerUrlPlaceholder")}
-          aria-label={t("settings.indexerUrlAria")}
-          class={css.koiosInput}
+          id="indexer-url"
+          class={`${kit.field} ${css.code}`}
         />
         <button
-          class={css.btnPrimary}
-          classList={{ [css.btnPrimaryOn]: urlDirty() }}
+          class={`${kit.button} ${kit.primary}`}
           disabled={!urlDirty()}
           onClick={saveUrl}
         >
           {t("settings.save")}
         </button>
-        <button class={css.btnGhost} disabled={!storedUrl} onClick={clearUrl}>
+        <button class={kit.button} disabled={!storedUrl} onClick={clearUrl}>
           {t("settings.clearToken")}
         </button>
       </div>
-      <p class={css.prose}>{t("settings.indexerUrlHint")}</p>
+      <p class={kit.fieldHint}>{t("settings.indexerUrlHint")}</p>
 
       <Show when={configuredBackend}>
-        <label class={css.tokenLabel}>{t("settings.directModeLabel")}</label>
+        <h3 class={`${kit.fieldLabel} ${css.fieldLabel}`}>
+          {t("settings.directModeLabel")}
+        </h3>
         <p class={css.prose}>{t("settings.directModeProse")}</p>
         <Show
           when={directUntil}
@@ -308,8 +295,7 @@ const KoiosSection: Component = () => {
             <>
               <div class={css.tokenRow}>
                 <button
-                  class={css.btnPrimary}
-                  classList={{ [css.btnPrimaryOn]: !!app.koiosToken() }}
+                  class={`${kit.button} ${kit.primary}`}
                   disabled={!app.koiosToken()}
                   onClick={enterDirect}
                 >
@@ -324,12 +310,12 @@ const KoiosSection: Component = () => {
         >
           {(until) => (
             <div class={css.tokenRow}>
-              <span class={`${css.statusBadge} ${css.statusBadgeWarn}`}>
+              <span class={`${kit.chip} ${kit.chipWarn}`}>
                 {t("settings.directModeActive", {
                   time: formatUnixDate(Math.floor(until() / 1000)),
                 })}
               </span>
-              <button class={css.btnGhost} onClick={leaveDirect}>
+              <button class={kit.button} onClick={leaveDirect}>
                 {t("settings.directModeDeactivate")}
               </button>
             </div>
@@ -344,48 +330,7 @@ const FactRow: Component<{ label: string; children: JSX.Element }> = (
   props,
 ) => (
   <>
-    <dt class={css.factLabel}>{props.label}</dt>
+    <dt class={`${kit.label} ${css.factLabel}`}>{props.label}</dt>
     <dd class={css.factValue}>{props.children}</dd>
   </>
 );
-
-// --- display preferences -----------------------------------------------------
-
-const DisplaySection: Component = () => {
-  const app = useApp();
-  return (
-    <Section head={t("settings.displaySectionHead")}>
-      <h2 class={css.heading}>{t("settings.detailHeading")}</h2>
-      <p class={css.prose}>
-        <b>{t("settings.detailProsePro")}</b>
-        {t("settings.detailProse1")}
-        <b>{t("settings.detailProsePlain")}</b>
-        {t("settings.detailProse2")}
-      </p>
-      <SegmentedToggle
-        ariaLabel={t("settings.displayModeAria")}
-        fontSize={12}
-        buttonPadding="6px 16px"
-        wrapStyle={{ "margin-top": "14px" }}
-        value={app.ui.pro ? "pro" : "plain"}
-        onChange={(v) => app.setPro(v === "pro")}
-        options={[
-          { value: "plain", label: t("settings.displayPlain") },
-          { value: "pro", label: t("settings.displayPro") },
-        ]}
-      />
-
-      <h2 class={css.subheading}>{t("settings.languageHeading")}</h2>
-      <p class={css.prose}>{t("settings.languageProse")}</p>
-      <SegmentedToggle
-        ariaLabel={t("settings.languageHeading")}
-        fontSize={12}
-        buttonPadding="6px 16px"
-        wrapStyle={{ "margin-top": "14px" }}
-        value={locale()}
-        onChange={(v) => void setLocale(v)}
-        options={LOCALES.map((l) => ({ value: l.code, label: l.name }))}
-      />
-    </Section>
-  );
-};
