@@ -3,7 +3,7 @@
  * is on its way.
  */
 
-import { Show, onCleanup, onMount, type Component } from "solid-js";
+import { Show, type Component } from "solid-js";
 import { useNavigate } from "@solidjs/router";
 import type { KeptDraft } from "cardano-tessera-respond-core";
 import {
@@ -45,8 +45,6 @@ export const SubmitBar: Component<{
   onSubmit: () => void;
   onQueue: () => void;
   submitRef: (el: HTMLButtonElement) => void;
-  /** Receives the bar's height as it changes, and 0 once it is gone. */
-  onHeight: (px: number) => void;
 }> = (props) => {
   const enabled = () =>
     props.finish.ready() &&
@@ -54,17 +52,8 @@ export const SubmitBar: Component<{
     !props.blocked &&
     !props.submitting;
   let button: HTMLButtonElement | undefined;
-  let bar!: HTMLDivElement;
-  onMount(() => {
-    const sizes = new ResizeObserver(() => props.onHeight(bar.offsetHeight));
-    sizes.observe(bar);
-    onCleanup(() => {
-      sizes.disconnect();
-      props.onHeight(0);
-    });
-  });
   return (
-    <div ref={bar} class={css.submitBar}>
+    <div class={css.submitBar}>
       <div class={css.submitInner}>
         <ProgressSquares
           progress={props.progress}

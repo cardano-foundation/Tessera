@@ -27,6 +27,7 @@ import create from "./create";
 import directBanner from "./directBanner";
 import explore from "./explore";
 import feedback from "./feedback";
+import footer from "./footer";
 import header from "./header";
 import healthFooter from "./healthFooter";
 import linkSurvey from "./linkSurvey";
@@ -49,6 +50,7 @@ const en = {
   directBanner,
   explore,
   feedback,
+  footer,
   header,
   healthFooter,
   linkSurvey,

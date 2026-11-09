@@ -15,6 +15,7 @@ are signed and submitted by the user's CIP-30 wallet.
 | `/survey/:key/link`    | **Link** — owner tool: produce the survey-linked CIP-108 anchor (form or uploaded document), host its bytes, and submit the advertising Info Action. |
 | `/create`              | **Create** — author a survey (roles, questions, end epoch, public/sealed) and submit it.                                                             |
 | `/settings`            | **Settings** — network info, backend URL override, Koios token (direct mode), IPFS pinning provider tokens, language (en/fr).                        |
+| `/terms`               | **Terms and privacy** — terms of use and privacy policy, linked from the footer on every screen. Each locale writes it whole in `src/ui/terms/`.     |
 
 ## Data modes
 

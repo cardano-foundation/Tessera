@@ -164,7 +164,6 @@ export const Respond: Component = () => {
   const sealedUnsupported = (): boolean => survey()?.sealedUnsupported ?? false;
 
   let submitButton: HTMLButtonElement | undefined;
-  const [barHeight, setBarHeight] = createSignal(0);
   const prompts: HTMLElement[] = [];
   const finish = createFinish(
     draft,
@@ -179,12 +178,19 @@ export const Respond: Component = () => {
     return undefined;
   };
 
+  const formOpen = (): boolean => {
+    const s = survey();
+    if (!s) return false;
+    return (
+      !sent() &&
+      (viewStatus(s) === "public" || viewStatus(s) === "sealed") &&
+      draft.role() !== null
+    );
+  };
+
   return (
-    <main
-      class={css.main}
-      style={{ "--submit-bar-height": `${barHeight()}px` }}
-    >
-      <RespondContexts>
+    <RespondContexts>
+      <main class={css.main}>
         <A href={`/survey/${encodeURIComponent(key())}`} class={kit.back}>
           {t("respond.backToResults")}
         </A>
@@ -314,44 +320,37 @@ export const Respond: Component = () => {
           )}
         </Show>
 
-        {/* sticky submit bar — only when an open, eligible form is showing */}
-        <Show
-          when={
-            survey() &&
-            !sent() &&
-            (viewStatus(survey()!) === "public" ||
-              viewStatus(survey()!) === "sealed") &&
-            draft.role() !== null
-          }
-        >
-          <Show when={!app.cartLocked()} fallback={<PublishLocked />}>
-            <SubmitBar
-              progress={draft.progress()}
-              drafts={draft.drafts}
-              left={draft.left()}
-              answered={draft.answered()}
-              finish={finish}
-              replacing={draft.prior() !== undefined}
-              submitting={submission.submitting()}
-              mismatch={mismatch()}
-              blocked={submitBlocked()}
-              warning={deadline.warning()}
-              network={app.config.network}
-              idleText={
-                sealedMode()
-                  ? t("respond.encryptAndSubmit")
-                  : t("respond.signAndSubmit")
-              }
-              busyText={submission.busyText()}
-              queueing={submission.queueing()}
-              onSubmit={() => void submit(false)}
-              onQueue={() => void submit(true)}
-              submitRef={(el) => (submitButton = el)}
-              onHeight={setBarHeight}
-            />
-          </Show>
+        <Show when={formOpen() && app.cartLocked()}>
+          <PublishLocked />
         </Show>
-      </RespondContexts>
-    </main>
+      </main>
+      {/* Outside <main> so it sticks across the full width and comes to rest
+          above the site footer. */}
+      <Show when={formOpen() && !app.cartLocked()}>
+        <SubmitBar
+          progress={draft.progress()}
+          drafts={draft.drafts}
+          left={draft.left()}
+          answered={draft.answered()}
+          finish={finish}
+          replacing={draft.prior() !== undefined}
+          submitting={submission.submitting()}
+          mismatch={mismatch()}
+          blocked={submitBlocked()}
+          warning={deadline.warning()}
+          network={app.config.network}
+          idleText={
+            sealedMode()
+              ? t("respond.encryptAndSubmit")
+              : t("respond.signAndSubmit")
+          }
+          busyText={submission.busyText()}
+          queueing={submission.queueing()}
+          onSubmit={() => void submit(false)}
+          onQueue={() => void submit(true)}
+          submitRef={(el) => (submitButton = el)}
+        />
+      </Show>
+    </RespondContexts>
   );
 };
