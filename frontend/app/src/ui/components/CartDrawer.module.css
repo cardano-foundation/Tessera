@@ -1,14 +1,7 @@
 .badge {
-  display: flex;
-  align-items: center;
   gap: 6px;
-  background: #fff;
-  border: 1px solid var(--line);
-  border-radius: var(--r-input);
-  padding: 7px 9px;
-  box-shadow: var(--shadow-card);
-  cursor: pointer;
-  font-family: inherit;
+  min-width: 40px;
+  padding: 8px;
 }
 .badgeDone {
   color: var(--ok);
@@ -25,25 +18,22 @@
   line-height: 1;
 }
 .badgeCount {
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink);
 }
 
-/* Drawer, hanging from the header's actions row — the containing block the
-   wallet menu also anchors to, and the only ancestor whose right edge is the
-   page's. Anchored to the badge instead, it would open rightward off the page;
-   the badge is not the last thing in that row, so its own right edge is not a
-   safe alignment either. The width falls back to the row's on narrow screens,
-   where the header's 24px side padding is all the room there is. */
+/* Drawer, hanging from the header's actions row, whose right edge is the
+   bar's. On narrow screens the width falls back to the viewport's less the
+   bar's side padding. */
 .panel {
   position: absolute;
   top: calc(100% + 8px);
   right: 0;
-  width: min(330px, calc(100vw - 48px));
+  width: min(330px, calc(100vw - 24px));
   max-height: min(70vh, 640px);
   overflow-y: auto;
-  background: #fff;
+  background: var(--card);
   border: 1px solid var(--line);
   border-radius: var(--r-md);
   box-shadow: var(--shadow-menu);
@@ -53,10 +43,10 @@
 
 .heading {
   font-size: 10.5px;
-  font-weight: 700;
+  font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: var(--faint);
+  color: var(--muted);
   padding: 8px 10px 4px;
 }
 
@@ -69,7 +59,7 @@
 
 .error {
   font-size: 11px;
-  color: var(--danger-ink);
+  color: var(--danger);
   margin-top: 4px;
   line-height: 1.4;
   word-break: break-word;
@@ -85,8 +75,8 @@
 }
 .txHead {
   font-size: 10.5px;
-  font-weight: 700;
-  color: var(--faint);
+  font-weight: 600;
+  color: var(--muted);
   padding: 0 6px 2px;
 }
 .txChained {
@@ -120,7 +110,7 @@
 }
 .queuedLabel {
   font-size: 12.5px;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--ink);
 }
 .queuedSub {
@@ -132,46 +122,30 @@
   white-space: nowrap;
 }
 .remove {
-  background: none;
-  border: none;
-  color: var(--faint);
+  min-width: 24px;
+  min-height: 24px;
+  padding: 0;
   font-size: 15px;
   line-height: 1;
+  color: var(--muted);
+  background: none;
+  border: none;
+  border-radius: var(--r-3xs);
   cursor: pointer;
-  padding: 0 2px;
+}
+.remove:hover {
+  color: var(--ink);
+  background: var(--sunken);
 }
 
 .submitBar {
   padding: 4px 6px 8px;
 }
-.submitBtn {
+.full {
   width: 100%;
-  background: var(--accent);
-  color: #fff;
-  border: none;
-  border-radius: var(--r-input);
-  padding: 8px 12px;
-  font-family: inherit;
-  font-size: 12.5px;
-  font-weight: 700;
-  cursor: pointer;
 }
-.submitBtn:disabled {
-  background: var(--line);
-  color: var(--faint);
-  cursor: default;
-}
-.discardBtn {
-  width: 100%;
+.discard {
   margin-top: 6px;
-  background: none;
-  color: var(--muted);
-  border: 1px solid var(--line);
-  border-radius: var(--r-input);
-  padding: 6px 12px;
-  font-family: inherit;
-  font-size: 12px;
-  cursor: pointer;
 }
 
 /* In-flight transactions. */
@@ -189,7 +163,7 @@
 }
 .pendingRowTitle {
   font-size: 12.5px;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--ink);
   flex: 1;
 }
@@ -205,9 +179,9 @@
   white-space: nowrap;
 }
 .pendingRowHash {
-  font-family: var(--mono);
+  font-family: var(--code);
   font-size: 10.5px;
-  color: var(--faint);
+  color: var(--muted);
   margin-top: 4px;
   word-break: break-all;
 }
@@ -222,32 +196,18 @@
   gap: 6px;
   margin-top: 6px;
 }
-.pendingAction,
-.pendingActionDanger {
+.pendingAction {
   flex: 1;
-  background: #fff;
-  border: 1px solid var(--line);
-  border-radius: var(--r-input);
+  min-height: 32px;
   padding: 4px 8px;
-  font-family: inherit;
-  font-size: 11.5px;
-  font-weight: 700;
-  color: var(--ink);
-  cursor: pointer;
-}
-.pendingAction:disabled {
-  color: var(--faint);
-  cursor: default;
-}
-.pendingActionDanger {
-  color: var(--danger-ink);
+  font-size: 13px;
 }
 .pendingRowLinkWrap {
   margin-top: 5px;
 }
 .pendingRowLink {
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 600;
 }
 
 /* The note a screen shows once it queued its action instead of publishing it. */
@@ -259,7 +219,7 @@
 }
 .queuedNoteTitle {
   font-size: 14px;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--ok);
 }
 .queuedNoteBody {
@@ -267,15 +227,4 @@
   color: var(--muted);
   line-height: 1.5;
   margin: 6px 0 10px;
-}
-.queuedNoteBtn {
-  background: var(--accent);
-  color: #fff;
-  border: none;
-  border-radius: var(--r-input);
-  padding: 8px 14px;
-  font-family: inherit;
-  font-size: 12.5px;
-  font-weight: 700;
-  cursor: pointer;
 }

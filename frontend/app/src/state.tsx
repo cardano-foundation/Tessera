@@ -183,6 +183,9 @@ export interface UiState {
   pro: boolean;
 }
 
+/** The menus hanging from the header. */
+export type HeaderMenu = "network" | "settings" | "cart" | "wallet";
+
 /**
  * Poll the data source for inclusion at this cadence while anything is pending.
  * (The `DataSource` seam — the indexer in the default deployment, Koios direct
@@ -275,8 +278,9 @@ interface AppState {
   submitCart(): Promise<void>;
   /** The transactions the queued actions would be published in. */
   planCart(): Promise<readonly PlannedTx[]>;
-  readonly cartOpen: Accessor<boolean>;
-  setCartOpen(open: boolean): void;
+  /** The header menu that is open; at most one is. */
+  readonly openMenu: Accessor<HeaderMenu | null>;
+  setOpenMenu(menu: HeaderMenu | null): void;
 
   // --- the signing session (a built chain gathering its witnesses) ---
   /**
@@ -602,7 +606,7 @@ export const AppProvider: ParentComponent = (props) => {
   // to publish survives all of that, and a reload.
   const [cart, setCart] = createSignal<readonly Action[]>(loadCart());
   createEffect(() => storeCart(cart()));
-  const [cartOpen, setCartOpen] = createSignal(false);
+  const [openMenu, setOpenMenu] = createSignal<HeaderMenu | null>(null);
 
   const enqueue = (actions: readonly Action[]): void => {
     setCart((prev) => [...prev, ...actions]);
@@ -721,7 +725,7 @@ export const AppProvider: ParentComponent = (props) => {
     });
     setSigning(txs);
     setSignError(error);
-    if (txs.length > 0) setCartOpen(true); // the drawer names what is left
+    if (txs.length > 0) setOpenMenu("cart"); // the drawer names what is left
     return hashes;
   };
 
@@ -955,8 +959,8 @@ export const AppProvider: ParentComponent = (props) => {
       const { payloadSize } = await import("~/wallet/submit");
       return plan(cart(), { definingTx: definingTx(), measure: payloadSize });
     },
-    cartOpen,
-    setCartOpen: (open) => setCartOpen(open),
+    openMenu,
+    setOpenMenu: (menu) => setOpenMenu(menu),
     signing,
     signError,
     signWithWallet: async () => {

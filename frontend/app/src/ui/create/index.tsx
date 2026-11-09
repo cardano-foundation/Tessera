@@ -66,6 +66,7 @@ import {
 import { PublishButton, SubmittedPanel, SummaryCard } from "./Publish";
 import { SurveyFileCard } from "./SurveyFile";
 import css from "./create.module.css";
+import { usePageTitle } from "~/ui/pageTitle";
 
 /** Add-a-question buttons: one per type, in tag order. Custom is Pro-only. */
 const ADD_BUTTONS: ReadonlyArray<{ type: QuestionType; tag: number }> = [
@@ -80,6 +81,7 @@ const ADD_BUTTONS: ReadonlyArray<{ type: QuestionType; tag: number }> = [
 
 export const Create: Component = () => {
   const app = useApp();
+  usePageTitle(() => t("create.pageTitle"));
   const identity = (): WalletIdentity | null => app.wallet()?.identity ?? null;
 
   // The survey is owned by the wallet's payment credential — it always signs the

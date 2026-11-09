@@ -41,6 +41,7 @@ import { SubmitBar, SubmittedPanel } from "./Submit";
 import { createDeadline } from "./deadline";
 import { createOnchainPreview, createSubmission } from "./submission";
 import css from "./respond.module.css";
+import { usePageTitle } from "~/ui/pageTitle";
 
 export const Respond: Component = () => {
   const app = useApp();
@@ -73,6 +74,13 @@ export const Respond: Component = () => {
   // to use for validation/build too.
   const pres = usePresentation(() => survey()?.record.definition);
   const definition = (): SurveyDefinition | undefined => pres.def();
+  usePageTitle(() => {
+    const d = definition();
+    return (
+      d &&
+      t("respond.pageTitle", { title: d.title || t("survey.untitledSurvey") })
+    );
+  });
   const identity = (): WalletIdentity | null => app.wallet()?.identity ?? null;
   // Block submitting while the wallet is on a different network than the app, so
   // the signature can't be built against the wrong chain. Mirrors create + propose.

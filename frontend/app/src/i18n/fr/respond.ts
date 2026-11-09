@@ -49,6 +49,7 @@ const respond: Messages = {
     "Sa définition on-chain n'est pas conforme à CIP-179 v5 (mauvaise version de spec, ou une contrainte interdite par la spec) : elle est donc non décomptable et aucun lecteur conforme ne la compte. Répondre gaspillerait des frais, l'envoi est donc désactivé.",
 
   // --- Connect prompt ------------------------------------------------------
+  pageTitle: "Répondre : {title}",
   connectTitle: "Connectez un portefeuille pour répondre",
   connectBody:
     "Utilisez le bouton « Connecter un portefeuille » dans l'en-tête. L'éligibilité est vérifiée par rapport aux identifiants de votre portefeuille. Vous pouvez lire le sondage et ses résultats sans vous connecter.",

@@ -24,21 +24,23 @@ import {
   SealedBanner,
 } from "cardano-tessera-respond-ui";
 
+import { Mark } from "~/ui/components/Mark";
 import { Note } from "~/ui/components/Note";
 import { SegmentedToggle } from "~/ui/components/SegmentedToggle";
 import { FormMosaic, RoleChips, VisGlyph } from "~/ui/components/glyphs";
 import { QuestionList, RespondContexts } from "~/ui/respond/Question";
 import { Bars } from "~/ui/results/Card";
 import { BOUNDARY_PAIRS, TEXT_PAIRS, contrast } from "~/ui/tokens";
+import { usePageTitle } from "~/ui/pageTitle";
 import kit from "~/ui/kit.module.css";
 import { DetailMock } from "./DetailMock";
-import { HeaderMock } from "./HeaderMock";
 import { SAMPLE } from "./sample";
 import { forceStates } from "./states";
 import css from "./design.module.css";
 
 export default function Design(): JSX.Element {
   onMount(forceStates);
+  usePageTitle(() => "Design");
   return (
     <main class={css.page}>
       <h1 class={kit.pageTitle}>Design</h1>
@@ -63,9 +65,8 @@ export default function Design(): JSX.Element {
         <Themes>{() => <Surfaces />}</Themes>
       </Section>
 
-      <Section title="Mark and header">
-        <HeaderNotes />
-        <Themes wide>{(theme) => <HeaderMock theme={theme} />}</Themes>
+      <Section title="Mark and network chips">
+        <Themes>{() => <MarkAndNetworks />}</Themes>
       </Section>
 
       <Section title="Detail without a mode">
@@ -89,39 +90,21 @@ const Section: Component<{ title: string; children: JSX.Element }> = (
   </section>
 );
 
-const HeaderNotes: Component = () => (
-  <ol class={`${kit.text} ${css.notes}`}>
-    <li>
-      The network chip is the network switch. It lists the other deployments as
-      links, since each network is its own app. The wallet menu stops repeating
-      it. With no other deployment configured, the chip is a plain label. A
-      wallet on the wrong network still turns the wallet button's dot red.
-    </li>
-    <li>
-      Settings leaves the nav, so Explore and Create are the only destinations.
-      A settings button opens quick settings: theme and language, and a link to
-      the full page for IPFS, Koios and the backend.
-    </li>
-    <li>
-      The Plain/Pro toggle goes, along with the mode itself (see "Detail without
-      a mode").
-    </li>
-    <li>
-      On phones, one sticky bar has two rows: brand, network, settings and
-      wallet on top, with Explore and Create as tabs below. The bottom bar goes,
-      and so does its special case on Respond.
-    </li>
-    <li>
-      The CIP-179 tag leaves the bar. It tells a newcomer nothing and costs room
-      on phones.
-    </li>
-    <li>
-      The build uses one open-menu state for the network, settings, cart and
-      wallet menus. Escape or an outside click closes the open menu, and focus
-      returns to its button. It also adds aria-current on the current link,
-      scroll padding for the sticky bar, and the chrome surface in both themes.
-    </li>
-  </ol>
+const MarkAndNetworks: Component = () => (
+  <div class={css.stack}>
+    <div class={css.row}>
+      <For each={[16, 22, 32, 64]}>{(size) => <Mark size={size} />}</For>
+    </div>
+    <div class={css.row}>
+      <span class={`${kit.chip} ${kit.chipWarn}`}>preprod</span>
+      <span class={`${kit.chip} ${kit.chipWarn}`}>preview</span>
+      <span class={kit.chip}>mainnet</span>
+    </div>
+    <p class={kit.small}>
+      A test network wears the warning chip; mainnet, the real one, the plain
+      chip.
+    </p>
+  </div>
 );
 
 const DetailNotes: Component = () => (

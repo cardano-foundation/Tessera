@@ -45,6 +45,7 @@ import { PublishLocked, QueuedNote } from "~/ui/components/CartDrawer";
 import type { Action } from "~/wallet/action";
 import { t, n } from "~/i18n";
 import css from "./Survey.module.css";
+import { usePageTitle } from "~/ui/pageTitle";
 
 export const Survey: Component = () => {
   const app = useApp();
@@ -97,6 +98,7 @@ export const Survey: Component = () => {
   // definition (count forms, blank titles) until/unless it resolves.
   const pres = usePresentation(() => survey()?.record.definition);
   const def = (): SurveyDefinition | undefined => pres.def();
+  usePageTitle(() => def() && (def()!.title || t("survey.untitledSurvey")));
 
   // Audit the raw responses for this survey: `counted` is the valid, deduped
   // set to tally; `excluded` is the breakdown. On the serving tier the bundle

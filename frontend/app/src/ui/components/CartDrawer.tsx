@@ -34,8 +34,10 @@ import type { BuiltTx } from "~/wallet/submit";
 import type { ConnectedWallet } from "~/wallet/types";
 import { shortHash } from "~/ui/format";
 import { TxLink } from "~/ui/components/TxLink";
+import { Menu } from "~/ui/components/Menu";
 import { Spinner } from "~/ui/components/Spinner";
 import { t, type MsgKey } from "~/i18n";
+import kit from "~/ui/kit.module.css";
 import css from "./CartDrawer.module.css";
 
 const QUEUED_TEXT: Record<ActionKind, MsgKey> = {
@@ -74,47 +76,43 @@ export const CartBadge: Component = () => {
 
   return (
     <Show when={count() > 0}>
-      <>
-        <button
-          type="button"
-          onClick={() => app.setCartOpen(!app.cartOpen())}
-          title={t("cart.open")}
-          aria-label={t("cart.open")}
-          aria-expanded={app.cartOpen()}
-          class={css.badge}
-        >
-          {glyph()}
-          <Show when={count() > 1}>
-            <span class={css.badgeCount}>{count()}</span>
+      <Menu
+        id="cart"
+        buttonClass={`${kit.button} ${kit.quiet} ${css.badge}`}
+        label={t("cart.open")}
+        panelClass={css.panel}
+        button={
+          <>
+            {glyph()}
+            <Show when={count() > 1}>
+              <span class={css.badgeCount}>{count()}</span>
+            </Show>
+          </>
+        }
+      >
+        <Show when={app.cart().length > 0}>
+          <Show
+            when={app.signing().length > 0}
+            fallback={
+              <>
+                <div class={css.heading}>{t("cart.queuedHeading")}</div>
+                <QueuedSection />
+              </>
+            }
+          >
+            <div class={css.heading}>{t("cart.signingHeading")}</div>
+            <SigningSection />
           </Show>
-        </button>
-        <Show when={app.cartOpen()}>
-          <div class={css.panel}>
-            <Show when={app.cart().length > 0}>
-              <Show
-                when={app.signing().length > 0}
-                fallback={
-                  <>
-                    <div class={css.heading}>{t("cart.queuedHeading")}</div>
-                    <QueuedSection />
-                  </>
-                }
-              >
-                <div class={css.heading}>{t("cart.signingHeading")}</div>
-                <SigningSection />
-              </Show>
-            </Show>
-            <Show when={announced().length > 0}>
-              <div class={css.heading}>{t("cart.inFlightHeading")}</div>
-              <For each={announced()}>
-                {(p) => (
-                  <PendingRow p={p} onNavigate={() => app.setCartOpen(false)} />
-                )}
-              </For>
-            </Show>
-          </div>
         </Show>
-      </>
+        <Show when={announced().length > 0}>
+          <div class={css.heading}>{t("cart.inFlightHeading")}</div>
+          <For each={announced()}>
+            {(p) => (
+              <PendingRow p={p} onNavigate={() => app.setOpenMenu(null)} />
+            )}
+          </For>
+        </Show>
+      </Menu>
     </Show>
   );
 };
@@ -222,7 +220,7 @@ const SigningSection: Component = () => {
         >
           <button
             type="button"
-            class={css.submitBtn}
+            class={`${kit.button} ${kit.cta} ${css.full}`}
             disabled={busy()}
             onClick={() => void run()}
           >
@@ -233,7 +231,7 @@ const SigningSection: Component = () => {
         </Show>
         <button
           type="button"
-          class={css.discardBtn}
+          class={`${kit.button} ${css.full} ${css.discard}`}
           onClick={() => app.discardSigning()}
         >
           {t("cart.discard")}
@@ -323,7 +321,7 @@ const SubmitBar: Component = () => {
       >
         <button
           type="button"
-          class={css.submitBtn}
+          class={`${kit.button} ${kit.cta} ${css.full}`}
           disabled={busy()}
           onClick={() => void publish()}
         >
@@ -404,7 +402,7 @@ const PendingRow: Component<{
         <div class={css.pendingRowActions}>
           <button
             type="button"
-            class={css.pendingAction}
+            class={`${kit.button} ${css.pendingAction}`}
             disabled={resubmitting() || !app.wallet()}
             onClick={() => void resubmit()}
           >
@@ -412,7 +410,7 @@ const PendingRow: Component<{
           </button>
           <button
             type="button"
-            class={css.pendingActionDanger}
+            class={`${kit.button} ${kit.danger} ${css.pendingAction}`}
             onClick={() => app.dropTx(props.p.txHash)}
           >
             {t("cart.forget")}
@@ -448,8 +446,8 @@ const CartNote: Component<{ title: MsgKey; body: MsgKey }> = (props) => {
       <p class={css.queuedNoteBody}>{t(props.body)}</p>
       <button
         type="button"
-        class={css.queuedNoteBtn}
-        onClick={() => app.setCartOpen(true)}
+        class={`${kit.button} ${kit.primary}`}
+        onClick={() => app.setOpenMenu("cart")}
       >
         {t("cart.queuedOpen")}
       </button>

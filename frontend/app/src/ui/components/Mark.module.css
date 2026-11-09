@@ -1,0 +1,18 @@
+.mark {
+  display: inline-grid;
+  flex: none;
+  grid-template-columns: repeat(2, 1fr);
+  gap: calc(var(--size) / 10);
+  width: var(--size);
+  height: var(--size);
+}
+.accent,
+.cta {
+  border-radius: calc(var(--size) / 13);
+}
+.accent {
+  background: var(--accent);
+}
+.cta {
+  background: var(--cta);
+}

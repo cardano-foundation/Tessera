@@ -52,6 +52,7 @@ import { networkMismatch } from "~/ui/format";
 import type { Action } from "~/wallet/action";
 import { t } from "~/i18n";
 import css from "./LinkSurvey.module.css";
+import { usePageTitle } from "~/ui/pageTitle";
 
 const refusalText = (r: Exclude<InjectResult, { ok: true }>): string => {
   switch (r.reason) {
@@ -96,6 +97,7 @@ export const LinkSurvey: Component = () => {
     void Promise.resolve(refetch()).catch(() => {});
   };
   const def = () => (bundle.error ? undefined : bundle())?.survey.definition;
+  usePageTitle(() => t("linkSurvey.title"));
 
   // Alignment is fixed by the route: it depends on the survey's end epoch and
   // the tip, never on the document, so it's judged before any document exists.

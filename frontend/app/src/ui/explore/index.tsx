@@ -27,6 +27,7 @@ import {
 } from "./Chrome";
 import { Entry, type EntryProps, type Flags } from "./Row";
 import css from "./explore.module.css";
+import { usePageTitle } from "~/ui/pageTitle";
 
 // Below this width the table gets cramped, so each row reflows into a card.
 const CARD_BREAKPOINT = 800;
@@ -117,6 +118,7 @@ const Section: Component<{
 
 export const Explore: Component = () => {
   const app = useApp();
+  usePageTitle(() => t("explore.pageTitle"));
 
   // Reading the resource accessor throws while the list is in error state
   // (Solid resource semantics). Every *value* read goes through this guard so a

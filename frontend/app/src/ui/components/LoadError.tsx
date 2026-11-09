@@ -4,6 +4,7 @@ import { useNavigate } from "@solidjs/router";
 import { resolveIndexerUrl } from "~/config";
 import { useApp } from "~/state";
 import { t } from "~/i18n";
+import kit from "~/ui/kit.module.css";
 import css from "./LoadError.module.css";
 
 /**
@@ -14,7 +15,7 @@ import css from "./LoadError.module.css";
  * from the same plain boot-time fact: naming Koios while reads flow through a
  * backend would send the reader to fix a token that is not in the path.
  *
- * The Header and bottom nav stay mounted around this, but a tripped
+ * The header stays mounted around this, but a tripped
  * ErrorBoundary keeps showing the fallback regardless of route changes until it
  * is reset — so both actions here call `reset()`, which re-renders the (now
  * current) route:
@@ -46,7 +47,7 @@ export const LoadError: Component<{ err: unknown; reset: () => void }> = (
         </p>
         <div class={css.actions}>
           <button
-            class={css.retry}
+            class={`${kit.button} ${kit.primary}`}
             onClick={() => {
               app.reload();
               props.reset();
@@ -55,7 +56,7 @@ export const LoadError: Component<{ err: unknown; reset: () => void }> = (
             {t("appError.retry")}
           </button>
           <button
-            class={css.settings}
+            class={kit.button}
             onClick={() => {
               navigate("/settings");
               props.reset();

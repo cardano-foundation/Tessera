@@ -11,7 +11,7 @@
  *    transaction-building both go through it — no token needed. A token is only
  *    for the direct-Koios path (no backend). Applies on save.
  *
- * The Plain/Pro detail toggle (mirroring the header switch) also lives here, but
+ * The Plain/Pro detail toggle also lives here, but
  * it is session-only in-memory state — unlike the tokens above, it is not
  * persisted to localStorage.
  */
@@ -36,8 +36,10 @@ import { IPFS_PROVIDERS } from "~/enrichment/providers";
 import { SegmentedToggle } from "~/ui/components/SegmentedToggle";
 import { LOCALES, locale, setLocale, t, n } from "~/i18n";
 import css from "./Settings.module.css";
+import { usePageTitle } from "~/ui/pageTitle";
 
 export const Settings: Component = () => {
+  usePageTitle(() => t("settings.title"));
   return (
     <main class={css.main}>
       <h1 class={css.title}>{t("settings.title")}</h1>

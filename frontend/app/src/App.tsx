@@ -11,7 +11,6 @@ import { Respond } from "~/ui/respond";
 import { Create } from "~/ui/create";
 import { Settings } from "~/ui/screens/Settings";
 import { LinkSurvey } from "~/ui/screens/LinkSurvey";
-import { BottomNav } from "~/ui/components/BottomNav";
 
 // Dev-only reference host for the embeddable `<tessera-respond>` widget.
 // Lazily loaded behind the `import.meta.env.DEV` guard below so
@@ -30,13 +29,12 @@ const Layout: ParentComponent = (props) => (
     {/* Last-resort safety net: a screen reading the snapshot accessor while it
         is in error state throws (Solid resource semantics). Without a boundary
         that surfaces as an uncaught rejection; here it becomes a recoverable
-        error screen. Header/BottomNav stay outside it so navigation survives. */}
+        error screen. The header stays outside it so navigation survives. */}
     <ErrorBoundary
       fallback={(err, reset) => <LoadError err={err} reset={reset} />}
     >
       {props.children}
     </ErrorBoundary>
-    <BottomNav />
   </AppProvider>
 );
 

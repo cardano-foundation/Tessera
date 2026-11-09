@@ -21,7 +21,6 @@
  */
 
 import appError from "./appError";
-import bottomNav from "./bottomNav";
 import cart from "./cart";
 import copyButton from "./copyButton";
 import create from "./create";
@@ -44,7 +43,6 @@ import validation from "./validation";
 
 const en = {
   appError,
-  bottomNav,
   cart,
   copyButton,
   create,

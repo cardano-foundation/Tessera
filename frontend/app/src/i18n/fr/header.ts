@@ -4,19 +4,25 @@ const header: Messages = {
   // Primary navigation.
   navExplore: "Explorer",
   navCreate: "Créer",
-  navSettings: "Paramètres",
 
-  // Network tag in the bar.
-  activeNetwork: "Réseau actif",
+  // Network chip and its menu.
+  networkChip: "Réseau : {network}",
+  network: "Réseau",
+  networkNote: "Chaque réseau est une application distincte.",
 
-  // Plain/Pro display-mode toggle.
-  displayMode: "Mode d'affichage",
-  displayPlain: "Simple",
-  displayPro: "Pro",
+  // Settings menu.
+  settings: "Paramètres",
+  theme: "Thème",
+  themeSystem: "Système",
+  themeLight: "Clair",
+  themeDark: "Sombre",
+  language: "Langue",
+  allSettings: "Tous les paramètres",
 
   // Connect / identity button.
   connecting: "Connexion…",
   connectWallet: "Connecter un portefeuille",
+  connect: "Connecter",
   noRole: "Aucun rôle",
 
   // Wallet picker.
@@ -24,16 +30,12 @@ const header: Messages = {
   noWalletDetected: "Aucun portefeuille CIP-30 détecté dans ce navigateur.",
 
   // Role menu.
-  respondAs: "Répondre en tant que · 1 portefeuille",
+  respondAs: "Répondre en tant que",
   noClaimableRole:
     "Ce portefeuille ne détient aucun rôle revendicable : répondre depuis le navigateur exige un identifiant à clé, et ceux de ce portefeuille sont à script.",
   networkMismatch:
     "Le portefeuille est sur un réseau différent de celui de l'application ({network}). Changez de réseau dans votre portefeuille.",
   disconnect: "Déconnecter",
-
-  // Network section (one network per deployment; links open other apps).
-  network: "Réseau",
-  oneNetworkNote: "Un seul réseau par déploiement.",
 };
 
 export default header;

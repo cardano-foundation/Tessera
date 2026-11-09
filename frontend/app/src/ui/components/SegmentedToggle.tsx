@@ -7,11 +7,9 @@ export interface SegOption<T extends string> {
 }
 
 /**
- * The warm pill-track segmented toggle used across the app (Plain/Pro, network,
- * on-chain preview view, rationale mode). One selected segment is clay-filled;
- * the rest are transparent. Renders as a `role="group"` of `aria-pressed`
- * toggle buttons. Sizing (font/padding) and wrapper layout differ slightly per
- * site, so those are knobs; the colors/shape/semantics are shared.
+ * A segmented toggle: one selected segment, accent-filled, among transparent
+ * ones. Renders as a `role="group"` of `aria-pressed` toggle buttons. Font
+ * size, padding and wrapper layout differ per site, so those are props.
  */
 export function SegmentedToggle<T extends string>(props: {
   readonly options: readonly SegOption<T>[];

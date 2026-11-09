@@ -11,15 +11,16 @@
   margin-top: 24px;
 }
 .title {
-  font-size: 19px;
+  font-size: 20px;
+  font-weight: 400;
   color: var(--danger);
   margin: 0 0 10px;
 }
 .body {
   font-size: 14px;
-  color: var(--danger-ink);
+  color: var(--danger);
   margin: 0 0 6px;
-  font-family: var(--mono);
+  font-family: var(--code);
   word-break: break-word;
 }
 .hint {
@@ -31,29 +32,4 @@
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
-}
-.retry,
-.settings {
-  font: inherit;
-  font-size: 13.5px;
-  padding: 8px 18px;
-  border-radius: var(--r-control);
-  cursor: pointer;
-}
-.retry {
-  background: var(--accent);
-  color: #fff;
-  border: 1px solid var(--accent);
-}
-.retry:hover {
-  background: var(--accent-hover);
-  border-color: var(--accent-hover);
-}
-.settings {
-  background: transparent;
-  color: var(--body);
-  border: 1px solid var(--border-strong);
-}
-.settings:hover {
-  background: var(--surface2);
 }

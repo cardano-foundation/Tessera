@@ -52,6 +52,8 @@ const respond = {
     "Its on-chain definition doesn't conform to CIP-179 v5 (wrong spec version, or a constraint the spec forbids), so it is untalliable and no conformant reader counts it. Responding would waste a fee, so submission is disabled.",
 
   // --- Connect prompt ------------------------------------------------------
+  /** The browser tab's name; {title} is the survey's. */
+  pageTitle: "Respond: {title}",
   connectTitle: "Connect a wallet to respond",
   connectBody:
     "Use the Connect wallet button in the header. Eligibility is checked against your wallet's credentials. You can read the survey and its results without connecting.",
