@@ -8,13 +8,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 This package follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html);
 while `< 1.0.0`, breaking changes bump the **minor** version.
 
-## [Unreleased]
-
-### Changed
-
-- The bundled `@evolution-sdk/evolution` is 0.8.0. The lazy-loaded sealing
-  chunk grows by about 5 KB gzipped; the entry chunk is unchanged.
-
 ## [0.9.0] - 2026-11-09
 
 ### Added
@@ -57,6 +50,8 @@ while `< 1.0.0`, breaking changes bump the **minor** version.
   longer inverted on `--tessera-ink`.
 - Question prompts and the ineligible panel's title are `h2` instead of
   `h3`, under the survey title's `h1`.
+- The bundled `@evolution-sdk/evolution` is 0.8.0. The lazy-loaded sealing
+  chunk grows by about 5 KB gzipped; the entry chunk is unchanged.
 
 ### Removed
 
