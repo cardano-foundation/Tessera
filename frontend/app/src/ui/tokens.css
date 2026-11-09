@@ -148,7 +148,6 @@
   --shadow-card: 0 1px 2px rgba(0, 6, 41, 0.06);
   --shadow-menu: 0 16px 40px -16px rgba(0, 6, 41, 0.3);
   --scrim: rgba(0, 6, 41, 0.45);
-  --accent-shadow: rgba(0, 51, 173, 0.35);
 }
 
 [data-theme="dark"] {
@@ -196,30 +195,6 @@
   --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.4);
   --shadow-menu: 0 16px 40px -16px rgba(0, 0, 0, 0.7);
   --scrim: rgba(0, 0, 0, 0.6);
-  --accent-shadow: rgba(148, 170, 227, 0.4);
-}
-
-/*
- * Names the screens' CSS still reads, each mapped onto the semantic token
- * nearest its old meaning. An alias goes once no module reads it.
- */
-:root,
-[data-theme] {
-  --surface: var(--page);
-  --surface2: var(--card);
-  --surface3: var(--sunken);
-  --card-bg: var(--card);
-  --track: var(--sunken);
-  --faint: var(--muted);
-  --dim: var(--muted);
-  --pale: var(--muted);
-  --label: var(--muted);
-  --line2: var(--line);
-  --card-line: var(--line);
-  --accent-2: var(--accent-hover);
-  --accent-tint: var(--accent-line);
-  --accent-bg-soft: var(--accent-bg);
-  --danger-ink: var(--danger);
 }
 
 /*

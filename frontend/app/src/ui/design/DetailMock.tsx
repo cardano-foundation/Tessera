@@ -1,7 +1,6 @@
 /**
- * Technical detail and optional features shown in place, each behind its own
- * disclosure, instead of behind an app-wide display mode. A mock of the foot
- * of the respond form.
+ * Detail and an optional feature, each behind its own disclosure, as at the
+ * foot of the respond form.
  */
 
 import type { Component } from "solid-js";

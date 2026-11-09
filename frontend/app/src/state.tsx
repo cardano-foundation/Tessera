@@ -179,8 +179,6 @@ export type ExploreFilter = SurveyListFilter;
 export interface UiState {
   filter: ExploreFilter;
   search: string;
-  /** Pro mode surfaces technical detail (refs, epochs, drand rounds). */
-  pro: boolean;
 }
 
 /** The menus hanging from the header. */
@@ -220,7 +218,6 @@ interface AppState {
   readonly ui: UiState;
   setFilter(f: ExploreFilter): void;
   setSearch(s: string): void;
-  setPro(pro: boolean): void;
 
   /**
    * Active Koios bearer token (Settings override → env). Reactive: the data
@@ -400,7 +397,6 @@ export const AppProvider: ParentComponent = (props) => {
   const [ui, setUi] = createStore<UiState>({
     filter: "all",
     search: "",
-    pro: false,
   });
 
   // Reads through the seam: server-side when the source implements them (the
@@ -908,7 +904,6 @@ export const AppProvider: ParentComponent = (props) => {
     ui,
     setFilter: (f) => setUi("filter", f),
     setSearch: (s) => setUi("search", s),
-    setPro: (pro) => setUi("pro", pro),
     koiosToken,
     setKoiosToken: (token) => {
       storeKoiosToken(token);

@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
 import { BOUNDARY_PAIRS, TEXT_PAIRS, contrast } from "./tokens";
@@ -73,4 +73,31 @@ it("maps the same semantic names in both themes", () => {
       .props.map(([name]) => name)
       .sort();
   expect(names("dark")).toEqual(names("light"));
+});
+
+describe("stylesheets outside tokens.css", () => {
+  const root = new URL("..", import.meta.url);
+  const files = readdirSync(root, { recursive: true, encoding: "utf8" });
+  const read = (f: string) => readFileSync(new URL(f, root), "utf8");
+  const sheets = files
+    .filter((f) => f.endsWith(".css") && !f.endsWith("tokens.css"))
+    .map((f) => [f, read(f).replace(/\/\*[\s\S]*?\*\//g, "")] as const);
+  // Custom properties a component sets inline, from TSX, for its sheet to read.
+  const setInline = new Set(
+    files
+      .filter((f) => f.endsWith(".tsx"))
+      .flatMap((f) => [...read(f).matchAll(/"--([\w-]+)"/g)].map((m) => m[1])),
+  );
+  const tokens = new Set(blocks.flatMap((b) => b.props.map(([name]) => name)));
+
+  it.each(sheets)("%s has no colour literal", (_, text) => {
+    expect(text.match(/#[0-9a-f]{3,8}\b|\b(rgba?|hsla?)\(/gi)).toBeNull();
+  });
+
+  it.each(sheets)("%s reads only tokens or inline properties", (_, text) => {
+    const read = [...text.matchAll(/var\(--([\w-]+)/g)].map((m) => m[1]!);
+    expect(
+      read.filter((name) => !tokens.has(name) && !setInline.has(name)),
+    ).toEqual([]);
+  });
 });

@@ -71,13 +71,10 @@ export type Rationale = {
 };
 
 /**
- * Optional voter rationale (Pro): an off-chain document, hash-anchored on the
+ * Optional voter rationale: an off-chain document, hash-anchored on the
  * response (CIP-179 key 5). Purely informational — no effect on validation or
  * tallies. Either *write* it, and the app pins it to your IPFS providers and
  * fills the anchor, or *paste* an already-hosted URI and its hash.
- *
- * Off entirely outside Pro mode, so every read below folds `app.ui.pro` in and
- * callers never have to.
  */
 export function createRationale(kept?: RationaleInputs): Rationale {
   const app = useApp();

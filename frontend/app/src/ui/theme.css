@@ -11,17 +11,11 @@ body {
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
-/* Serif reserved for hero/survey titles; section labels stay mono, UI stays sans */
 /* Declared on each theme root, not inherited from body, so a subtree in the
    other theme draws native controls in its own accent. */
 :root,
 [data-theme] {
   accent-color: var(--accent);
-}
-h1 {
-  font-family: var(--serif);
-  font-weight: 700;
-  letter-spacing: -0.012em;
 }
 input,
 textarea,
@@ -60,25 +54,5 @@ select {
 @keyframes spin {
   to {
     transform: rotate(360deg);
-  }
-}
-
-/* Create page: builder + sticky summary aside, collapsing on narrow screens. */
-.create-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 340px;
-  gap: 26px;
-  align-items: start;
-}
-.create-aside {
-  position: sticky;
-  top: 84px;
-}
-@media (max-width: 900px) {
-  .create-grid {
-    grid-template-columns: minmax(0, 1fr);
-  }
-  .create-aside {
-    position: static;
   }
 }

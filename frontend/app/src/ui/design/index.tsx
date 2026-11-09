@@ -69,8 +69,7 @@ export default function Design(): JSX.Element {
         <Themes>{() => <MarkAndNetworks />}</Themes>
       </Section>
 
-      <Section title="Detail without a mode">
-        <DetailNotes />
+      <Section title="Disclosures">
         <Themes>{() => <DetailMock />}</Themes>
       </Section>
 
@@ -105,28 +104,6 @@ const MarkAndNetworks: Component = () => (
       chip.
     </p>
   </div>
-);
-
-const DetailNotes: Component = () => (
-  <ol class={`${kit.text} ${css.notes}`}>
-    <li>
-      Today, Pro resets to Plain on every load. It gates two kinds of thing. The
-      first is readouts: the survey ref, the end epoch, the drand chain and
-      round, and the on-chain preview. The second is features: the voter
-      rationale, a manual reveal round, the padding override, and the custom
-      question type.
-    </li>
-    <li>
-      Proposed: no mode. Readouts sit in a closed "Technical details" disclosure
-      where they apply. Features sit in place, each behind its own optional
-      disclosure. A screen opens what it needs, with no trip to the header or to
-      Settings.
-    </li>
-    <li>
-      Removed: the mode in the app state, the header toggle, the Display section
-      of Settings, and the pro props in Explore and Create.
-    </li>
-  </ol>
 );
 
 const THEMES = ["light", "dark"] as const;

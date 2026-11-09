@@ -32,7 +32,7 @@
   gap: 12px;
   align-items: flex-start;
   border: 1px dashed var(--accent-line);
-  background: var(--accent-bg-soft);
+  background: var(--accent-bg);
   border-radius: var(--r-panel);
   padding: 14px 16px;
   margin-bottom: 20px;
@@ -43,7 +43,7 @@
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.08em;
-  color: #fff;
+  color: var(--on-accent);
   background: var(--accent);
   border-radius: var(--r-xs);
   padding: 3px 7px;
@@ -57,7 +57,7 @@
 .devBannerBody code {
   font-family: var(--mono);
   font-size: 12px;
-  background: var(--surface2);
+  background: var(--card);
   border-radius: var(--r-2xs);
   padding: 1px 5px;
 }
@@ -93,13 +93,13 @@
   border-radius: var(--r-sm);
   padding: 6px 12px;
   border: 1px solid var(--line);
-  background: var(--surface);
+  background: var(--page);
   color: var(--muted);
 }
 .controlBtnOn {
   border-color: var(--accent);
   background: var(--accent);
-  color: #fff;
+  color: var(--on-accent);
 }
 
 /* --- split: widget | log ------------------------------------------------- */
@@ -117,8 +117,8 @@
 }
 
 .widgetFrame {
-  border: 1px solid var(--card-line);
-  background: var(--card-bg);
+  border: 1px solid var(--line);
+  background: var(--card);
   border-radius: var(--r-card);
   padding: 18px 20px;
 }
@@ -143,7 +143,7 @@
   position: sticky;
   top: 16px;
   border: 1px solid var(--line);
-  background: var(--surface);
+  background: var(--page);
   border-radius: var(--r-panel);
   padding: 14px 16px;
 }
@@ -169,13 +169,13 @@
   border: 1px solid var(--warn-line);
 }
 .panelError {
-  color: var(--danger-ink);
+  color: var(--danger);
   background: var(--danger-bg);
   border: 1px solid var(--danger-line);
 }
 .panelNote {
   color: var(--muted);
-  background: var(--surface2);
+  background: var(--card);
 }
 
 .logBlock {
@@ -196,7 +196,7 @@
   font-size: 11px;
   line-height: 1.45;
   color: var(--body);
-  background: var(--surface2);
+  background: var(--card);
   border-radius: var(--r-xs);
   padding: 8px 10px;
   margin: 0;

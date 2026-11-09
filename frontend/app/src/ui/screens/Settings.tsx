@@ -254,7 +254,9 @@ const KoiosSection: Component = () => {
         </button>
       </div>
       <Show when={saved()}>
-        <div class={css.savedMsg} role="status">{t("settings.savedMsg")}</div>
+        <div class={css.savedMsg} role="status">
+          {t("settings.savedMsg")}
+        </div>
       </Show>
 
       <label for="indexer-url" class={`${kit.fieldLabel} ${css.fieldLabel}`}>

@@ -85,11 +85,9 @@ export function createOnchainPreview(
   src: ResponseSource,
   rationale: Rationale,
 ): OnchainPreview {
-  const app = useApp();
-
   // Public surveys: the payload is built live from the current drafts.
   const publicPayload = createMemo<Metadatum | undefined>(() => {
-    if (!app.ui.pro || src.sealedMode()) return undefined;
+    if (src.sealedMode()) return undefined;
     const p = partsOf(src);
     if (!p) return undefined;
     try {
