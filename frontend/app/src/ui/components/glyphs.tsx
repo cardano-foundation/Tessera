@@ -98,11 +98,13 @@ const LEVEL_COLOR = ["var(--danger)", "var(--warn)", "var(--ok)"];
 export const EpochGauge: Component<{
   seconds: number;
   secondsPerEpoch: number;
+  /** Sets the width; the cells share it, past 13px each. */
+  class?: string;
 }> = (props) => {
   const gauge = () => epochGauge(props.seconds, props.secondsPerEpoch);
   return (
     <span
-      class={css.gauge}
+      class={`${css.gauge} ${props.class ?? ""}`}
       style={{ "--gauge": LEVEL_COLOR[gauge().level - 1] }}
       aria-hidden="true"
     >
@@ -115,9 +117,12 @@ export const EpochGauge: Component<{
           />
         )}
       </For>
-      <Show when={gauge().more}>
-        <span class={css.gaugeMore}>+</span>
-      </Show>
+      <span
+        class={css.gaugeMore}
+        classList={{ [css.gaugeMoreOff]: !gauge().more }}
+      >
+        +
+      </span>
     </span>
   );
 };

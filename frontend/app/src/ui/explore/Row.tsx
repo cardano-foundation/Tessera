@@ -195,6 +195,7 @@ const GridRow: Component<EntryProps> = (props) => {
             <EpochGauge
               seconds={left()!}
               secondsPerEpoch={props.secondsPerEpoch}
+              class={css.endsGaugeFull}
             />
           </div>
         </Show>
@@ -289,6 +290,7 @@ const CardRow: Component<EntryProps> = (props) => {
               <EpochGauge
                 seconds={left()!}
                 secondsPerEpoch={props.secondsPerEpoch}
+                class={css.cardGaugeWide}
               />
             </span>
           </Show>

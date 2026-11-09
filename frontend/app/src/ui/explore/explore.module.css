@@ -325,9 +325,13 @@
   color: var(--muted);
   margin-top: 2px;
 }
+/* A flex box, not a line box: no strut to push the gauge off the text. */
 .endsGauge {
   display: flex;
-  margin-top: 5px;
+  margin-top: 6px;
+}
+.endsGaugeFull {
+  width: 100%;
 }
 .ends.closed {
   color: var(--muted);
@@ -424,6 +428,9 @@
   display: inline-flex;
   vertical-align: middle;
   margin-left: 8px;
+}
+.cardGaugeWide {
+  width: 72px;
 }
 
 /* A direct flex item of the meta row, not a chip value: an inline mosaic

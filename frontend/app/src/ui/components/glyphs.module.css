@@ -117,7 +117,7 @@
 }
 
 .cell {
-  width: 13px;
+  flex: 1 0 13px;
   height: 7px;
   border-radius: 2px;
   box-sizing: border-box;
@@ -134,4 +134,8 @@
   font-weight: 600;
   line-height: 1;
   color: var(--gauge);
+}
+/* Holds its place, so cells line up whether or not more epochs follow. */
+.gaugeMoreOff {
+  visibility: hidden;
 }
