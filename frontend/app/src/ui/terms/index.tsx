@@ -69,7 +69,9 @@ export default function Terms(): JSX.Element {
           </li>
           <li>
             <b>No warranty.</b> This website is provided "as is", without
-            warranty, and may change or stop at any time.
+            warranty, and may change or stop at any time. To the extent
+            permitted by law, the Cardano Foundation is not liable for any loss
+            arising from its use.
           </li>
         </ul>
 
