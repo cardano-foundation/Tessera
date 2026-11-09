@@ -129,11 +129,15 @@
     var(--fill) 100%;
 }
 
+/* Drawn, not typed: a "+" glyph sits on the text baseline, below the cells. */
 .gaugeMore {
-  font-size: 12px;
-  font-weight: 600;
-  line-height: 1;
-  color: var(--gauge);
+  flex: none;
+  width: 10px;
+  height: 10px;
+  margin-left: 1px;
+  background:
+    linear-gradient(var(--gauge), var(--gauge)) center / 100% 2px no-repeat,
+    linear-gradient(var(--gauge), var(--gauge)) center / 2px 100% no-repeat;
 }
 /* Holds its place, so cells line up whether or not more epochs follow. */
 .gaugeMoreOff {

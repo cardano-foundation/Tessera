@@ -120,9 +120,7 @@ export const EpochGauge: Component<{
       <span
         class={css.gaugeMore}
         classList={{ [css.gaugeMoreOff]: !gauge().more }}
-      >
-        +
-      </span>
+      />
     </span>
   );
 };
