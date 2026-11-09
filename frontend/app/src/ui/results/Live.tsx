@@ -29,6 +29,7 @@ import {
   type RoleResults,
 } from "~/domain/results";
 import { fileRef, roleLabel } from "~/ui/format";
+import { SegmentedToggle } from "~/ui/components/SegmentedToggle";
 import { downloadCsv } from "~/util/download";
 import { t, n } from "~/i18n";
 import { responsesCsv, type CsvEntry } from "./export";
@@ -41,28 +42,8 @@ import {
 } from "./Exclusions";
 import { IndividualResponses } from "./Individual";
 
+import kit from "~/ui/kit.module.css";
 import css from "./results.module.css";
-
-const RoleFilterBtn: Component<{
-  label: string;
-  count: number;
-  on: boolean;
-  onClick: () => void;
-}> = (props) => (
-  <button
-    onClick={() => props.onClick()}
-    class={css.roleFilterBtn}
-    classList={{ [css.roleFilterBtnOn]: props.on }}
-  >
-    {props.label}
-    <span
-      class={css.roleFilterCount}
-      classList={{ [css.roleFilterCountOn]: props.on }}
-    >
-      {n(props.count)}
-    </span>
-  </button>
-);
 
 /**
  * The tally view shared by public surveys and revealed sealed ones. Takes
@@ -169,31 +150,34 @@ export const LiveResults: Component<{
     <>
       {/* counted + export */}
       <div class={css.countedRow}>
-        <span class={css.countedPill}>
+        <span class={`${kit.chip} ${kit.chipOk}`}>
           <span class={css.countedDot} />
           {t("survey.counted", { n: n(publicResponses().length) })}
         </span>
         <Show when={(pendingProofs() ?? 0) > 0}>
-          <span class={css.pendingPill}>
+          <span class={kit.chip}>
             {t("survey.pendingProofs", { n: n(pendingProofs()!) })}
           </span>
         </Show>
         <Show when={excludedTotal() > 0}>
           <button
             onClick={() => setExclOpen((o) => !o)}
-            class={css.excludedToggle}
+            aria-expanded={exclOpen()}
+            class={kit.button}
           >
-            {t("survey.excluded", { n: n(excludedTotal()) })}{" "}
-            <span class={css.excludedCaret}>{exclOpen() ? "▴" : "▾"}</span>
+            {t("survey.excluded", { n: n(excludedTotal()) })}
+            <span class={css.caret} aria-hidden="true">
+              {exclOpen() ? "▴" : "▾"}
+            </span>
           </button>
         </Show>
         <button
           onClick={exportCsv}
           disabled={props.records.length === 0}
-          class={css.exportBtn}
-          classList={{ [css.exportBtnDisabled]: props.records.length === 0 }}
+          class={`${kit.button} ${css.exportBtn}`}
         >
-          <span class={css.exportIcon}>⤓</span> {t("survey.exportCsv")}
+          <span aria-hidden="true">⤓</span>
+          {t("survey.exportCsv")}
         </button>
       </div>
 
@@ -215,19 +199,21 @@ export const LiveResults: Component<{
       {/* role picker — one role at a time, no combined tally across roles */}
       <Show when={roles().length > 0}>
         <div class={css.roleFilterRow}>
-          <span class={css.roleFilterLabel}>{t("survey.roleFilterLabel")}</span>
-          <div class={css.roleFilterBtns}>
-            <For each={roles()}>
-              {(r) => (
-                <RoleFilterBtn
-                  label={roleLabel(r.role)}
-                  count={r.responderCount}
-                  on={shown()?.role === r.role}
-                  onClick={() => setPickedRole(r.role)}
-                />
-              )}
-            </For>
-          </div>
+          <span class={kit.label}>{t("survey.roleFilterLabel")}</span>
+          <SegmentedToggle
+            ariaLabel={t("survey.roleFilterLabel")}
+            value={String(shown()?.role)}
+            onChange={(role) => setPickedRole(Number(role))}
+            options={roles().map((r) => ({
+              value: String(r.role),
+              label: (
+                <>
+                  {roleLabel(r.role)}
+                  <span class={css.roleCount}>{n(r.responderCount)}</span>
+                </>
+              ),
+            }))}
+          />
         </div>
       </Show>
 
@@ -241,6 +227,7 @@ export const LiveResults: Component<{
               results={results}
               responderCount={shown()!.responderCount}
               meta={metaFor(false)}
+              level={2}
             />
           )}
         </For>

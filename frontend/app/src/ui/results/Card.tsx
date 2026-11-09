@@ -1,9 +1,11 @@
 /** The chrome every result card shares, the bars most of them draw, the notes. */
 
 import { For, Show, type Component, type JSX } from "solid-js";
+import { Dynamic } from "solid-js/web";
 import type { Question } from "cip-179";
 
 import { t } from "~/i18n";
+import kit from "~/ui/kit.module.css";
 import css from "./results.module.css";
 
 const BASE_TYPE_KEY: Record<Question["type"], string> = {
@@ -26,25 +28,31 @@ export const typeLabel = (type: Question["type"], suffix?: string): string =>
     ? t("survey.typeLabelJoined", { base: baseType(type), suffix })
     : baseType(type);
 
+/** The level of a question's heading: under the page title, or a role's. */
+export type HeadingLevel = 2 | 3;
+
 export const ResultCard: Component<{
   qLabel: string;
   typeLabel: string;
   prompt: string;
+  level: HeadingLevel;
   /** Right-hand count chip: how many abstained, or how many were counted. */
   tally?: string;
   children: JSX.Element;
 }> = (props) => (
-  <div class={css.card}>
+  <div class={kit.card}>
     <div class={css.cardHead}>
       <div class={css.cardHeadLeft}>
-        <span class={css.qChip}>{props.qLabel}</span>
-        <div class={css.typeLabel}>{props.typeLabel}</div>
+        <span class={`${kit.chip} ${kit.chipAccent}`}>{props.qLabel}</span>
+        <div class={kit.label}>{props.typeLabel}</div>
       </div>
       <Show when={props.tally}>
-        <span class={css.abstain}>{props.tally}</span>
+        <span class={kit.chip}>{props.tally}</span>
       </Show>
     </div>
-    <h3 class={css.cardTitle}>{props.prompt || t("survey.noPrompt")}</h3>
+    <Dynamic component={`h${props.level}`} class={css.cardTitle}>
+      {props.prompt || t("survey.noPrompt")}
+    </Dynamic>
     {props.children}
   </div>
 );
@@ -83,7 +91,7 @@ export const Bars: Component<{ bars: readonly Bar[] }> = (props) => (
 );
 
 export const NoData: Component = () => (
-  <p class={css.noData}>{t("survey.noResponsesYet")}</p>
+  <p class={`${kit.small} ${css.noData}`}>{t("survey.noResponsesYet")}</p>
 );
 
 /**
@@ -92,7 +100,7 @@ export const NoData: Component = () => (
  * detail, and the reason it must never be mistaken for a hash-covered number.
  */
 export const DerivedNote: Component = () => (
-  <span class={css.derived} title={t("survey.derivedTitle")}>
+  <span class={`${kit.label} ${css.derived}`} title={t("survey.derivedTitle")}>
     {t("survey.derived")}
   </span>
 );
@@ -105,12 +113,17 @@ export const DerivedNote: Component = () => (
  */
 export const InfoNote: Component<{ onShowRaw?: () => void }> = (props) => (
   <div class={css.disclaimer}>
-    <span class={css.disclaimerBadge}>{t("survey.infoBadge")}</span>
+    <span class={`${kit.chip} ${kit.chipWarn} ${css.disclaimerBadge}`}>
+      {t("survey.infoBadge")}
+    </span>
     <span class={css.disclaimerText}>
       <b>{t("survey.infoNoteStrong")}</b> {t("survey.infoNote")}
     </span>
     <Show when={props.onShowRaw}>
-      <button class={css.excludedToggle} onClick={() => props.onShowRaw!()}>
+      <button
+        class={`${kit.button} ${kit.quiet}`}
+        onClick={() => props.onShowRaw!()}
+      >
         {t("survey.weightedShowRaw")}
       </button>
     </Show>

@@ -1,4 +1,5 @@
 import { Show, type Component } from "solid-js";
+import kit from "~/ui/kit.module.css";
 import css from "./Empty.module.css";
 
 /** What an empty state says, in the caller's own words. */
@@ -32,7 +33,11 @@ export const Empty: Component<{
       fallback={props.loading ? props.text.loading : props.text.notFound}
     >
       <div class={css.emptyError}>{props.text.error}</div>
-      <button type="button" onClick={() => props.onRetry?.()} class={css.retry}>
+      <button
+        type="button"
+        onClick={() => props.onRetry?.()}
+        class={`${kit.button} ${kit.primary}`}
+      >
         {props.text.retry}
       </button>
     </Show>

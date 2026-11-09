@@ -1,0 +1,40 @@
+.details {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+}
+.summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 10px 14px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink);
+  cursor: pointer;
+  list-style: none;
+}
+.summary::-webkit-details-marker {
+  display: none;
+}
+.summary::before {
+  content: "▸";
+  color: var(--muted);
+}
+.details[open] > .summary::before {
+  content: "▾";
+}
+.summary:hover {
+  background: var(--sunken);
+  border-radius: var(--r-md);
+}
+.hint {
+  margin-left: auto;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--muted);
+}
+.body {
+  padding: 0 14px 14px;
+}

@@ -20,7 +20,7 @@ const survey: Messages = {
   // Unverified cancellation notice
   claimedNoticeStrong: "Annulation revendiquée non vérifiée.",
   claimedNoticeRest:
-    "Une annulation référençant ce sondage a été publiée, mais ce client n'a pas pu vérifier qu'elle provenait du propriétaire du sondage — elle n'est donc pas prise en compte. Seule une annulation signée par le propriétaire invalide un sondage.",
+    "Une annulation référençant ce sondage a été publiée, mais ce client n'a pas pu vérifier qu'elle provenait du propriétaire du sondage ; elle n'est donc pas prise en compte. Seule une annulation signée par le propriétaire invalide un sondage.",
 
   // Sondage clos sans résultat final. {hours} : nombre localisé, à la
   // demi-heure, au moins 1.
@@ -42,7 +42,7 @@ const survey: Messages = {
   // Avis « pas encore sur la chaîne » (sondage optimiste bloqué)
   notOnChainNoticeStrong: "Pas encore sur la chaîne.",
   notOnChainNoticeRest:
-    "La transaction publiant ce sondage n'a pas été observée dans un bloc depuis un moment — elle n'a peut-être pas été acceptée par le réseau. Le sondage n'est visible que dans cette session ; s'il n'atterrit jamais, publiez-le à nouveau.",
+    "La transaction publiant ce sondage n'a pas été observée dans un bloc depuis un moment ; elle n'a peut-être pas été acceptée par le réseau. Le sondage n'est visible que dans cette session ; s'il n'atterrit jamais, publiez-le à nouveau.",
 
   // Respond CTA
   respondCta: "Répondre à ce sondage",
@@ -52,7 +52,7 @@ const survey: Messages = {
   cancelSubmittedBody:
     "Les nouvelles réponses seront rejetées une fois l'annulation indexée. La définition reste on-chain à titre de référence.",
   ownerText:
-    "Vous pouvez le retirer — les réponses existantes restent on-chain mais les nouvelles sont rejetées.",
+    "Vous pouvez le retirer : les réponses existantes restent on-chain, mais les nouvelles sont rejetées.",
   ownerTextStrong: "Vous êtes le propriétaire de ce sondage.",
   cancelSurvey: "Annuler le sondage",
   cancelling: "Annulation…",
@@ -66,7 +66,7 @@ const survey: Messages = {
     "Annoncez-le depuis une action de gouvernance Conway : Tessera produit le document d'ancre CIP-108 lié, et peut construire et soumettre une Info Action qui le porte.",
   linkCta: "Ouvrir l'outil de liaison",
   linkWindowClosed:
-    "La fenêtre de liaison est fermée — une action de gouvernance correspondante devait être proposée pendant l'époque {submitEpoch}, et une action proposée maintenant survivrait au sondage.",
+    "La fenêtre de liaison est fermée : une action de gouvernance correspondante devait être proposée pendant l'époque {submitEpoch}, et une action proposée maintenant survivrait au sondage.",
 
   // Header
   untitledSurvey: "Sondage sans titre",
@@ -74,7 +74,7 @@ const survey: Messages = {
   govLinkAdvertisedFallback: "Annoncé par une action de gouvernance",
   govLinkAdvertisedBy: "Annoncé par",
   govLinkMeta:
-    "le sondage et le vote se clôturent tous deux à l'epoch {epoch} · ouvert à tous les rôles éligibles — voter sur l'action liée est optionnel",
+    "le sondage et le vote se clôturent tous deux à l'epoch {epoch} · ouvert à tous les rôles éligibles · voter sur l'action liée est optionnel",
   // Carte de résumé du sondage (en-tête) : métadonnées + décompte par rôle
   // (sans pourcentages inter-rôles — électorats distincts, non comparables).
   summaryQuestions: "Questions",
@@ -133,9 +133,9 @@ const survey: Messages = {
   exclHeadNoteProofs:
     "vérifications on-chain + verdicts de preuve de l'indexeur",
   exclFootnote1:
-    "Les réponses exclues restent on-chain mais ne sont pas comptabilisées. Les vérifications d'éligibilité qui nécessitent l'état du registre — appartenance à un rôle revérifiée au snapshot",
+    "Les réponses exclues restent on-chain mais ne sont pas comptabilisées. Les vérifications d'éligibilité qui nécessitent l'état du registre (appartenance à un rôle revérifiée au snapshot",
   exclFootnote2:
-    "et preuves d'identifiant — sont résolues par un indexeur et ne sont pas reflétées ici.",
+    "et preuves d'identifiant) sont résolues par un indexeur et ne sont pas reflétées ici.",
   exclFootnoteProofs1:
     "Les réponses exclues restent on-chain mais ne sont pas comptabilisées. Les preuves d'identifiant affichées ici sont les verdicts de l'indexeur ; l'appartenance à un rôle et les poids de vote revérifiés au snapshot",
   exclFootnoteProofs2:
@@ -148,8 +148,8 @@ const survey: Messages = {
   // Response card
   responseRationaleTitle:
     "Ouvrir le document de justification du votant dans un nouvel onglet (non vérifié par hash)",
-  responseRationale: "justification ↗",
-  responseSealed: "(scellée — pas encore révélée)",
+  responseRationale: "justification",
+  responseSealed: "(scellée, pas encore révélée)",
   responseAnswerQ: "Q{n}",
 
   // Results body — counted/excluded/export
@@ -165,7 +165,7 @@ const survey: Messages = {
   infoBadge: "info",
   infoNoteStrong: "Décompte informatif.",
   infoNote:
-    "Tessera comptabilise les réponses on-chain selon les règles génériques de CIP-179. Il ne peut pas appliquer les règles de validité propres à un sondage, ses listes d'autorisation ou une pondération personnalisée (quadratique, plafonds, …) — l'interprétation du résultat revient au créateur du sondage.",
+    "Tessera comptabilise les réponses on-chain selon les règles génériques de CIP-179. Il ne peut pas appliquer les règles de validité propres à un sondage, ses listes d'autorisation ou une pondération personnalisée (quadratique, plafonds, …). L'interprétation du résultat revient au créateur du sondage.",
 
   // Résultats finaux (vue artefact) : sélecteur de pondération + exports
   weightingLabel: "Pondération",
@@ -174,7 +174,7 @@ const survey: Messages = {
   exportArtifact: "Exporter l'artefact",
   exportVotesCsv: "Exporter les votes (CSV)",
   weightedShowRaw: "Voir les réponses brutes",
-  weightedShowFinal: "← Résultats finaux",
+  weightedShowFinal: "Résultats finaux",
   weightedCounted: "{n} comptées",
   weightedVotingWeight: "{ada} ₳ de poids de vote",
   weightedTurnout: "{pct} % de participation",
@@ -197,10 +197,10 @@ const survey: Messages = {
     "Le propriétaire l'a retiré. Les éventuelles réponses scellées restent on-chain mais ne sont pas comptabilisées.",
   sealedUnsupportedTitle: "Chaîne drand non prise en charge",
   sealedUnsupportedBody:
-    "Ce sondage scellé épingle une chaîne drand que Tessera ne peut pas déchiffrer — seule quicknet est prise en charge ici.",
+    "Ce sondage scellé épingle une chaîne drand que Tessera ne peut pas déchiffrer ; seule quicknet est prise en charge ici.",
   sealedTitle: "Les réponses sont scellées",
   sealedBody:
-    "{n} {responses} chiffrée(s) collectée(s). Elles s'ouvriront {date} — personne, pas même le propriétaire, ne peut les lire avant la publication du round drand.",
+    "{n} {responses} chiffrée(s) collectée(s). Elles s'ouvriront {date}. Personne, pas même le propriétaire, ne peut les lire avant la publication du round drand.",
   responseSingular: "réponse",
   responsePlural: "réponses",
   revealingTitle: "Révélation…",
@@ -219,7 +219,7 @@ const survey: Messages = {
     ") n'a pas pu être récupéré ou a échoué à sa vérification de hash, les titres et les libellés d'options ne peuvent donc pas être affichés.",
   labelsBodyAccurate: "Les résultats restent exacts",
   labelsBody3:
-    "— chaque type de question, décompte et contrainte est on-chain, et les réponses référencent les",
+    " : chaque type de question, décompte et contrainte est on-chain, et les réponses référencent les",
   labelsBodyIndices: "indices",
   labelsBody4: " des options, qui sont comptabilisés normalement.",
 
@@ -227,7 +227,7 @@ const survey: Messages = {
   loading: "Chargement…",
   notFound: "Sondage introuvable.",
   loadError:
-    "Échec du chargement depuis le réseau — il peut s'agir d'une erreur transitoire.",
+    "Échec du chargement depuis le réseau. Il peut s'agir d'une erreur transitoire.",
   retry: "Réessayer",
 };
 

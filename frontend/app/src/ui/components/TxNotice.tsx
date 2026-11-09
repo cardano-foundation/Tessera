@@ -16,7 +16,7 @@ export const TxNotice: Component<{
   <div class={css.notice}>
     <div class={css.title}>{props.title}</div>
     <div class={css.hash}>
-      <TxLink hash={props.hash} color="var(--danger-ink)" />
+      <TxLink hash={props.hash} color="var(--danger)" />
     </div>
     <div class={css.body}>{props.body}</div>
   </div>

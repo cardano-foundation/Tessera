@@ -156,41 +156,6 @@
 
 /* --- Detail without a mode ----------------------------------------------- */
 
-.details {
-  background: var(--card);
-  border: 1px solid var(--line);
-  border-radius: var(--r-md);
-}
-.summary {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 14px;
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--ink);
-  cursor: pointer;
-  list-style: none;
-}
-.summary::-webkit-details-marker {
-  display: none;
-}
-.summary::before {
-  content: "▸";
-  color: var(--muted);
-}
-.details[open] > .summary::before {
-  content: "▾";
-}
-.summaryHint {
-  margin-left: auto;
-  font-size: 12px;
-  font-weight: 400;
-  color: var(--muted);
-}
-.detailsBody {
-  padding: 0 14px 14px;
-}
 .facts {
   display: grid;
   grid-template-columns: max-content 1fr;

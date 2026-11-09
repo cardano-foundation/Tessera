@@ -11,6 +11,7 @@ import {
 import { roleColors, roleLabel, safeExternalHref } from "~/ui/format";
 import { TxLink } from "~/ui/components/TxLink";
 import { t, n } from "~/i18n";
+import kit from "~/ui/kit.module.css";
 import css from "./results.module.css";
 
 /** How many individual responses to render before the "show all" expansion. */
@@ -43,14 +44,14 @@ export const IndividualResponses: Component<{
       <button
         onClick={() => setOpen((o) => !o)}
         disabled={props.records.length === 0}
-        class={css.individualToggle}
-        classList={{
-          [css.individualToggleDisabled]: props.records.length === 0,
-        }}
+        aria-expanded={open()}
+        class={kit.button}
       >
         {t("survey.individualResponses")}
         <span class={css.individualCount}>{n(props.records.length)}</span>
-        <span class={css.individualCaret}>{open() ? "▴" : "▾"}</span>
+        <span class={css.caret} aria-hidden="true">
+          {open() ? "▴" : "▾"}
+        </span>
       </button>
 
       <Show when={open()}>
@@ -62,7 +63,7 @@ export const IndividualResponses: Component<{
         <Show when={remaining() > 0}>
           <button
             onClick={() => setLimit((prev) => prev + RESPONSE_PAGE)}
-            class={css.showMore}
+            class={`${kit.button} ${kit.quiet} ${css.showMore}`}
           >
             {t("survey.showMore", {
               n: n(Math.min(RESPONSE_PAGE, remaining())),
@@ -109,7 +110,7 @@ const ResponseCard: Component<{
                   target="_blank"
                   rel="noopener noreferrer"
                   title={t("survey.responseRationaleTitle")}
-                  class={css.responseRationale}
+                  class={`${kit.link} ${css.responseRationale}`}
                 >
                   {t("survey.responseRationale")}
                 </a>
@@ -118,7 +119,7 @@ const ResponseCard: Component<{
           )}
         </Show>
         <span class={css.responseTx}>
-          <TxLink hash={props.rec.txHash} color="var(--dim)" />
+          <TxLink hash={props.rec.txHash} color="var(--muted)" />
         </span>
       </div>
 

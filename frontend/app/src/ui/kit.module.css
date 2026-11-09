@@ -170,6 +170,21 @@
   text-decoration-thickness: 2px;
 }
 
+/* Back to the page a screen came from: quiet, no arrow glyph. */
+.back {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--muted);
+  text-decoration: none;
+}
+.back:hover {
+  color: var(--ink);
+  text-decoration: underline;
+}
+
 /* --- Fields -------------------------------------------------------------- */
 
 /* Text inputs, text areas and selects alike; the border is what tells a

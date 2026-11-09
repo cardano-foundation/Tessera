@@ -4,25 +4,11 @@
  * of the respond form.
  */
 
-import type { Component, JSX } from "solid-js";
+import type { Component } from "solid-js";
 
+import { Disclosure } from "~/ui/components/Disclosure";
 import kit from "~/ui/kit.module.css";
 import css from "./design.module.css";
-
-const Disclosure: Component<{
-  summary: string;
-  hint: string;
-  open?: boolean;
-  children: JSX.Element;
-}> = (props) => (
-  <details class={css.details} open={props.open}>
-    <summary class={css.summary}>
-      {props.summary}
-      <span class={css.summaryHint}>{props.hint}</span>
-    </summary>
-    <div class={css.detailsBody}>{props.children}</div>
-  </details>
-);
 
 export const DetailMock: Component = () => (
   <div class={css.stack}>

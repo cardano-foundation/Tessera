@@ -23,6 +23,7 @@ import {
 import { artifactResults, type Weighting } from "~/domain/results";
 import { fileRef, formatAda, roleLabel } from "~/ui/format";
 import { TxNotice } from "~/ui/components/TxNotice";
+import { SegmentedToggle } from "~/ui/components/SegmentedToggle";
 import { downloadCsv, downloadJson } from "~/util/download";
 import { t, n } from "~/i18n";
 import { responsesCsv, type CsvEntry } from "./export";
@@ -30,6 +31,7 @@ import { InfoNote } from "./Card";
 import { QuestionResult, metaFor } from "./Question";
 import { RevealNotice, type SealedReveal } from "./Sealed";
 
+import kit from "~/ui/kit.module.css";
 import css from "./results.module.css";
 
 /**
@@ -136,16 +138,17 @@ export const FinalResults: Component<{
       {/* Export the raw artifact + a votes/weights CSV — available even for a
           cancelled survey (the artifact still records the cancellation). */}
       <div class={css.artifactActions}>
-        <button class={css.artifactBtn} onClick={exportArtifact}>
-          <span class={css.exportIcon}>⤓</span> {t("survey.exportArtifact")}
+        <button class={kit.button} onClick={exportArtifact}>
+          <span aria-hidden="true">⤓</span>
+          {t("survey.exportArtifact")}
         </button>
         <button
-          class={css.artifactBtn}
-          classList={{ [css.artifactBtnDisabled]: responderTotal() === 0 }}
+          class={kit.button}
           disabled={responderTotal() === 0}
           onClick={exportVotesCsv}
         >
-          <span class={css.exportIcon}>⤓</span> {t("survey.exportVotesCsv")}
+          <span aria-hidden="true">⤓</span>
+          {t("survey.exportVotesCsv")}
         </button>
       </div>
 
@@ -163,23 +166,16 @@ export const FinalResults: Component<{
       >
         {/* Weighting switch: same counted set, one vote each vs chain weight. */}
         <div class={css.roleFilterRow}>
-          <span class={css.roleFilterLabel}>{t("survey.weightingLabel")}</span>
-          <div class={css.roleFilterBtns}>
-            <button
-              class={css.roleFilterBtn}
-              classList={{ [css.roleFilterBtnOn]: weighting() === "chain" }}
-              onClick={() => setWeighting("chain")}
-            >
-              {t("survey.weightingChain")}
-            </button>
-            <button
-              class={css.roleFilterBtn}
-              classList={{ [css.roleFilterBtnOn]: weighting() === "one" }}
-              onClick={() => setWeighting("one")}
-            >
-              {t("survey.weightingOne")}
-            </button>
-          </div>
+          <span class={kit.label}>{t("survey.weightingLabel")}</span>
+          <SegmentedToggle<Weighting>
+            ariaLabel={t("survey.weightingLabel")}
+            value={weighting()}
+            onChange={(w) => setWeighting(w)}
+            options={[
+              { value: "chain", label: t("survey.weightingChain") },
+              { value: "one", label: t("survey.weightingOne") },
+            ]}
+          />
         </div>
 
         <Show when={answersPending()}>
@@ -192,9 +188,7 @@ export const FinalResults: Component<{
             {(rv) => (
               <section>
                 <div class={css.weightedRoleHead}>
-                  <span class={css.weightedRoleTitle}>
-                    {roleLabel(rv.role)}
-                  </span>
+                  <h2 class={kit.heading}>{roleLabel(rv.role)}</h2>
                   <span class={css.weightedRoleMeta}>
                     {t("survey.weightedCounted", { n: n(rv.responderCount) })}
                     <Show when={rv.total !== null && rv.votedWeight !== null}>
@@ -220,6 +214,7 @@ export const FinalResults: Component<{
                         results={results}
                         responderCount={rv.responderCount}
                         meta={metaFor(rv.votedWeight !== null)}
+                        level={3}
                       />
                     )}
                   </For>

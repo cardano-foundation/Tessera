@@ -17,7 +17,7 @@ const survey = {
   // the rest is plain — kept as two messages so each stays a whole phrase.
   claimedNoticeStrong: "Unverified cancellation claim.",
   claimedNoticeRest:
-    "A cancellation referencing this survey was published, but this client couldn't verify it came from the survey owner — so it isn't acted on. Only an owner-signed cancellation invalidates a survey.",
+    "A cancellation referencing this survey was published, but this client couldn't verify it came from the survey owner, so it isn't acted on. Only an owner-signed cancellation invalidates a survey.",
 
   // Closed survey without a final result yet. Bold lead + plain rest. {hours}
   // is a localized number to the half hour, at least 1.
@@ -38,7 +38,7 @@ const survey = {
   // Not-yet-on-chain notice (stuck optimistic survey). Bold lead + plain rest.
   notOnChainNoticeStrong: "Not yet on-chain.",
   notOnChainNoticeRest:
-    "The transaction publishing this survey hasn't been seen in a block for a while — it may not have been accepted by the network. It is only visible in this session; if it never lands, publish it again.",
+    "The transaction publishing this survey hasn't been seen in a block for a while; it may not have been accepted by the network. It is only visible in this session; if it never lands, publish it again.",
 
   // Respond CTA
   respondCta: "Respond to this survey",
@@ -48,7 +48,7 @@ const survey = {
   cancelSubmittedBody:
     "New responses are rejected once it's indexed. The definition stays on-chain for reference.",
   ownerText:
-    "You can withdraw it — existing responses stay on-chain but new ones are rejected.",
+    "You can withdraw it: existing responses stay on-chain, but new ones are rejected.",
   /** Leading strong run of {@link ownerText}. */
   ownerTextStrong: "You own this survey.",
   cancelSurvey: "Cancel survey",
@@ -64,7 +64,7 @@ const survey = {
   linkCta: "Open the link tool",
   /** {submitEpoch} is a raw epoch number (not translated). */
   linkWindowClosed:
-    "The linking window has closed — a matching governance action had to be proposed during epoch {submitEpoch}, and one proposed now would outlive the survey.",
+    "The linking window has closed: a matching governance action had to be proposed during epoch {submitEpoch}, and one proposed now would outlive the survey.",
 
   // Header
   untitledSurvey: "Untitled survey",
@@ -74,7 +74,7 @@ const survey = {
   govLinkAdvertisedBy: "Advertised by",
   /** {epoch} is the raw end epoch, shown untranslated. */
   govLinkMeta:
-    "survey & vote both close at epoch {epoch} · open to all eligible roles — casting the linked vote is optional",
+    "survey and vote both close at epoch {epoch} · open to all eligible roles · casting the linked vote is optional",
   // Survey summary card (header): orientation metadata, plus a plain per-role
   // response count — no cross-role percentages, since roles are separate
   // electorates that shouldn't be compared as shares of one whole.
@@ -146,9 +146,9 @@ const survey = {
    * verdicts, so only the snapshot-side checks remain disclaimed.
    */
   exclFootnote1:
-    "Excluded responses stay on-chain but aren't tallied. Eligibility checks that need ledger state — role membership re-verified at the",
+    "Excluded responses stay on-chain but aren't tallied. Eligibility checks that need ledger state (role membership re-verified at the",
   exclFootnote2:
-    "snapshot, credential proofs — are resolved by an indexer and aren't reflected here.",
+    "snapshot, credential proofs) are resolved by an indexer and aren't reflected here.",
   exclFootnoteProofs1:
     "Excluded responses stay on-chain but aren't tallied. Credential proofs shown here are the indexer's verdicts; role membership and voting weights re-verified at the",
   exclFootnoteProofs2:
@@ -162,8 +162,8 @@ const survey = {
   // Response card
   responseRationaleTitle:
     "Open the voter's rationale document in a new tab (not hash-verified)",
-  responseRationale: "rationale ↗",
-  responseSealed: "(sealed — not yet revealed)",
+  responseRationale: "rationale",
+  responseSealed: "(sealed, not yet revealed)",
   /** Per-answer question chip: "Q{n}"; {n} is 1-based (data). */
   responseAnswerQ: "Q{n}",
 
@@ -184,7 +184,7 @@ const survey = {
   infoBadge: "info",
   infoNoteStrong: "Informational tally.",
   infoNote:
-    "Tessera counts on-chain responses under generic CIP-179 rules. It can't apply a survey's own validity rules, allow-lists, or custom weighting (quadratic, caps, …) — interpreting the result is the survey creator's job.",
+    "Tessera counts on-chain responses under generic CIP-179 rules. It can't apply a survey's own validity rules, allow-lists, or custom weighting (quadratic, caps, …). Interpreting the result is the survey creator's job.",
 
   // Final results (artifact view): weighting switch + exports
   /** Segmented-switch label preceding the two weighting options. */
@@ -194,7 +194,7 @@ const survey = {
   exportArtifact: "Export artifact",
   exportVotesCsv: "Export votes (CSV)",
   weightedShowRaw: "View raw responses",
-  weightedShowFinal: "\u2190 Final results",
+  weightedShowFinal: "Final results",
   /** Per-role section header meta: "{n} counted". */
   weightedCounted: "{n} counted",
   /** Stake-weighted roles: total voting weight behind the counted responses. */
@@ -227,11 +227,11 @@ const survey = {
     "The owner withdrew it. Any sealed responses stay on-chain but aren't tallied.",
   sealedUnsupportedTitle: "Unsupported drand chain",
   sealedUnsupportedBody:
-    "This sealed survey pins a drand chain Tessera can't decrypt — only quicknet is supported here.",
+    "This sealed survey pins a drand chain Tessera can't decrypt; only quicknet is supported here.",
   sealedTitle: "Answers are sealed",
   /** {n} responses, {date} the reveal date (data). */
   sealedBody:
-    "{n} encrypted {responses} collected. They open {date} — no one, not even the owner, can read them until the drand round publishes.",
+    "{n} encrypted {responses} collected. They open {date}. No one, not even the owner, can read them until the drand round publishes.",
   /** Singular/plural noun spliced into {responses} of {@link sealedBody}. */
   responseSingular: "response",
   responsePlural: "responses",
@@ -256,7 +256,7 @@ const survey = {
   labelsBodyAccurate: "Results are still accurate",
   /** Prose between the bold run and the italic "indices". */
   labelsBody3:
-    "— every question type, count and constraint is on-chain, and answers reference option",
+    ": every question type, count and constraint is on-chain, and answers reference option",
   labelsBodyIndices: "indices",
   /** Prose after the italic "indices"; starts with ",". */
   labelsBody4: ", which are tallied normally.",
@@ -264,7 +264,7 @@ const survey = {
   // Empty / loading / error
   loading: "Loading…",
   notFound: "Survey not found.",
-  loadError: "Couldn't load from the network — this may be a transient error.",
+  loadError: "Couldn't load from the network. This may be a transient error.",
   retry: "Retry",
 };
 

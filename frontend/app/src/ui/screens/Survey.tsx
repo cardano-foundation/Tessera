@@ -37,15 +37,18 @@ import {
   viewStatus,
 } from "~/ui/format";
 import { Results } from "~/ui/results";
+import { Disclosure } from "~/ui/components/Disclosure";
 import { Empty, type EmptyText } from "~/ui/components/Empty";
+import { Note } from "~/ui/components/Note";
 import { RoleChips } from "~/ui/components/glyphs";
 import { SurveyRef } from "~/ui/components/SurveyRef";
 import { TxNotice } from "~/ui/components/TxNotice";
 import { PublishLocked, QueuedNote } from "~/ui/components/CartDrawer";
 import type { Action } from "~/wallet/action";
 import { t, n } from "~/i18n";
-import css from "./Survey.module.css";
 import { usePageTitle } from "~/ui/pageTitle";
+import kit from "~/ui/kit.module.css";
+import css from "./Survey.module.css";
 
 export const Survey: Component = () => {
   const app = useApp();
@@ -155,8 +158,8 @@ export const Survey: Component = () => {
 
   return (
     <main class={css.page}>
-      <A href="/" class={css.back}>
-        <span class={css.backArrow}>←</span> {t("survey.backAll")}
+      <A href="/" class={kit.back}>
+        {t("survey.backAll")}
       </A>
 
       <Show
@@ -207,10 +210,9 @@ export const Survey: Component = () => {
               <div class={css.respondCtaRow}>
                 <A
                   href={`/survey/${encodeURIComponent(key())}/respond`}
-                  class={css.respondCta}
+                  class={`${kit.button} ${kit.primary}`}
                 >
-                  {t("survey.respondCta")}{" "}
-                  <span class={css.respondCtaArrow}>→</span>
+                  {t("survey.respondCta")}
                 </A>
                 {/* Dev-only: answer the same survey through the embeddable
                     <tessera-respond> widget instead, via the reference-host
@@ -218,7 +220,7 @@ export const Survey: Component = () => {
                 {import.meta.env.DEV && (
                   <A
                     href={`/dev/widget/${encodeURIComponent(key())}`}
-                    class={css.respondDevCta}
+                    class={`${kit.button} ${css.respondDevCta}`}
                   >
                     <span class={css.respondDevTag}>DEV</span> Respond via
                     widget
@@ -242,25 +244,20 @@ export const Survey: Component = () => {
             >
               <OwnerControls s={sv()} />
             </Show>
-            {/* Linking signs nothing, so controlling the owner credential is
-                enough, script or not. Once an advertising action is discovered
-                the badge card above announces it and this card would read as an
-                undone to-do, so it goes away. */}
-            <Show
-              when={
-                sv().status === "active" &&
-                sv().govLinks.length === 0 &&
-                (app.ui.pro ||
-                  (app.wallet() &&
-                    walletOwns(
-                      app.wallet()!.identity,
-                      sv().record.definition.owner,
-                    )))
-              }
-            >
+            {/* Once an advertising action is discovered the badge card above
+                announces it and this card would read as an undone to-do, so it
+                goes away. */}
+            <Show when={sv().status === "active" && sv().govLinks.length === 0}>
               <LinkSurveyCta
                 keyStr={key()}
                 endEpoch={sv().record.definition.endEpoch}
+                owner={
+                  !!app.wallet() &&
+                  walletOwns(
+                    app.wallet()!.identity,
+                    sv().record.definition.owner,
+                  )
+                }
               />
             </Show>
 
@@ -309,10 +306,10 @@ export const Survey: Component = () => {
  * the survey is still open or already ended.
  */
 const ClaimedCancellationNotice: Component = () => (
-  <div class={css.claimedNotice}>
+  <Note kind="warn" style={{ "margin-top": "14px" }}>
     <strong>{t("survey.claimedNoticeStrong")}</strong>{" "}
     {t("survey.claimedNoticeRest")}
-  </div>
+  </Note>
 );
 
 /**
@@ -322,10 +319,10 @@ const ClaimedCancellationNotice: Component = () => (
  * see the doubt instead of a survey presented as fact.
  */
 const NotOnChainNotice: Component = () => (
-  <div class={css.claimedNotice}>
+  <Note kind="warn" style={{ "margin-top": "14px" }}>
     <strong>{t("survey.notOnChainNoticeStrong")}</strong>{" "}
     {t("survey.notOnChainNoticeRest")}
-  </div>
+  </Note>
 );
 
 /**
@@ -342,14 +339,14 @@ const FinalityNoticeCard: Component<{ notice: FinalityNotice }> = (props) => {
       : t("survey.settlingNoticeRest", { hours: n(notice.hoursLeft) });
   };
   return (
-    <div class={css.claimedNotice}>
+    <Note kind="warn" style={{ "margin-top": "14px" }}>
       <strong>
         {props.notice.kind === "settling"
           ? t("survey.settlingNoticeStrong")
           : t("survey.finalizingNoticeStrong")}
       </strong>{" "}
       {rest()}
-    </div>
+    </Note>
   );
 };
 
@@ -360,10 +357,10 @@ const FinalityNoticeCard: Component<{ notice: FinalityNotice }> = (props) => {
  * it.
  */
 const InvalidDefinitionNotice: Component = () => (
-  <div class={css.claimedNotice}>
+  <Note kind="warn" style={{ "margin-top": "14px" }}>
     <strong>{t("survey.invalidNoticeStrong")}</strong>{" "}
     {t("survey.invalidNoticeRest")}
-  </div>
+  </Note>
 );
 
 // ----------------------------------------------------------------------------
@@ -448,7 +445,7 @@ const OwnerControls: Component<{ s: SurveyAggregate }> = (props) => {
               <button
                 onClick={() => setConfirming(true)}
                 disabled={mismatch()}
-                class={css.cancelBtn}
+                class={`${kit.button} ${kit.danger}`}
               >
                 {t("survey.cancelSurvey")}
               </button>
@@ -458,7 +455,7 @@ const OwnerControls: Component<{ s: SurveyAggregate }> = (props) => {
               <button
                 onClick={() => void onCancel(queueing())}
                 disabled={cancelling() || (mismatch() && !queueing())}
-                class={css.confirmBtn}
+                class={`${kit.button} ${queueing() ? kit.primary : kit.cta}`}
               >
                 {cancelling()
                   ? t("survey.cancelling")
@@ -470,7 +467,7 @@ const OwnerControls: Component<{ s: SurveyAggregate }> = (props) => {
                 <button
                   onClick={() => void onCancel(true)}
                   disabled={cancelling()}
-                  class={css.keepBtn}
+                  class={kit.button}
                 >
                   {t("cart.addToCart")}
                 </button>
@@ -478,7 +475,7 @@ const OwnerControls: Component<{ s: SurveyAggregate }> = (props) => {
               <button
                 onClick={() => setConfirming(false)}
                 disabled={cancelling()}
-                class={css.keepBtn}
+                class={kit.button}
               >
                 {t("survey.keep")}
               </button>
@@ -504,19 +501,21 @@ const OwnerControls: Component<{ s: SurveyAggregate }> = (props) => {
 
 /**
  * Entry to the link tool (`/survey/:key/link`), shown while the survey has no
- * discovered advertising action: to its owner, and to anyone else in Pro.
+ * discovered advertising action: open for its owner, folded for anyone else.
  * CIP-179 lets anyone propose a linking action, and a link never implies common
- * authorship; keeping it out of the default view for everyone else is a
- * Tessera product choice about whom the tool helps. CIP-179 v5 allows several
+ * authorship; folding it for others is a Tessera product choice about whom the
+ * tool helps first. CIP-179 v5 allows several
  * links and the tool itself still accepts an already-linked survey, but the
  * card disappears once one exists — the linked-action badge already tells the
  * story. It also closes once the submission window has passed: an action
  * proposed after `end_epoch − gov_action_lifetime` outlives the survey and
  * can never link it.
  */
-const LinkSurveyCta: Component<{ keyStr: string; endEpoch: number }> = (
-  props,
-) => {
+const LinkSurveyCta: Component<{
+  keyStr: string;
+  endEpoch: number;
+  owner: boolean;
+}> = (props) => {
   const app = useApp();
   const tip = () => (app.list.error ? undefined : app.list())?.tip;
   const alignment = createMemo(() =>
@@ -533,8 +532,11 @@ const LinkSurveyCta: Component<{ keyStr: string; endEpoch: number }> = (
     return w && now && now.epoch > w.submitEpoch ? w : undefined;
   };
   return (
-    <div class={css.linkPanel}>
-      <h3 class={css.linkTitle}>{t("survey.linkTitle")}</h3>
+    <Disclosure
+      class={css.linkPanel}
+      summary={t("survey.linkTitle")}
+      open={props.owner}
+    >
       <Show
         when={!passedWindow()}
         fallback={
@@ -548,12 +550,12 @@ const LinkSurveyCta: Component<{ keyStr: string; endEpoch: number }> = (
         <p class={css.linkBody}>{t("survey.linkHint")}</p>
         <A
           href={`/survey/${encodeURIComponent(props.keyStr)}/link`}
-          class={css.linkCta}
+          class={kit.link}
         >
-          {t("survey.linkCta")} →
+          {t("survey.linkCta")}
         </A>
       </Show>
-    </div>
+    </Disclosure>
   );
 };
 
@@ -580,7 +582,7 @@ const Header: Component<{
       <div class={css.headerTop}>
         <SurveyRef keyStr={props.keyStr} />
       </div>
-      <h1 class={css.headerTitle}>
+      <h1 class={`${kit.surveyTitle} ${css.headerTitle}`}>
         {props.def.title || t("survey.untitledSurvey")}
       </h1>
       <Show when={props.def.description}>
@@ -590,7 +592,9 @@ const Header: Component<{
       <For each={props.s.govLinks}>
         {(link) => (
           <div class={css.govLinkCard}>
-            <span class={css.govLinkBadge}>{t("survey.govLinkBadge")}</span>
+            <span class={`${kit.chip} ${kit.chipGov} ${css.govLinkBadge}`}>
+              {t("survey.govLinkBadge")}
+            </span>
             <div class={css.govLinkMain}>
               <div class={css.govLinkText}>
                 <Show
@@ -662,7 +666,7 @@ const SummaryItem: Component<{ label: string; children: JSX.Element }> = (
   props,
 ) => (
   <div class={css.summaryItem}>
-    <span class={css.summaryLabel}>{props.label}</span>
+    <span class={kit.label}>{props.label}</span>
     {props.children}
   </div>
 );
@@ -683,7 +687,7 @@ const LabelsUnavailable: Component<{ keyStr: string }> = (props) => (
       <div class={css.labelsTitle}>{t("survey.labelsTitle")}</div>
       <p class={css.labelsBody}>
         {t("survey.labelsBody1")}
-        <span class={css.labelsMono}>{shortRef(props.keyStr)}</span>
+        <span class={css.labelsCode}>{shortRef(props.keyStr)}</span>
         {t("survey.labelsBody2")} <b>{t("survey.labelsBodyAccurate")}</b>{" "}
         {t("survey.labelsBody3")} <i>{t("survey.labelsBodyIndices")}</i>
         {t("survey.labelsBody4")}

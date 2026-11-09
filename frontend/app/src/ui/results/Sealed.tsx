@@ -25,6 +25,7 @@ import { revealResponses, roundIsAvailable } from "cip-179/tlock";
 import { formatRevealDate } from "~/tlock/drand";
 import { t, n } from "~/i18n";
 import { LiveResults } from "./Live";
+import kit from "~/ui/kit.module.css";
 import css from "./results.module.css";
 
 /** A sealed survey's browser reveal, created once per results page. */
@@ -271,10 +272,7 @@ const SealedStateNotice: Component<{
   /** Optional call-to-action rendered as a button under the body. */
   action?: { label: string; onClick: () => void };
 }> = (props) => (
-  <div
-    class={css.sealedNotice}
-    classList={{ [css.sealedNoticeWarn]: props.tone === "warn" }}
-  >
+  <div class={`${kit.card} ${css.sealedNotice}`}>
     <div
       class={css.sealedNoticeTitle}
       classList={{ [css.sealedNoticeTitleWarn]: props.tone === "warn" }}
@@ -284,7 +282,10 @@ const SealedStateNotice: Component<{
     <p class={css.sealedNoticeBody}>{props.body}</p>
     <Show when={props.action}>
       {(action) => (
-        <button onClick={() => action().onClick()} class={css.sealedNoticeBtn}>
+        <button
+          onClick={() => action().onClick()}
+          class={`${kit.button} ${kit.primary} ${css.sealedNoticeAction}`}
+        >
           {action().label}
         </button>
       )}

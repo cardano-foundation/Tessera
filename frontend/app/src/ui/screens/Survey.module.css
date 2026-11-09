@@ -1,27 +1,8 @@
-/*
- * Co-located styles for Survey.tsx. Static styles are plain classes; design
- * tokens (`var(--…)`) come from theme.css `:root`. Genuinely dynamic values —
- * enum-driven pill/role colors, computed bar widths/heights — stay in the .tsx,
- * bridged through CSS custom properties consumed here. Boolean/enum state (role
- * filter on/off, notice tone, disabled) toggles via Solid `classList`.
- */
+/* Role chip colours come from `roleColors()` as inline custom properties. */
 .page {
   max-width: 820px;
   margin: 0 auto;
   padding: 22px 24px 90px;
-}
-.back {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  font-size: 13.5px;
-  font-weight: 600;
-  color: var(--muted);
-  text-decoration: none;
-  padding: 6px 0;
-}
-.backArrow {
-  font-size: 15px;
 }
 .respondCtaRow {
   display: flex;
@@ -30,174 +11,70 @@
   gap: 10px;
   margin-top: 16px;
 }
-.respondCta {
-  display: inline-flex;
-  align-items: center;
-  gap: 9px;
-  background: var(--accent);
-  color: #fff;
-  text-decoration: none;
-  border-radius: var(--r-md);
-  padding: 12px 20px;
-  font-size: 14px;
-  font-weight: 700;
-  box-shadow: 0 8px 20px -8px var(--accent-shadow);
-}
-.respondCtaArrow {
-  font-size: 15px;
-}
 /* Dev-only secondary CTA to the <tessera-respond> reference-host page. */
 .respondDevCta {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: var(--surface);
-  color: var(--muted);
-  text-decoration: none;
-  border: 1px dashed var(--accent-line);
-  border-radius: var(--r-md);
-  padding: 11px 16px;
-  font-size: 13px;
-  font-weight: 600;
-}
-.respondDevCta:hover {
-  color: var(--ink);
-  border-color: var(--accent);
+  border-style: dashed;
 }
 .respondDevTag {
   font-family: var(--mono);
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  color: #fff;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  color: var(--on-accent);
   background: var(--accent);
   border-radius: var(--r-2xs);
   padding: 2px 6px;
 }
-/* ---------------------------------------------------------------------------
- * Claimed cancellation notice
- * ------------------------------------------------------------------------- */
-.claimedNotice {
-  margin-top: 14px;
-  padding: 11px 14px;
-  border: 1px solid var(--warn-line);
-  background: var(--warn-bg);
-  border-radius: var(--r-md);
-  font-size: 13px;
-  color: var(--warn);
-  line-height: 1.45;
-}
-/* ---------------------------------------------------------------------------
- * Owner controls (cancel)
- * ------------------------------------------------------------------------- */
+
+/* --- Owner controls (cancel) --------------------------------------------- */
 .ownerBar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
   flex-wrap: wrap;
-  background: var(--card-bg);
-  border: 1px solid var(--card-line);
+  background: var(--card);
+  border: 1px solid var(--line);
   border-radius: var(--r-md);
   padding: 12px 15px;
   margin-top: 16px;
 }
 .ownerText {
-  font-size: 12.5px;
-  color: var(--label);
-  line-height: 1.45;
+  font-size: 14px;
+  color: var(--body);
+  line-height: 1.5;
 }
 .ownerTextStrong {
-  color: #5b4a22;
-}
-.cancelBtn {
-  font-family: inherit;
-  font-size: 13px;
-  font-weight: 700;
-  cursor: pointer;
-  color: var(--danger);
-  background: #fff;
-  border: 1px solid var(--danger-line);
-  border-radius: var(--r-input);
-  padding: 9px 14px;
-  white-space: nowrap;
-}
-.cancelBtn:disabled {
-  cursor: not-allowed;
-  opacity: 0.55;
+  font-weight: 500;
+  color: var(--ink);
 }
 .confirmRow {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
   align-items: center;
 }
-.confirmBtn {
-  font-family: inherit;
-  font-size: 13px;
-  font-weight: 700;
-  cursor: pointer;
-  color: #fff;
-  background: var(--danger);
-  border: none;
-  border-radius: var(--r-input);
-  padding: 9px 14px;
-  white-space: nowrap;
-}
-.confirmBtn:disabled {
-  cursor: not-allowed;
-}
-.keepBtn {
-  font-family: inherit;
-  font-size: 13px;
-  font-weight: 700;
-  cursor: pointer;
-  color: var(--muted);
-  background: #fff;
-  border: 1px solid var(--line);
-  border-radius: var(--r-input);
-  padding: 9px 14px;
-}
 .ownerError {
   flex-basis: 100%;
-  font-size: 12px;
+  font-size: 13px;
   color: var(--danger);
   word-break: break-word;
 }
-/* ---------------------------------------------------------------------------
- * Owner: link survey to a governance action (entry to /survey/:key/link)
- * ------------------------------------------------------------------------- */
+
+/* --- Link to a governance action ----------------------------------------- */
 .linkPanel {
-  background: #f0f2f7;
-  border: 1px solid var(--gov-line);
-  border-radius: var(--r-lg);
-  padding: 16px 18px;
-  margin-top: 10px;
-}
-.linkTitle {
-  font-size: 15px;
-  font-weight: 800;
-  letter-spacing: -0.01em;
-  margin: 0;
+  margin-top: 12px;
 }
 .linkBody {
-  font-size: 13px;
-  color: var(--muted);
+  font-size: 14px;
+  color: var(--body);
   line-height: 1.55;
-  margin: 10px 0 0;
+  margin: 0 0 10px;
 }
-.linkCta {
-  display: inline-block;
-  font-size: 13.5px;
-  font-weight: 700;
-  color: var(--gov);
-  text-decoration: none;
-  margin-top: 10px;
-}
-/* ---------------------------------------------------------------------------
- * Header
- * ------------------------------------------------------------------------- */
+
+/* --- Header -------------------------------------------------------------- */
 .header {
-  border-bottom: 1px solid #e7dfce;
+  border-bottom: 1px solid var(--line);
   padding: 14px 2px 20px;
   margin-top: 6px;
 }
@@ -206,16 +83,11 @@
   align-items: center;
 }
 .headerTitle {
-  font-size: 26px;
-  font-weight: 700;
-  letter-spacing: -0.018em;
-  line-height: 1.16;
-  margin: 14px 0 0;
-  color: var(--ink);
+  margin-top: 14px;
 }
 .headerDesc {
-  font-size: 14.5px;
-  color: var(--muted);
+  font-size: 15px;
+  color: var(--body);
   line-height: 1.55;
   margin: 8px 0 0;
 }
@@ -223,26 +95,13 @@
   display: flex;
   align-items: flex-start;
   gap: 12px;
-  background: #f1f5fa;
+  background: var(--card);
   border: 1px solid var(--gov-line);
   border-radius: var(--r-md);
   padding: 13px 15px;
   margin-top: 16px;
 }
 .govLinkBadge {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-family: var(--mono);
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--gov);
-  background: var(--gov-bg);
-  border: 1px solid var(--gov-line);
-  border-radius: var(--r-2xs);
-  padding: 4px 7px;
   flex: none;
   margin-top: 1px;
 }
@@ -251,32 +110,33 @@
   min-width: 0;
 }
 .govLinkText {
-  font-size: 13.5px;
-  color: #3a352b;
-  line-height: 1.45;
+  font-size: 14px;
+  color: var(--body);
+  line-height: 1.5;
 }
 .govLinkTextStrong {
+  font-weight: 500;
   color: var(--ink);
 }
 .govLinkActionId {
-  font-family: var(--mono);
-  font-size: 11.5px;
+  font-family: var(--code);
+  font-size: 12px;
   color: var(--gov);
   word-break: break-all;
 }
 .govLinkMeta {
   font-family: var(--mono);
   font-size: 11px;
-  color: var(--faint);
+  color: var(--muted);
   margin-top: 5px;
 }
-/* Survey summary card: orientation metadata (questions / eligible roles / ends
-   / responses) over a plain per-role response count. Deliberately no
-   percentages or proportional bars — roles are separate electorates, not slices
-   of one whole. */
+/* Orientation metadata over a plain per-role response count: no percentages
+   or proportional bars, since roles are separate electorates, not slices of
+   one whole. */
 .summary {
   margin-top: 18px;
-  border: 1px solid var(--line2);
+  background: var(--card);
+  border: 1px solid var(--line);
   border-radius: var(--r-md);
   padding: 14px 16px;
 }
@@ -291,20 +151,11 @@
   align-items: center;
   gap: 8px;
 }
-.summaryLabel {
-  font-family: var(--mono);
-  font-size: 10px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  font-weight: 600;
-  color: var(--dim);
-}
 .summaryValue {
-  font-size: 13.5px;
-  font-weight: 700;
+  font-size: 14px;
+  font-weight: 500;
   color: var(--ink);
 }
-/* Per-role response counts, under a hairline divider — plain integers. */
 .summaryRoles {
   display: flex;
   flex-wrap: wrap;
@@ -319,30 +170,28 @@
   align-items: center;
   gap: 7px;
 }
-/* Role chip colors come from `roleColors()`, bridged as inline CSS vars. */
 .summaryRoleChip {
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 500;
   color: var(--role-color);
   background: var(--role-bg);
-  border-radius: 6px;
-  padding: 2.5px 8px;
+  border-radius: var(--r-2xs);
+  padding: 2px 8px;
 }
 .summaryRoleCount {
   font-family: var(--mono);
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--ink);
 }
-/* ---------------------------------------------------------------------------
- * Labels unavailable
- * ------------------------------------------------------------------------- */
+
+/* --- Labels unavailable -------------------------------------------------- */
 .labelsUnavailable {
   display: flex;
   align-items: flex-start;
   gap: 12px;
-  background: var(--card-bg);
-  border: 1px solid var(--card-line);
+  background: var(--card);
+  border: 1px solid var(--line);
   border-radius: var(--r-lg);
   padding: 15px 17px;
   margin-top: 14px;
@@ -355,7 +204,6 @@
   border: 1px solid var(--warn-line);
   color: var(--warn);
   font-size: 14px;
-  font-weight: 700;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -366,17 +214,17 @@
   min-width: 0;
 }
 .labelsTitle {
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--label);
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--ink);
 }
 .labelsBody {
-  font-size: 12.5px;
-  color: var(--label);
+  font-size: 14px;
+  color: var(--body);
   line-height: 1.5;
   margin: 5px 0 0;
 }
-.labelsMono {
-  font-family: var(--mono);
-  font-size: 11.5px;
+.labelsCode {
+  font-family: var(--code);
+  font-size: 12px;
 }

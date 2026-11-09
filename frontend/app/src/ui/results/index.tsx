@@ -29,7 +29,7 @@ import { t } from "~/i18n";
 import { FinalResults } from "./Final";
 import { LiveResults } from "./Live";
 import { SealedResults, createSealedReveal } from "./Sealed";
-import css from "./results.module.css";
+import kit from "~/ui/kit.module.css";
 
 export const Results: Component<{
   s: SurveyAggregate;
@@ -138,7 +138,7 @@ const BackToFinal: Component<{ show: boolean; onClick: () => void }> = (
   props,
 ) => (
   <Show when={props.show}>
-    <button class={css.excludedToggle} onClick={() => props.onClick()}>
+    <button class={kit.button} onClick={() => props.onClick()}>
       {t("survey.weightedShowFinal")}
     </button>
   </Show>

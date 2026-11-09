@@ -1,12 +1,6 @@
 /* ---------------------------------------------------------------------------
  * Card shell (shared by histogram / rating / custom)
  * ------------------------------------------------------------------------- */
-.card {
-  background: #fff;
-  border: 1px solid var(--line);
-  border-radius: var(--r-card);
-  padding: 22px;
-}
 .cardHead {
   display: flex;
   align-items: center;
@@ -18,32 +12,6 @@
   display: flex;
   gap: 10px;
   align-items: center;
-}
-.qChip {
-  font-family: var(--mono);
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--accent);
-  background: var(--accent-bg);
-  border-radius: var(--r-chip);
-  padding: 5px 8px;
-}
-.typeLabel {
-  font-family: var(--mono);
-  font-size: 10px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--dim);
-}
-.abstain {
-  font-family: var(--mono);
-  font-size: 11px;
-  color: var(--faint);
-  background: var(--surface3);
-  border-radius: var(--r-xs);
-  padding: 5px 9px;
-  white-space: nowrap;
-  flex: none;
 }
 .cardTitle {
   font-family: var(--serif);
@@ -67,6 +35,7 @@
   color: var(--muted);
 }
 .histStatValue {
+  font-weight: 600;
   color: var(--accent);
 }
 .histBars {
@@ -88,7 +57,7 @@
 .histCount {
   font-family: var(--mono);
   font-size: 10.5px;
-  color: var(--dim);
+  color: var(--muted);
 }
 .histColTrack {
   width: 100%;
@@ -100,8 +69,8 @@
 .histBar {
   width: 100%;
   height: var(--hist-h);
-  background: linear-gradient(180deg, var(--accent-2), var(--accent));
-  border-radius: 4px 4px 0 0;
+  background: var(--accent);
+  border-radius: var(--r-3xs) var(--r-3xs) 0 0;
   min-height: 2px;
 }
 .histLabel {
@@ -124,13 +93,13 @@
   align-items: center;
   gap: 6px;
   font-size: 12px;
+  font-weight: 500;
   color: var(--muted);
-  font-weight: 600;
 }
 .ratingLegendIndex {
   font-family: var(--mono);
   font-size: 10px;
-  color: var(--dim);
+  color: var(--muted);
 }
 .ratingRows {
   margin-top: 16px;
@@ -145,7 +114,8 @@
 }
 .ratingRowLabel {
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 500;
+  color: var(--body);
   width: 120px;
   flex: none;
 }
@@ -153,14 +123,14 @@
   flex: 1;
   height: 13px;
   border-radius: var(--r-pill);
-  background: var(--track);
+  background: var(--sunken);
   overflow: hidden;
 }
 /* Width is computed (`${pctOf(...)}%`), bridged as an inline CSS var. */
 .ratingBar {
   width: var(--rating-pct);
   height: 100%;
-  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  background: var(--accent);
   border-radius: var(--r-pill);
 }
 .ratingAvg {
@@ -183,7 +153,7 @@
 .customCountValue {
   font-family: var(--mono);
   font-size: 30px;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--accent);
 }
 .customCountLabel {
@@ -199,48 +169,15 @@
 .customSample {
   font-size: 13px;
   color: var(--body);
-  background: var(--surface);
-  border: 1px solid var(--line2);
+  background: var(--page);
+  border: 1px solid var(--line);
   border-radius: var(--r-chip);
   padding: 7px 11px;
-}
-/* ---------------------------------------------------------------------------
- * Role filter button
- * ------------------------------------------------------------------------- */
-.roleFilterBtn {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  font-family: inherit;
-  font-size: 12.5px;
-  font-weight: 600;
-  cursor: pointer;
-  border-radius: 8px;
-  padding: 6px 12px;
-  border: 1px solid var(--line);
-  background: #f2ecde;
-  color: #6b6356;
-}
-.roleFilterBtnOn {
-  font-weight: 700;
-  border-color: var(--accent);
-  background: var(--accent);
-  color: #fbf8f1;
-}
-.roleFilterCount {
-  font-family: var(--mono);
-  font-size: 10.5px;
-  color: #a79c88;
-}
-.roleFilterCountOn {
-  color: rgba(251, 248, 241, 0.75);
 }
 /* ---------------------------------------------------------------------------
  * No data
  * ------------------------------------------------------------------------- */
 .noData {
-  font-size: 12.5px;
-  color: var(--dim);
   margin: 14px 0 0;
 }
 /* ---------------------------------------------------------------------------
@@ -256,23 +193,23 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  background: var(--card-bg);
-  border-bottom: 1px solid var(--card-line);
+  background: var(--card);
+  border-bottom: 1px solid var(--line);
   padding: 12px 16px;
   flex-wrap: wrap;
 }
 .exclHeadTitle {
   font-size: 12.5px;
-  font-weight: 700;
-  color: var(--label);
+  font-weight: 500;
+  color: var(--muted);
 }
 .exclHeadNote {
   font-family: var(--mono);
   font-size: 11px;
-  color: #a89878;
+  color: var(--muted);
 }
 .exclBody {
-  background: #fff;
+  background: var(--card);
   padding: 4px 16px 14px;
 }
 .exclRow {
@@ -280,7 +217,7 @@
   align-items: center;
   gap: 14px;
   padding: 11px 0;
-  border-top: 1px solid #f6f2e8;
+  border-top: 1px solid var(--line);
 }
 .exclRowMain {
   flex: 1;
@@ -288,21 +225,22 @@
 }
 .exclRowLabel {
   font-size: 13.5px;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--body);
 }
 .exclRowHint {
   font-family: var(--mono);
   font-size: 10.5px;
-  color: #a89878;
+  color: var(--muted);
   margin-top: 2px;
 }
+/* The bar is warn on warn-bg: that pair holds 4.5:1, so the mark reads. */
 .exclTrack {
   width: 120px;
   flex: none;
   height: 8px;
   border-radius: var(--r-pill);
-  background: #f4ece0;
+  background: var(--warn-bg);
   overflow: hidden;
 }
 /* Width is computed (`${pct}%`), bridged as an inline CSS var. */
@@ -310,7 +248,7 @@
   width: var(--excl-pct);
   height: 100%;
   border-radius: var(--r-pill);
-  background: #e0857b;
+  background: var(--warn);
 }
 .exclCount {
   font-family: var(--mono);
@@ -323,12 +261,12 @@
 }
 .exclFootnote {
   font-size: 11.5px;
-  color: #a89878;
+  color: var(--muted);
   line-height: 1.5;
   margin: 11px 0 0;
 }
-.exclFootnoteMono {
-  font-family: var(--mono);
+.exclCode {
+  font-family: var(--code);
   font-size: 11px;
 }
 /* ---------------------------------------------------------------------------
@@ -337,31 +275,12 @@
 .individual {
   margin-top: 26px;
 }
-.individualToggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-family: inherit;
-  font-size: 12.5px;
-  font-weight: 700;
-  color: var(--body);
-  background: #fff;
-  border: 1px solid var(--line);
-  border-radius: var(--r-input);
-  padding: 8px 13px;
-  cursor: pointer;
-}
-/* Empty record set: dimmed, not clickable. */
-.individualToggleDisabled {
-  cursor: not-allowed;
-  opacity: 0.5;
-}
 .individualCount {
   font-family: var(--mono);
   font-size: 11px;
-  color: var(--dim);
+  color: var(--muted);
 }
-.individualCaret {
+.caret {
   font-size: 9px;
 }
 .individualList {
@@ -372,15 +291,6 @@
 }
 .showMore {
   margin-top: 12px;
-  font-family: inherit;
-  font-size: 12.5px;
-  font-weight: 700;
-  color: var(--accent);
-  background: #fff;
-  border: 1px solid var(--accent-line);
-  border-radius: var(--r-input);
-  padding: 8px 14px;
-  cursor: pointer;
 }
 /* ---------------------------------------------------------------------------
  * Response card
@@ -389,7 +299,7 @@
   border: 1px solid var(--line);
   border-radius: var(--r-md);
   padding: 13px 15px;
-  background: #fff;
+  background: var(--card);
 }
 .responseHead {
   display: flex;
@@ -400,35 +310,32 @@
 /* Role chip colors come from `roleColors()`, bridged as inline CSS vars. */
 .responseRole {
   font-size: 11.5px;
-  font-weight: 700;
+  font-weight: 500;
   color: var(--role-color);
   background: var(--role-bg);
-  border-radius: 6px;
+  border-radius: var(--r-2xs);
   padding: 2.5px 8px;
   flex: none;
 }
 .responseCred {
-  font-family: var(--mono);
+  font-family: var(--code);
   font-size: 11px;
-  color: var(--faint);
+  color: var(--muted);
 }
-/* Owns margin-left:auto, pushing the rationale/tx cluster right — no spacer. */
+/* Both carry margin-left:auto to push the trailing cluster right: the
+   rationale link is optional, and when both show only the first takes the
+   free space. */
 .responseRationale {
   margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
   font-size: 11.5px;
-  font-weight: 700;
-  color: var(--accent);
-  text-decoration: none;
+  font-weight: 500;
 }
-/*
- * Both this and `.responseRationale` carry margin-left:auto, replacing the
- * empty spacer <span> that used to push the trailing cluster right. The
- * rationale link is conditional, so the always-present tx span needs it too;
- * when both are shown only the first (rationale) consumes the free space.
- */
 .responseTx {
   margin-left: auto;
-  font-family: var(--mono);
+  font-family: var(--code);
   font-size: 10.5px;
   max-width: 150px;
   overflow: hidden;
@@ -438,7 +345,7 @@
 .responseSealed {
   font-family: var(--mono);
   font-size: 11.5px;
-  color: var(--dim);
+  color: var(--muted);
   margin-top: 10px;
 }
 .responseAnswers {
@@ -469,7 +376,7 @@
 }
 .responseAnswerValue {
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--body);
   line-height: 1.45;
   margin-top: 1px;
@@ -484,100 +391,20 @@
   margin-top: 14px;
   flex-wrap: wrap;
 }
-.countedPill {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  font-size: 12.5px;
-  font-weight: 700;
-  color: var(--ok);
-  background: var(--ok-bg);
-  border: 1px solid var(--ok-line);
-  border-radius: var(--r-sm);
-  padding: 7px 12px;
-}
 .countedDot {
   width: 7px;
   height: 7px;
-  border-radius: 50%;
+  border-radius: var(--r-pill);
   background: var(--ok);
-}
-.pendingPill {
-  display: inline-flex;
-  align-items: center;
-  font-size: 12.5px;
-  font-weight: 700;
-  color: var(--muted);
-  border: 1px dashed var(--line);
-  border-radius: var(--r-sm);
-  padding: 7px 12px;
-}
-.excludedToggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  font-family: inherit;
-  font-size: 12.5px;
-  font-weight: 700;
-  color: var(--warn);
-  background: #fff8ec;
-  border: 1px solid var(--warn-line);
-  border-radius: var(--r-sm);
-  padding: 7px 12px;
-  cursor: pointer;
-}
-.excludedCaret {
-  font-size: 9px;
 }
 .exportBtn {
   margin-left: auto;
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  font-family: inherit;
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--accent);
-  background: #fff;
-  border: 1px solid var(--accent-line);
-  border-radius: var(--r-input);
-  padding: 9px 14px;
-  cursor: pointer;
 }
-/* No records: dimmed, not clickable. */
-.exportBtnDisabled {
-  cursor: not-allowed;
-  opacity: 0.5;
-}
-.exportIcon {
-  font-size: 14px;
-}
-/* Final (artifact) view: export buttons — artifact JSON + votes CSV, side by
-   side. Same visual language as .exportBtn, minus its margin-left:auto (they
-   sit in their own left-aligned row). */
 .artifactActions {
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
   margin-top: 12px;
-}
-.artifactBtn {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  font-family: inherit;
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--accent);
-  background: #fff;
-  border: 1px solid var(--accent-line);
-  border-radius: var(--r-input);
-  padding: 9px 14px;
-  cursor: pointer;
-}
-.artifactBtnDisabled {
-  cursor: not-allowed;
-  opacity: 0.5;
 }
 .incomplete {
   margin-top: 10px;
@@ -592,30 +419,24 @@
   display: flex;
   align-items: flex-start;
   gap: 10px;
-  background: var(--card-bg);
-  border: 1px solid var(--card-line);
+  background: var(--card);
+  border: 1px solid var(--line);
   border-radius: var(--r-md);
   padding: 12px 15px;
   margin-top: 14px;
 }
 .disclaimerBadge {
-  font-family: var(--mono);
-  font-size: 9.5px;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--warn);
-  background: var(--warn-bg);
-  border: 1px solid var(--warn-line);
-  border-radius: var(--r-2xs);
-  padding: 4px 7px;
   flex: none;
   margin-top: 1px;
 }
 .disclaimerText {
   font-size: 12.5px;
-  color: var(--label);
+  color: var(--muted);
   line-height: 1.5;
+}
+.disclaimerText b {
+  font-weight: 500;
+  color: var(--body);
 }
 .weightedRoleHead {
   display: flex;
@@ -624,15 +445,10 @@
   flex-wrap: wrap;
   margin: 22px 0 4px;
 }
-.weightedRoleTitle {
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--ink);
-}
 .weightedRoleMeta {
   font-family: var(--mono);
   font-size: 11.5px;
-  color: var(--label);
+  color: var(--muted);
 }
 .roleFilterRow {
   display: flex;
@@ -641,18 +457,9 @@
   margin: 22px 0 6px;
   flex-wrap: wrap;
 }
-.roleFilterLabel {
+.roleCount {
   font-family: var(--mono);
-  font-size: 10.5px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--dim);
-  font-weight: 600;
-}
-.roleFilterBtns {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
+  margin-left: 6px;
 }
 .questionResults {
   display: flex;
@@ -664,7 +471,7 @@
   text-align: center;
   font-family: var(--mono);
   font-size: 10.5px;
-  color: #b8ae99;
+  color: var(--muted);
   margin: 22px 0 0;
   line-height: 1.6;
 }
@@ -672,23 +479,14 @@
  * Sealed state notice
  * ------------------------------------------------------------------------- */
 .sealedNotice {
-  background: #fff;
-  border: 1px solid var(--line);
-  border-radius: var(--r-card);
-  padding: 26px;
   margin-top: 16px;
   text-align: center;
 }
-/* `tone === "warn"` swaps the border color. */
-.sealedNoticeWarn {
-  border-color: var(--warn-line);
-}
 .sealedNoticeTitle {
   font-size: 16px;
-  font-weight: 800;
+  font-weight: 500;
   color: var(--ink);
 }
-/* `tone === "warn"` swaps the title color. */
 .sealedNoticeTitleWarn {
   color: var(--warn);
 }
@@ -699,21 +497,12 @@
   margin: 8px auto 0;
   max-width: 460px;
 }
-.sealedNoticeBtn {
+.sealedNoticeAction {
   margin-top: 16px;
-  font-family: inherit;
-  font-size: 13.5px;
-  font-weight: 700;
-  cursor: pointer;
-  border: none;
-  border-radius: var(--r-control);
-  padding: 10px 18px;
-  background: var(--accent);
-  color: #fff;
 }
 
 /* ---------------------------------------------------------------------------
- * Bars — the body most result cards render
+ * Bars, the body most result cards render
  * ------------------------------------------------------------------------- */
 .bars {
   margin-top: 16px;
@@ -730,7 +519,7 @@
 .barLabel {
   font-size: 13.5px;
   color: var(--body);
-  font-weight: 600;
+  font-weight: 500;
 }
 .barMeta {
   font-family: var(--mono);
@@ -740,7 +529,7 @@
 .barTrack {
   height: 10px;
   border-radius: var(--r-pill);
-  background: var(--track);
+  background: var(--sunken);
   overflow: hidden;
 }
 /* Fill width is a computed percentage, bridged via the --pct custom property. */
@@ -753,10 +542,5 @@
 
 /* Marks a figure recomputed locally rather than read from the artifact. */
 .derived {
-  font-family: var(--mono);
-  font-size: 10px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--faint);
   align-self: flex-start;
 }

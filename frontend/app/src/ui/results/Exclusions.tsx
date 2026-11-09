@@ -1,7 +1,3 @@
-// ----------------------------------------------------------------------------
-// Results body (public, or revealed-sealed) + sealed reveal pipeline
-// ----------------------------------------------------------------------------
-
 /**
  * Why responses weren't counted — the audit panel and the count summary it
  * renders, derived from the flat excluded-record list.
@@ -130,7 +126,7 @@ export const ExclusionPanel: Component<{
           {props.proofChecked
             ? t("survey.exclFootnoteProofs1")
             : t("survey.exclFootnote1")}{" "}
-          <span class={css.exclFootnoteMono}>end_epoch {props.endEpoch}</span>{" "}
+          <span class={css.exclCode}>end_epoch {props.endEpoch}</span>{" "}
           {props.proofChecked
             ? t("survey.exclFootnoteProofs2")
             : t("survey.exclFootnote2")}

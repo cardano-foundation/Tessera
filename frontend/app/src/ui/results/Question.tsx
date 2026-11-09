@@ -9,7 +9,7 @@ import type { QuestionResults, QuestionView } from "~/domain/results";
 
 import { formatAda } from "~/ui/format";
 import { t, n } from "~/i18n";
-import { Bars, ResultCard, typeLabel } from "./Card";
+import { Bars, ResultCard, typeLabel, type HeadingLevel } from "./Card";
 import { Custom } from "./Custom";
 import { Histogram } from "./Histogram";
 import { Rows } from "./Rows";
@@ -58,6 +58,7 @@ export const QuestionResult: Component<{
   /** Counted responders in this role — answered plus abstained. */
   responderCount: number;
   meta: Meta;
+  level: HeadingLevel;
 }> = (props) => (
   // `keyed` matters: the results object is swapped for a new one on every
   // role-filter or weighting change while staying truthy, and only a keyed Show
@@ -92,6 +93,7 @@ export const QuestionResult: Component<{
           qLabel={t("survey.qLabel", { n: props.index + 1 })}
           typeLabel={typeLabel(q.type, suffixOf(v, q))}
           prompt={q.prompt}
+          level={props.level}
           // Abstentions are the more informative figure when there are any;
           // otherwise everyone counted answered, and the count is the story.
           tally={

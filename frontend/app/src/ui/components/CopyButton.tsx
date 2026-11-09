@@ -2,6 +2,7 @@
 
 import { Show, createSignal, onCleanup, type Component } from "solid-js";
 import { t } from "~/i18n";
+import kit from "~/ui/kit.module.css";
 import css from "./CopyButton.module.css";
 
 export const CopyButton: Component<{
@@ -32,7 +33,7 @@ export const CopyButton: Component<{
     <Show when={navigator.clipboard}>
       <button
         type="button"
-        class={props.class ?? css.copy}
+        class={props.class ?? `${kit.button} ${kit.quiet} ${css.copy}`}
         onClick={() => void copy()}
       >
         <Show
