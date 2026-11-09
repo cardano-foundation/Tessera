@@ -135,7 +135,7 @@ export const Ineligible: Component<{ def: SurveyDefinition }> = (props) => {
   const cls = useClasses();
   return (
     <div class={cls.card}>
-      <h3 class={cls.ineligibleTitle}>{i18n.t("respond.ineligibleTitle")}</h3>
+      <h2 class={cls.ineligibleTitle}>{i18n.t("respond.ineligibleTitle")}</h2>
       <p class={cls.ineligibleLead}>{i18n.t("respond.ineligibleLead")}</p>
       <div class={cls.ineligibleList}>
         <For each={props.def.eligibleRoles}>

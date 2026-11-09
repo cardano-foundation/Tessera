@@ -226,9 +226,15 @@ for (const btn of document.querySelectorAll<HTMLButtonElement>(
   btn.addEventListener("click", () => {
     setThemeName(btn.dataset.theme!);
     syncActive("data-theme", btn.dataset.theme!);
-    document
-      .querySelector(".frame")
-      ?.classList.toggle("dark", btn.dataset.theme === "dark");
+  });
+}
+for (const btn of document.querySelectorAll<HTMLButtonElement>(
+  "[data-scheme]",
+)) {
+  btn.addEventListener("click", () => {
+    document.querySelector<HTMLElement>(".frame")!.style.colorScheme =
+      btn.dataset.scheme!;
+    syncActive("data-scheme", btn.dataset.scheme!);
   });
 }
 

@@ -2,12 +2,12 @@
 
 The embeddable **`<tessera-respond>`** custom element: drop it into any web page to
 let a user answer a [CIP-179](../../frontend/cip-179.md) survey. Give it a survey
-definition and a responder (a role→credential map) as props; it renders the answering UI,
+definition and a responder (a role-to-credential map) as props; it renders the answering UI,
 validates the answers, timelock-encrypts them for a sealed survey, and emits a
 **ready-to-attach label-17 `Metadatum`** back to you via a `CustomEvent`. You
 attach that payload to a transaction and submit it.
 
-Framework-agnostic (it's a Web Component — use it from React, Vue, Svelte, Solid,
+Framework-agnostic (it's a Web Component: use it from React, Vue, Svelte, Solid,
 or plain HTML). **The widget never touches a wallet, a chain, IPFS,
 `localStorage`, or your page's `<html>`.** Connecting a wallet, reading the chain,
 building/signing/submitting the transaction, and network conformance are all
@@ -18,7 +18,7 @@ yours.
 | Concern                                                              | Owner                                             |
 | :------------------------------------------------------------------- | :------------------------------------------------ |
 | Wallet connection (CIP-30/95), signing, submission                   | **Host**                                          |
-| Network conformance (wallet network ↔ target chain)                  | **Host** — the widget never sees a network id     |
+| Network conformance (wallet network matches target chain)            | **Host** (the widget never sees a network id)     |
 | Fetching / enriching the `SurveyDefinition`                          | **Host**                                          |
 | Supplying the chain tip (`tipEpoch`) and cancellation (`cancelled`)  | **Host** (props, refreshed as it sees fit)        |
 | IPFS pinning for a rationale                                         | **Host** (passes a pre-pinned anchor)             |
@@ -41,11 +41,11 @@ import "cardano-tessera-respond"; // registers <tessera-respond>
 import type { RespondResult } from "cardano-tessera-respond";
 ```
 
-The published package is the self-contained built artifact — Solid,
+The published package is the self-contained built artifact: Solid,
 `respond-core`, and the `cip-179` codec bundled in, with the full TypeScript
 contract rolled up alongside. One side-effect import registers the element;
 there is no peer dependency and no framework requirement (React, Vue, Svelte,
-Solid, or plain HTML all consume the same element — see
+Solid, or plain HTML all consume the same element; see
 [Frameworks](#frameworks) for the per-framework wiring). The heavy
 sealed-encryption code splits into lazy chunks fetched only when someone
 answers a sealed survey.
@@ -60,22 +60,22 @@ fine there):
 ```
 
 Inside this repository the workspace exposes two more entries: the root export
-resolves to TypeScript **source** (the composable pieces — `RespondRoot`,
+resolves to TypeScript **source** (the composable pieces: `RespondRoot`,
 `adoptWidgetStyles`), and `/element` is the registering Solid TSX entry. They
 are workspace-internal: the app consumes the source so `vite-plugin-solid`
 compiles it against a single Solid instance
 (see [Single Solid instance](#single-solid-instance)); npm installers get only
 the artifact. Don't try to import the raw `/element` TSX from a non-Solid
-bundler — without the Solid transform it either fails to build or renders once
+bundler: without the Solid transform it either fails to build or renders once
 and never reacts.
 
 **Build format is ES only, by design.** `vite build` runs Rollup, which cannot
-code-split UMD/IIFE output — a UMD target would force the lazy tlock/evolution
+code-split UMD/IIFE output: a UMD target would force the lazy tlock/evolution
 chunks to inline and defeat the whole point. Script-tag hosts therefore use
 `<script type="module">`; there is no UMD build.
 
 **SSR hosts (SvelteKit, Next.js, …).** Importing the artifact without a DOM is
-a no-op — module evaluation touches no `window`, and registration is guarded —
+a no-op (module evaluation touches no `window`, and registration is guarded),
 so a plain top-level `import "cardano-tessera-respond"` is safe in
 server-rendered modules; no client-only dynamic import is needed. The server
 serializes `<tessera-respond>` as an unknown (empty) element; it upgrades once
@@ -95,7 +95,7 @@ props after hydration.
   // Object-valued props are set as DOM PROPERTIES, not attributes.
   el.definition = surveyDefinition; // the SurveyDefinition you fetched
   el.surveyRef = { txId, index }; // where it lives on-chain
-  // Each role the user can answer as → its credential. Keys are the cip-179
+  // Maps each role the user can answer as to its credential. Keys are the cip-179
   // Role numbers: Keyholder 4, Stakeholder 3, DRep 0, SPO 1, CC 2.
   el.responder = { 4: paymentCred, 3: stakeCred, 0: drepCred };
   el.tipEpoch = currentEpoch; // from your chain-tip source
@@ -104,7 +104,7 @@ props after hydration.
   el.addEventListener("tessera:response", async (e) => {
     const { payload, proveCredentials } = e.detail;
     // 1. attach `payload` at metadata label 17
-    // 2. prove each proveCredentials[i].credential in the tx — via
+    // 2. prove each proveCredentials[i].credential in the tx, via
     //    required_signers (mechanism A) or a governance vote (mechanism B)
     // 3. sign with the wallet, submit
   });
@@ -114,14 +114,14 @@ props after hydration.
 ```
 
 Until every **required** prop (`definition`, `surveyRef`, `responder`,
-`tipEpoch`) is present, the element renders nothing — so writing
+`tipEpoch`) is present, the element renders nothing, so writing
 `<tessera-respond>` in static HTML and assigning props later (as above) is the
 intended pattern; it upgrades and connects before your script runs.
 
 For a full **bundler + wallet + real submission** example, see the reference host
 in the app: [`frontend/app/src/ui/screens/DevWidgetHost.tsx`](../../frontend/app/src/ui/screens/DevWidgetHost.tsx).
 It embeds `<tessera-respond>` exactly as a third-party integrator would and closes
-the loop the widget leaves open — proving `proveCredentials` via `required_signers`
+the loop the widget leaves open: proving `proveCredentials` via `required_signers`
 (mechanism A) and signing + submitting through a CIP-30 wallet.
 
 ## Frameworks
@@ -131,7 +131,7 @@ DOM properties and listens to `CustomEvent`s. Minimal host apps for React and
 Svelte live in [`examples/`](../../examples) and are built in CI against the
 current widget.
 
-**React** — use
+**React.** Use
 [`cardano-tessera-respond-react`](../respond-react#readme): React ≤18 writes
 unknown JSX props as HTML attributes (breaking the object props), and no React
 version subscribes to `CustomEvent`s from JSX, so the bindings do both through
@@ -149,7 +149,7 @@ import { TesseraRespond } from "cardano-tessera-respond-react";
 />;
 ```
 
-**Svelte 5** — no wrapper needed. Svelte sets camelCase props as DOM
+**Svelte 5.** No wrapper needed. Svelte sets camelCase props as DOM
 properties on custom elements, and its event attributes take the `tessera:*`
 names directly (the `svelte-ignore` silences a warning about the colon, which
 only guards against confusion with Svelte's own directives):
@@ -165,10 +165,10 @@ only guards against confusion with Svelte's own directives):
 ></tessera-respond>
 ```
 
-For typed templates, declare the tag once in a `.d.ts` — see
+For typed templates, declare the tag once in a `.d.ts`; see
 [`examples/svelte-host/src/tessera.d.ts`](../../examples/svelte-host/src/tessera.d.ts).
 
-**Vue 3** — tell the compiler the tag is a custom element
+**Vue 3.** Tell the compiler the tag is a custom element
 (`compilerOptions.isCustomElement: (tag) => tag === "tessera-respond"` in the
 Vite plugin config); Vue then sets props that exist on the element as DOM
 properties and `@` handles the event names:
@@ -183,7 +183,7 @@ properties and `@` handles the event names:
 ></tessera-respond>
 ```
 
-**Solid** — consume the workspace `/element` entry in-repo, or add the JSX
+**Solid.** Consume the workspace `/element` entry in-repo, or add the JSX
 declaration shown in [TypeScript](#typescript) when installing from npm.
 
 ## Props
@@ -194,44 +194,44 @@ DOM properties** (`el.definition = …`), never as HTML attributes. `solid-eleme
 exposes each as a reactive prop with a hyphenated attribute alias, so the
 string/number/boolean ones (`locale`, `layout`, `tip-epoch`, `initial-role`,
 `show-role`, `max-text-bytes`, `keyboard-shortcuts`, `cancelled`) _may_ also be
-written as plain attributes. `cancelled` also works HTML boolean-attribute style — a bare
+written as plain attributes. `cancelled` also works HTML boolean-attribute style: a bare
 `<tessera-respond cancelled>` means cancelled.
 
-| Prop                | Type                            | Req. | Default            | Notes                                                                                                              |
-| :------------------ | :------------------------------ | :--: | :----------------- | :----------------------------------------------------------------------------------------------------------------- |
-| `definition`        | `SurveyDefinition`              |  ✓   | —                  | On-chain, or host-enriched with off-chain labels. The widget never fetches — you supply the display definition.    |
-| `surveyRef`         | `SurveyRef` (`{ txId, index }`) |  ✓   | —                  | Where the definition lives on-chain. Rides back out on every result and into the built response.                   |
-| `responder`         | `Responder`                     |  ✓   | —                  | Who's answering — see [The responder](#the-responder--eligibility).                                                |
-| `tipEpoch`          | `number`                        |  ✓   | —                  | Current chain-tip epoch. The widget derives open/ended and blocks a closed survey. A snapshot — re-set to refresh. |
-| `cancelled`         | `boolean`                       |      | `false`            | A valid on-chain cancellation exists (you checked); renders the cancelled state, no form.                          |
-| `priorResponses`    | `readonly SurveyResponse[]`     |      | —                  | Prefill for an edit/replace flow — see [Prior responses](#prior-responses-editreplace).                            |
-| `rationaleAnchor`   | `ContentAnchor`                 |      | —                  | A host-pre-pinned rationale (CIP-179 key 5). The widget never pins to IPFS.                                        |
-| `locale`            | `string` (BCP-47)               |      | `"en"`             | Drives both strings and number/date formatting — see [Internationalization](#internationalization).                |
-| `messages`          | `DeepPartial<RespondMessages>`  |      | —                  | Deep-merged string overrides, or a whole unshipped language.                                                       |
-| `theme`             | `Record<string, string>`        |      | —                  | Design-token overrides, reflected as `--tessera-<key>` on the host — see [Theming](#theming--fonts).               |
-| `layout`            | `"one-per-screen" \| "list"`    |      | `"one-per-screen"` | Stepper (one question at a time) or all questions at once.                                                         |
-| `initialRole`       | `Role`                          |      | —                  | Initial role when the responder is eligible in several. The user can still switch.                                 |
-| `showRole`          | `boolean`                       |      | `true`             | Show the "Responding as" row. `false` leaves the role to the host: `initialRole`, or a single-role `responder`.    |
-| `maxTextBytes`      | `number`                        |      | —                  | Cap on a custom answer's UTF-8 length. The input shows a byte count; a longer text leaves its question undecided.  |
-| `hiddenSchemas`     | `readonly string[]`             |      | —                  | Schema URIs a custom question doesn't show, with the hint that names them — a plain-text schema, say.              |
-| `stash`             | `DraftStash`                    |      | memory             | Where unsent answers are kept — see [Unsent answers](#unsent-answers).                                             |
-| `translations`      | `SurveyTranslations`            |      | —                  | The survey's own text in other languages, picked by `locale` — see [Translated surveys](#translated-surveys).      |
-| `noneLabels`        | `NoneLabels`                    |      | —                  | The survey's own words for a multi-select's "None of these" box — see [The None box](#the-none-box).               |
-| `conditions`        | `DisplayConditions`             |      | —                  | Questions shown only after some earlier answers — see [Conditional questions](#conditional-questions).             |
-| `keyboardShortcuts` | `boolean`                       |      | `true`             | Letter, digit and Enter keys while the focus is in a question — see [Keyboard and focus](#keyboard-and-focus).     |
+| Prop                | Type                            | Req. | Default            | Notes                                                                                                             |
+| :------------------ | :------------------------------ | :--: | :----------------- | :---------------------------------------------------------------------------------------------------------------- |
+| `definition`        | `SurveyDefinition`              |  ✓   |                    | On-chain, or host-enriched with off-chain labels. The widget never fetches; you supply the display definition.    |
+| `surveyRef`         | `SurveyRef` (`{ txId, index }`) |  ✓   |                    | Where the definition lives on-chain. Rides back out on every result and into the built response.                  |
+| `responder`         | `Responder`                     |  ✓   |                    | Who's answering (see [The responder](#the-responder--eligibility)).                                               |
+| `tipEpoch`          | `number`                        |  ✓   |                    | Current chain-tip epoch. The widget derives open/ended and blocks a closed survey. A snapshot: re-set to refresh. |
+| `cancelled`         | `boolean`                       |      | `false`            | A valid on-chain cancellation exists (you checked); renders the cancelled state, no form.                         |
+| `priorResponses`    | `readonly SurveyResponse[]`     |      |                    | Prefill for an edit/replace flow (see [Prior responses](#prior-responses-editreplace)).                           |
+| `rationaleAnchor`   | `ContentAnchor`                 |      |                    | A host-pre-pinned rationale (CIP-179 key 5). The widget never pins to IPFS.                                       |
+| `locale`            | `string` (BCP-47)               |      | `"en"`             | Drives both strings and number/date formatting (see [Internationalization](#internationalization)).               |
+| `messages`          | `DeepPartial<RespondMessages>`  |      |                    | Deep-merged string overrides, or a whole unshipped language.                                                      |
+| `theme`             | `Record<string, string>`        |      |                    | Design-token overrides, reflected as `--tessera-<key>` on the host (see [Theming](#theming--fonts)).              |
+| `layout`            | `"one-per-screen" \| "list"`    |      | `"one-per-screen"` | Stepper (one question at a time) or all questions at once.                                                        |
+| `initialRole`       | `Role`                          |      |                    | Initial role when the responder is eligible in several. The user can still switch.                                |
+| `showRole`          | `boolean`                       |      | `true`             | Show the "Responding as" row. `false` leaves the role to the host: `initialRole`, or a single-role `responder`.   |
+| `maxTextBytes`      | `number`                        |      |                    | Cap on a custom answer's UTF-8 length. The input shows a byte count; a longer text leaves its question undecided. |
+| `hiddenSchemas`     | `readonly string[]`             |      |                    | Schema URIs a custom question doesn't show, with the hint that names them (a plain-text schema, say).             |
+| `stash`             | `DraftStash`                    |      | memory             | Where unsent answers are kept (see [Unsent answers](#unsent-answers)).                                            |
+| `translations`      | `SurveyTranslations`            |      |                    | The survey's own text in other languages, picked by `locale` (see [Translated surveys](#translated-surveys)).     |
+| `noneLabels`        | `NoneLabels`                    |      |                    | The survey's own words for a multi-select's "None of these" box (see [The None box](#the-none-box)).              |
+| `conditions`        | `DisplayConditions`             |      |                    | Questions shown only after some earlier answers (see [Conditional questions](#conditional-questions)).            |
+| `keyboardShortcuts` | `boolean`                       |      | `true`             | Letter, digit, and Enter keys while the focus is in a question (see [Keyboard and focus](#keyboard-and-focus)).   |
 
 ## Events
 
 All three are dispatched on the element with `bubbles: true, composed: true`, so a
 listener anywhere up the light-DOM tree catches them across the shadow boundary.
 
-| Event              | `detail`               | When                                                                                                                                                            |
-| :----------------- | :--------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `tessera:response` | `RespondResult`        | The user finalizes a valid answer set. **The widget does not submit** — you do.                                                                                 |
-| `tessera:change`   | `RespondChangeDetail`  | Any answer edit — `{ decided, total, unanswered, unseen, unfinished, required, valid }`, for a host-driven submit button. The four lists hold question indexes. |
-| `tessera:invalid`  | `RespondInvalidDetail` | Validation failed on submit — `{ problems, messages }` (structured codes + localized text).                                                                     |
+| Event              | `detail`               | When                                                                                                                                                           |
+| :----------------- | :--------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `tessera:response` | `RespondResult`        | The user finalizes a valid answer set. **The widget does not submit**; you do.                                                                                 |
+| `tessera:change`   | `RespondChangeDetail`  | Any answer edit: `{ decided, total, unanswered, unseen, unfinished, required, valid }`, for a host-driven submit button. The four lists hold question indexes. |
+| `tessera:invalid`  | `RespondInvalidDetail` | Validation failed on submit: `{ problems, messages }` (structured codes + localized text).                                                                     |
 
-### `RespondResult` — the payload to submit
+### `RespondResult`: the payload to submit
 
 ```ts
 interface RespondResult {
@@ -249,7 +249,7 @@ interface CredentialProof {
 }
 ```
 
-`payload` is a generic `Metadatum` tree (**not** CBOR bytes) — hand it to your
+`payload` is a generic `Metadatum` tree (**not** CBOR bytes): hand it to your
 Cardano library's metadatum serializer at label 17. Each `proveCredentials` entry
 names a credential the transaction must **prove** control of, and `keyKind` tells
 you which key does so (e.g. the stake key when answering as Stakeholder).
@@ -257,25 +257,25 @@ you which key does so (e.g. the stake key when answering as Stakeholder).
 ### Proving credentials
 
 CIP-179 authenticates a response's credential through its carrying transaction by
-**either** of two mechanisms — the widget only _declares_ the credentials; **how**
+**either** of two mechanisms. The widget only _declares_ the credentials; **how**
 you prove them is yours:
 
-- **Mechanism A** — put the credential in the transaction's `required_signers`
+- **Mechanism A:** put the credential in the transaction's `required_signers`
   (or satisfy its native script in the witness set). Works for every role. This is
   the simple, always-available path, and what the reference host does via
   `frontend/app/src/wallet/submit.ts` (`buildTx` adds each credential with
   `tx.addSigner`).
-- **Mechanism B** (governance-linked surveys only) — the **same transaction**
+- **Mechanism B** (governance-linked surveys only): the **same transaction**
   casts a qualifying **governance vote** with that very credential on one of the
   survey's linked actions, the Conway voter tag matching the claimed role (CC,
-  DRep, SPO). No `required_signers` entry is then needed for it — the vote binding
-  is the proof. Only DRep / SPO / CC can bind this way; Stakeholder and Keyholder
+  DRep, stake pool). No `required_signers` entry is then needed for it: the vote binding
+  is the proof. Only DRep, stake pool, and CC can bind this way; Stakeholder and Keyholder
   have no voter tag and must use mechanism A.
 
 So a DRep answering a governance-linked survey in the very transaction that votes
 on its linked action is already proven by that vote (mechanism B); in any other
 case, add the credential to `required_signers` (mechanism A). `keyKind` is the same
-hint either way — it tells you which key signs, whether that signature lands in
+hint either way: it tells you which key signs, whether that signature lands in
 `required_signers` or in the vote's witness.
 
 ## TypeScript
@@ -283,8 +283,8 @@ hint either way — it tells you which key signs, whether that signature lands i
 Importing anything from the package (even a type) loads global augmentations:
 `HTMLElementTagNameMap` gains `"tessera-respond"`, so
 `document.createElement("tessera-respond")` and tag-name queries return a
-`TesseraRespondElement` — every prop a writable, possibly-`undefined` DOM
-property — and `HTMLElementEventMap` gains the three `tessera:*` events, so
+`TesseraRespondElement` (every prop a writable, possibly-`undefined` DOM
+property), and `HTMLElementEventMap` gains the three `tessera:*` events, so
 `addEventListener("tessera:response", (e) => …)` types `e.detail` as
 `RespondResult` on any element (they bubble composed, so ancestors count).
 No hand-rolled element interface or `IntrinsicElements` entry is needed.
@@ -311,33 +311,33 @@ declare module "solid-js" {
 ## The responder & eligibility
 
 `responder` maps each role the user can answer as to the credential that role
-carries — one uniform map (no wallet shape, no provenance flags):
+carries, as one uniform map (no wallet shape, no provenance flags):
 
 ```ts
 type Responder = Partial<Record<Role, Credential>>;
 ```
 
-- **Keyholder / Stakeholder / DRep** come from a connected wallet — its
+- **Keyholder / Stakeholder / DRep** come from a connected wallet: its
   payment / stake / DRep credentials. Deriving them is yours; the widget never
   touches a wallet. The Tessera app does it in
   [`frontend/app/src/domain/roles.ts`](../../frontend/app/src/domain/roles.ts)
   (`walletResponder`), which you can copy.
-- **SPO and CC** need cold keys a browser wallet can't hold, so they're never
-  wallet-derivable — add them as extra entries when your host vouches for one. A
-  responder can be entirely host-supplied (an SPO credential and nothing else).
-- The widget takes the map **verbatim** and never validates it — it lists each
+- **Stake pool and CC** need cold keys a browser wallet can't hold, so they're never
+  wallet-derivable. Add them as extra entries when your host vouches for one. A
+  responder can be entirely host-supplied (a stake pool credential and nothing else).
+- The widget takes the map **verbatim** and never validates it: it lists each
   chosen credential in `proveCredentials` for you to prove through the carrying
   transaction (see [Proving credentials](#proving-credentials)).
 - **The widget picks the role internally.** A responder eligible in several roles
   gets a role picker; the emitted `role` + `credential` reflect the one chosen.
   A host that settles the role itself sets `showRole` to `false` and chooses it
   with `initialRole`, or passes only that role in the map.
-  The role → signing-key mapping is fixed: Keyholder→`payment`,
-  Stakeholder→`stake`, DRep→`drep`, SPO→`pool`, CC→`cc`.
+  The role-to-signing-key mapping is fixed: Keyholder to `payment`,
+  Stakeholder to `stake`, DRep to `drep`, stake pool to `pool`, and CC to `cc`.
 
 **A wrong entry fails late**, so derive the map carefully. The credential proof
 the carrying transaction supplies establishes only that the credential you
-asserted signed — never that it holds the role you filed it under. A stake
+asserted signed, never that it holds the role you filed it under. A stake
 credential placed under `0` (DRep) is therefore signed by the wallet, accepted
 by the ledger, and dropped only once a tally judges whether that credential
 really holds the claimed role. Mis-derive the _bytes_ and you find out at once
@@ -345,7 +345,7 @@ instead: a key hash that isn't 28 bytes is rejected at encode time, so a raw
 `getPubDRepKey` result throws until you blake2b-224 it into a DRep credential.
 
 To decide host-side whether to mount the widget at all, the two eligibility
-questions are one-liners over the map above — no helper package needed:
+questions are one-liners over the map above, no helper package needed:
 
 ```ts
 const respondableRoles = def.eligibleRoles.filter(
@@ -357,7 +357,7 @@ const credential = responder[role];
 ## Prior responses (edit/replace)
 
 For an edit/replace flow, pass the responder's prior responses in
-`priorResponses` — **one per role** they've answered as.
+`priorResponses`, **one per role** they've answered as.
 
 The role is chosen _inside_ the widget, so the host can't know up front which
 prior response applies: pass them all, and the widget selects the one matching the
@@ -376,7 +376,7 @@ el.priorResponses = respondableRolesFor(def, responder).flatMap((r) => {
 ```
 
 Pass **sealed** priors too. Their ciphertext can't prefill the form, but the
-widget still marks it as a replacement — on a sealed survey that's the only way
+widget still marks it as a replacement: on a sealed survey that's the only way
 a responder learns they already answered. The reference host `DevWidgetHost.tsx`
 does exactly this against a survey bundle.
 
@@ -455,15 +455,15 @@ el.conditions = {
   `tessera:change`, so `total` stays the full question count and `decided`
   moves ahead as questions hide. Its square shows a dot. Its answers are
   kept: changing the earlier answer back brings them back.
-- The list layout keeps a one-line row in a hidden question's place — its
-  number and `respond.hiddenNote`, without the prompt — so the numbering has
+- The list layout keeps a one-line row in a hidden question's place (its
+  number and `respond.hiddenNote`, without the prompt), so the numbering has
   no unexplained gap. The stepper steps over it.
 - A condition may only name an earlier question, and a required question
   cannot carry one: hiding it would make the response invalid.
 
-If any condition breaks a rule — it names a later question, a question that is
+If any condition breaks a rule (it names a later question, a question that is
 not a single or multiple choice, or an option that does not exist, sits on a
-required question, or is malformed — **none** is applied. Every question
+required question, or is malformed), **none** is applied. Every question
 shows, each fault is logged with `console.warn`, and a notice
 (`respond.conditionsIgnoredTitle` / `respond.conditionsIgnoredBody` in
 `messages`) tells the responder. Conditions are not part of CIP-179: a response
@@ -485,14 +485,14 @@ el.noneLabels = {
 };
 ```
 
-A translation words it in another language with `noneLabel` — see
+A translation words it in another language with `noneLabel`; see
 [Translated surveys](#translated-surveys).
 
 A label is 1 to 64 bytes of text, like an option label. One on a question
 that is not a multi-select with `minSelections: 0`, or that breaks the bound,
 is dropped with a `console.warn`, and that box keeps its default text. The
 label changes only what is shown: the answer is still no option selected. A
-condition tells the box from a skip with `"none"` — see
+condition tells the box from a skip with `"none"`; see
 [Conditional questions](#conditional-questions).
 None labels are not part of CIP-179; the shape is a prototype of an optional
 `noneLabel` on a multi-select, and may change with a later revision of the
@@ -503,19 +503,19 @@ spec.
 The widget deliberately leaves these to you:
 
 1. **Attach + submit.** On `tessera:response`, put `payload` at metadata label 17,
-   prove each `proveCredentials[].credential` in the transaction — via
+   prove each `proveCredentials[].credential` in the transaction via
    `required_signers` or a governance-vote binding (see
-   [Proving credentials](#proving-credentials)) — sign with the indicated key
+   [Proving credentials](#proving-credentials)), sign with the indicated key
    kinds, and submit.
 2. **Network conformance.** The responder carries no network id, so the widget
    can't tell whether the wallet is on the wrong chain. Check
    `walletNetworkId === targetNetwork` before you submit.
 3. **Tip freshness.** `tipEpoch` is a snapshot; a survey can close between your
    last refresh and the user's submit. Re-set the prop to refresh. The chain (and
-   the tally's eligibility rules) is the final arbiter regardless — the emitted
+   the tally's eligibility rules) is the final arbiter regardless: the emitted
    payload is still only a payload.
 4. **Only mount for an open survey.** The widget blocks a closed/cancelled survey
-   from its own gate, but you decide whether to show it at all — pass an accurate
+   from its own gate, but you decide whether to show it at all: pass an accurate
    `tipEpoch` and `cancelled`.
 5. **Enrich the definition.** Any off-chain label enrichment (IPFS presentation
    docs, etc.) happens upstream; the widget renders the `definition` you give it.
@@ -527,7 +527,7 @@ The widget deliberately leaves these to you:
 For a survey with `submissionMode.type === "sealed"`, the widget owns encryption
 end-to-end: it timelock-encrypts the answers to the survey's drand round
 (`cip-179/tlock`) before emitting, so the sealed `payload` you receive is already
-the final ciphertext wrapped in the label-17 envelope — you can't get it wrong.
+the final ciphertext wrapped in the label-17 envelope. You can't get it wrong.
 `sealed: true` on the result marks it.
 
 - The heavy sealing code (tlock + the evolution CBOR codec) is **lazy-loaded** only
@@ -544,14 +544,14 @@ Hybrid strategy driven by two props:
 
 - **`locale`** (BCP-47, default `"en"`) selects a bundled catalog. **`en` and `fr`
   ship.** It also drives all number and date formatting via `Intl`, keyed on the
-  locale — including the sealed-reveal date.
+  locale, including the sealed-reveal date.
 - **`messages`** deep-merges string overrides over the bundled catalog, or supplies
   an entirely unshipped language.
 
 Numbers always follow `locale`, even when strings fall back to English. If `locale`
 resolves to **no bundled catalog and no `messages`**, the widget emits a one-time
 `console.warn` in dev builds (e.g. _"locale 'de' has no bundled catalog and no
-`messages`; UI text will render in English."_) — the number/date formatting is
+`messages`; UI text will render in English."_); the number/date formatting is
 still locale-correct, only the prose falls back.
 
 ```ts
@@ -562,8 +562,8 @@ el.messages = { respond: { signAndSubmit: "Absenden" } /* … */ }; // supply/ov
 
 ### Translated surveys
 
-`messages` translates the widget; the survey's own text — title, description,
-prompts, option labels, rating labels, None labels — comes from
+`messages` translates the widget; the survey's own text (title, description,
+prompts, option labels, rating labels, None labels) comes from
 `translations`, an overlay document beside the definition. `defaultLanguage`
 names the language of the definition's text, and each other language mirrors
 it under its BCP-47 tag:
@@ -606,12 +606,11 @@ multilingual CIP-179 surveys and may change with it.
 ## Theming & fonts
 
 Every color, radius, and font is a `--tessera-*` CSS custom property defined on
-`:host` inside the shadow root (defaults ported from the app's design tokens).
-Custom properties inherit _through_ the shadow boundary, so you override them two
-equivalent ways:
+`:host` inside the shadow root. Custom properties inherit _through_ the shadow
+boundary, so you override them two equivalent ways:
 
 ```css
-/* Host CSS — target the element. */
+/* Host CSS: target the element. */
 tessera-respond {
   --tessera-accent: #6b46ff;
   --tessera-role-drep: #6b46ff;
@@ -619,30 +618,47 @@ tessera-respond {
 ```
 
 ```ts
-// The `theme` prop — each entry reflected as `--tessera-<key>` inline on :host.
+// The `theme` prop: each entry reflected as `--tessera-<key>` inline on :host.
 el.theme = { accent: "#6b46ff", "role-drep": "#6b46ff" };
 ```
 
-Role chips have their own tokens (`--tessera-role-drep`, `--tessera-role-spo`,
-`--tessera-role-cc`, `--tessera-role-stakeholder`, `--tessera-role-keyholder`, each
-with a `-bg` pair). See [`src/theme.css`](./src/theme.css) for the full token list.
+The tokens:
 
-- **Dark mode.** You can re-skin every color through the tokens, but native form
-  controls (range track, number spinners) also need `color-scheme: dark`, which a
-  custom property cannot express. Set it in host CSS on the element (or a wrapper):
-  `tessera-respond { color-scheme: dark; }`. The `:host` root is transparent, so it
-  takes your page's background.
+| Group              | Tokens                                                                                           |
+| :----------------- | :----------------------------------------------------------------------------------------------- |
+| Text               | `ink`, `body`, `muted`                                                                           |
+| Surfaces and lines | `card`, `sunken`, `line`, `control-line` (the border of a field or toggle)                       |
+| Accent             | `accent`, `accent-bg`, `accent-line`, `on-accent`                                                |
+| Status             | `ok`, `ok-bg`, `ok-line`, `warn`, `warn-line`, `danger`, `danger-bg`, `danger-line`              |
+| Roles              | `role-drep`, `role-spo`, `role-cc`, `role-stakeholder`, `role-keyholder`, each with a `-bg` pair |
+| Fonts              | `sans`, `mono`, `serif`                                                                          |
+| Radii              | `r-card`, `r-md`, `r-control`, `r-sm`, `r-chip`, `r-xs`, `r-3xs`                                 |
+
+The default colors meet WCAG 2.2 AA contrast in both color schemes: text
+4.5:1 on the surfaces it sits on, field and toggle borders 3:1.
+
+- **Dark mode.** The widget follows the `color-scheme` it inherits, like a
+  native form control, and sets none of its own. A page that declares nothing
+  gets the light widget; `color-scheme: dark` on the page root, a wrapper, or
+  the element gets the dark one; `color-scheme: light dark` follows the
+  visitor's system setting. The `:host` root is transparent, so it takes your
+  page's background. Each default color is a `light-dark()` pair, so an
+  override can be one too
+  (`--tessera-accent: light-dark(#6b46ff, #a48bff)`); a single value applies
+  in both schemes. Browsers without `light-dark()` (before Chrome 123,
+  Firefox 120, Safari 17.5) get the light colors.
 - **Fonts.** The widget **names** fonts via `--tessera-sans` / `--tessera-mono` /
-  `--tessera-serif` but **never loads them** — loading webfonts is the host page's
+  `--tessera-serif` but **never loads them**: loading webfonts is the host page's
   job (a shadow root can't reach your `@font-face` rules for _loading_, only for
   _using_ already-loaded families). Point these tokens at families your page has
-  loaded, or leave the system-font fallbacks.
+  loaded, or leave the defaults: Chivo, Chivo Mono, and Newsreader where the
+  page has them, the system fonts otherwise.
 
 ## Layout
 
-- **`"one-per-screen"`** (default) — a stepper: one question at a time, with
+- **`"one-per-screen"`** (default): a stepper showing one question at a time, with
   Previous and Next above it and under it, stepping over hidden questions.
-- **`"list"`** — every question rendered at once, a hidden one as a one-line
+- **`"list"`**: every question rendered at once, a hidden one as a one-line
   note.
 
 Both reuse the same question card, the same progress states, and the same
@@ -681,7 +697,7 @@ checkbox is a stop, and Space picks or toggles. A rating is one radio group
 per rated item, and Delete or Backspace clears the item's level. Each group is
 named by its prompt. The progress squares are one Tab stop: the arrow keys
 move between them, Home and End go to the first and last, and Enter or Space
-goes to the question. After Previous, Next, Skip or a square, the focus goes
+goes to the question. After Previous, Next, Skip, or a square, the focus goes
 to the new question's prompt, so a screen reader reads it. Every control shows
 a focus ring in `--tessera-accent`, and the question holding the focus an
 accent border.
@@ -691,14 +707,14 @@ While the focus is in a question, these keys act on it, unless
 
 | Key         | Action                                                                                                                                                                                  |
 | :---------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| A, B, C…    | Picks, toggles or ranks the option with that letter; a multi-select's None box takes the next one. Typing B A C ranks three in that order.                                              |
-| 1, 2, 3…    | Rates the item holding the focus, or the only item: the level labelled with that digit, or on a scale of words the level at that position.                                              |
+| A, B, C…    | Picks, toggles, or ranks the option with that letter; a multi-select's None box takes the next one. Typing B A C ranks three in that order.                                             |
+| 1, 2, 3…    | Rates the item holding the focus, or the only item: the level labeled with that digit, or on a scale of words the level at that position.                                               |
 | Enter       | Moves on to the next shown question. After the last one it moves the focus to the submit button, or to the first question not seen yet while the button waits for it. It never submits. |
 | Shift+Enter | Goes back to the previous shown question.                                                                                                                                               |
 
 - In a text area, Enter breaks the line: Ctrl+Enter or Cmd+Enter moves on,
   with Shift goes back. On a button, Enter presses it.
-- Letters and digits never act with Ctrl, Cmd or Alt held, so the browser's
+- Letters and digits never act with Ctrl, Cmd, or Alt held, so the browser's
   shortcuts stay. Letters follow option positions, the same in every language
   and as a ranking's pool shrinks; options past the 26th have none. On a
   layout of another script, a letter stands for the Latin letter on its key.
@@ -707,9 +723,9 @@ While the focus is in a question, these keys act on it, unless
   (`respond.shiftEnterHint` and `respond.enterHint` in `messages`). A touch
   screen shows neither.
 - `keyboardShortcuts: false` (attribute `keyboard-shortcuts="false"`) is for a
-  host with keys of its own. Tab, the arrow keys and Space stay: they are the
+  host with keys of its own. Tab, the arrow keys, and Space stay: they are the
   controls' own.
-- **Safari.** Its Tab reaches radios, checkboxes and buttons only with
+- **Safari.** Its Tab reaches radios, checkboxes, and buttons only with
   Option+Tab, or with its "Press Tab to highlight each item" setting on;
   plain Tab skips them. A click focuses the question, so the keys work after
   one.
@@ -717,12 +733,12 @@ While the focus is in a question, these keys act on it, unless
 ## Single Solid instance
 
 The widget is built on SolidJS. A bundler host that also uses Solid (or embeds
-another Solid custom element) must ensure a **single** Solid runtime instance —
+another Solid custom element) must ensure a **single** Solid runtime instance:
 two copies break reactivity. Under pnpm this usually happens automatically
 (shared symlink); with a bundler, add `solid-js` and `solid-element` to your
 `resolve.dedupe`. The Tessera app does exactly this in
 [`frontend/app/vite.config.ts`](../../frontend/app/vite.config.ts). A script-tag
-host loading the self-contained artifact has no such concern — Solid is bundled in.
+host loading the self-contained artifact has no such concern: Solid is bundled in.
 
 ## One copy per page
 
@@ -747,13 +763,13 @@ pnpm --filter cardano-tessera-respond type-check
 
 Each demo/test surface covers a different failure mode:
 
-| Path                    | What it drives                                                                                                        |
-| :---------------------- | :-------------------------------------------------------------------------------------------------------------------- |
-| `dev/`                  | Vite dev harness — `RespondRoot` in a shadow root, real workspace source, all samples/locales/themes.                 |
-| `demo/index.html`       | Plain-HTML host for the **built** bundle, fully offline. Shows the sealed chunks lazy-loading in the network tab.     |
-| `test/artifact.test.ts` | The automated twin of `demo/` — mounts the built artifact in happy-dom, offline, asserts the whole prop → event loop. |
-| `test/tokens.test.ts`   | Gate on the shipped sheet: tokens used ⇔ defined, no literal colors or fonts.                                         |
-| `examples/*`            | React and Svelte host apps (repo root), built in CI so a framework-compat regression fails the build.                 |
+| Path                    | What it drives                                                                                                                   |
+| :---------------------- | :------------------------------------------------------------------------------------------------------------------------------- |
+| `dev/`                  | Vite dev harness: `RespondRoot` in a shadow root, real workspace source, all samples/locales/themes.                             |
+| `demo/index.html`       | Plain-HTML host for the **built** bundle, fully offline. Shows the sealed chunks lazy-loading in the network tab.                |
+| `test/artifact.test.ts` | The automated twin of `demo/`: mounts the built artifact in happy-dom, offline, and asserts the whole loop from props to events. |
+| `test/tokens.test.ts`   | Gate on the shipped sheet: tokens used match those defined, no literal colors or fonts.                                          |
+| `examples/*`            | React and Svelte host apps (repo root), built in CI so a framework-compat regression fails the build.                            |
 
 What the examples' build does **not** prove is declarative prop-setting: real
 browsers upgrade the element before Svelte assigns its props (its templates go
@@ -770,13 +786,13 @@ with no build step.
 | Path              | Purpose                                                               |
 | :---------------- | :-------------------------------------------------------------------- |
 | `src/element.tsx` | `customElement("tessera-respond", …)` registration + prop reflection. |
-| `src/Respond.tsx` | The trimmed answering component (props in → `tessera:*` events out).  |
+| `src/Respond.tsx` | The trimmed answering component (props in, `tessera:*` events out).   |
 | `src/roles.ts`    | Which key proves each role, for `required_signers`.                   |
-| `src/theme.css`   | The `--tessera-*` design-token defaults on `:host`.                   |
+| `src/theme.ts`    | The `--tessera-*` design-token defaults on `:host`.                   |
 | `src/styles/`     | Component CSS, shadow-scoped plain CSS delivered via `?inline`.       |
 | `src/types.ts`    | The public prop/event TypeScript contract.                            |
 
-The question card, its per-question body components, and the header, banners
+The question card, its per-question body components, and the header, banners,
 and notices around them live in
 [`cardano-tessera-respond-ui`](../respond-ui/README.md), shared with the app; see
 [`cardano-tessera-respond-core`](../respond-core/README.md) for the pure logic both

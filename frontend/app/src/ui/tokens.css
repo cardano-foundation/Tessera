@@ -198,50 +198,39 @@
 }
 
 /*
- * respond-ui's sheet reads the widget's public token names. Its schema strip
- * is drawn on --tessera-ink, so the schema names sit on that inverted ground.
+ * respond-ui's sheet reads the widget's public token names, each the face of
+ * the semantic token it is named after.
  */
 :root,
 [data-theme] {
+  --tessera-sans: var(--sans);
   --tessera-mono: var(--mono);
   --tessera-serif: var(--serif);
   --tessera-ink: var(--ink);
   --tessera-body: var(--body);
   --tessera-muted: var(--muted);
-  --tessera-faint: var(--muted);
-  --tessera-dim: var(--muted);
-  --tessera-paper: var(--card);
+  --tessera-card: var(--card);
+  --tessera-sunken: var(--sunken);
   --tessera-line: var(--line);
-  --tessera-line2: var(--line);
-  --tessera-hair: var(--line);
-  --tessera-surface2: var(--card);
-  --tessera-surface3: var(--sunken);
-  --tessera-header-line: var(--line);
-  --tessera-card-bg: var(--card);
-  --tessera-card-line: var(--line);
-  --tessera-label: var(--muted);
+  --tessera-control-line: var(--control-line);
   --tessera-accent: var(--accent);
   --tessera-accent-bg: var(--accent-bg);
   --tessera-accent-line: var(--accent-line);
   --tessera-on-accent: var(--on-accent);
   --tessera-ok: var(--ok);
+  --tessera-ok-bg: var(--ok-bg);
   --tessera-ok-line: var(--ok-line);
-  --tessera-ok-bg-soft: var(--ok-bg);
-  --tessera-ok-ink: var(--ok);
   --tessera-warn: var(--warn);
   --tessera-warn-line: var(--warn-line);
   --tessera-danger: var(--danger);
   --tessera-danger-bg: var(--danger-bg);
-  --tessera-danger-line-soft: var(--danger-line);
-  --tessera-schema-tag: var(--page);
-  --tessera-schema-tag-bg: var(--body);
-  --tessera-schema-uri: var(--page);
+  --tessera-danger-line: var(--danger-line);
   --tessera-role-drep: var(--role-drep);
   --tessera-role-drep-bg: var(--role-drep-bg);
-  --tessera-role-spo: var(--role-spo);
-  --tessera-role-spo-bg: var(--role-spo-bg);
   --tessera-role-cc: var(--role-cc);
   --tessera-role-cc-bg: var(--role-cc-bg);
+  --tessera-role-spo: var(--role-spo);
+  --tessera-role-spo-bg: var(--role-spo-bg);
   --tessera-role-stakeholder: var(--role-stakeholder);
   --tessera-role-stakeholder-bg: var(--role-stakeholder-bg);
   --tessera-role-keyholder: var(--role-keyholder);

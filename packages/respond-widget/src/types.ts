@@ -86,8 +86,8 @@ export interface TesseraRespondProps {
    * Design-token overrides: each entry is reflected as an inline
    * `--tessera-<key>` custom property on the host element, e.g.
    * `{ accent: "#6b46ff", "role-drep": "#6b46ff" }`. Equivalent to setting the
-   * same properties on `tessera-respond` in host CSS; see theme.css for the
-   * token list.
+   * same properties on `tessera-respond` in host CSS. A value may be a
+   * `light-dark()` pair; the README lists the tokens.
    */
   theme?: Record<string, string>;
   /** Layout of the form: `"one-per-screen"` (default) steps through the questions one at a time; `"list"` renders them all at once. */

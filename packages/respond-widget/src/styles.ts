@@ -11,14 +11,14 @@
  */
 
 import bodyCss from "cardano-tessera-respond-ui/body.css?inline";
-import themeCss from "./theme.css?inline";
+import { tokenCss } from "./theme";
 import respondCss from "./styles/respond.css?inline";
 
 /**
  * The widget's full stylesheet text: tokens on :host, respond-ui's components,
  * then the widget's own, which may override theirs at equal specificity.
  */
-export const cssText: string = `${themeCss}\n${bodyCss}\n${respondCss}`;
+export const cssText: string = `${tokenCss}\n${bodyCss}\n${respondCss}`;
 
 let shared: CSSStyleSheet | null = null;
 

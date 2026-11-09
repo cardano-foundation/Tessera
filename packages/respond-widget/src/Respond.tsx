@@ -145,7 +145,7 @@ export const RespondRoot: Component<TesseraRespondProps> = (props) => {
 
   // Reflect the `theme` prop as inline `--tessera-<key>` custom properties on
   // the shadow host — they inherit through the boundary and, being inline,
-  // beat the :host defaults in theme.css. Without a shadow root (a bare
+  // beat the :host defaults. Without a shadow root (a bare
   // RespondRoot mount), fall back to the widget's own root div. Keys dropped
   // from the prop are cleared back to the defaults.
   let themedKeys: string[] = [];

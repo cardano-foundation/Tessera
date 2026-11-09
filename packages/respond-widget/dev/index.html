@@ -67,6 +67,7 @@
       #clear-stash,
       button[data-locale],
       button[data-layout],
+      button[data-scheme],
       button[data-theme],
       button[data-font] {
         font: inherit;
@@ -84,19 +85,14 @@
         background: var(--accent);
         color: #fff;
       }
+      /* The widget's root is transparent, so the frame supplies the page
+         background; the widget follows the frame's `color-scheme`. */
       .frame {
-        background: #fff;
-        border: 1px solid var(--line);
+        color-scheme: light;
+        background: light-dark(#fff, #111425);
+        border: 1px solid light-dark(var(--line), #2c2f44);
         border-radius: 14px;
         padding: 18px 20px;
-      }
-      /* Dark-theme demo: the widget root is transparent, so the host supplies
-         the page background — and `color-scheme: dark` for native controls
-         (range tracks, number spinners), which custom properties can't set. */
-      .frame.dark {
-        background: #16130e;
-        border-color: #302a20;
-        color-scheme: dark;
       }
       .aside {
         position: sticky;
@@ -156,9 +152,10 @@
           question's None box (worded by <code>noneLabels</code>), and hide the
           points allocation once "Marketing" is picked. Submit to emit
           <code>tessera:response</code>; the sealed sample timelock-encrypts
-          fully offline. The Plum theme goes through the <code>theme</code> prop
-          (inline <code>--tessera-*</code>
-          overrides on the host).
+          fully offline. The scheme sets <code>color-scheme</code> on the frame,
+          which the widget follows. The Plum theme goes through the
+          <code>theme</code> prop (inline <code>--tessera-*</code> overrides on
+          the host), one <code>light-dark()</code> pair per token.
         </p>
         <div class="controls">
           <div class="group">
@@ -191,10 +188,15 @@
             <button data-layout="list">List</button>
           </div>
           <div class="group">
+            <b>Scheme</b>
+            <button data-scheme="light" class="active">Light</button>
+            <button data-scheme="dark">Dark</button>
+            <button data-scheme="light dark">System</button>
+          </div>
+          <div class="group">
             <b>Theme</b>
             <button data-theme="default" class="active">Default</button>
             <button data-theme="plum">Plum</button>
-            <button data-theme="dark">Dark</button>
           </div>
           <div class="group">
             <b>Font</b>

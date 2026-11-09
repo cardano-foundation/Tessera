@@ -10,11 +10,59 @@ while `< 1.0.0`, breaking changes bump the **minor** version.
 
 ## [Unreleased]
 
+### Added
+
+- Dark mode. Every default color is a `light-dark()` pair, resolved against
+  the `color-scheme` the element inherits or is given; the widget sets none of
+  its own. A page that declares nothing keeps the light widget, while a page
+  whose root already declares `color-scheme: dark` or `light dark` gets the
+  dark one on upgrade. Browsers without `light-dark()` get the light colors.
+- `--tessera-control-line`, the border of the number, points and
+  custom-answer fields, the role picks, the progress squares, the point
+  steppers, and the radio and checkbox marks. It reaches 3:1 against the card
+  in both schemes, where the old border was 1.3:1.
+
+### Changed
+
+- **Breaking:** the color tokens take the names of the Tessera app's
+  semantic tokens, 43 down to 29. An override of a removed name silently
+  stops applying:
+
+  | Removed                                                                             | Use                     |
+  | :---------------------------------------------------------------------------------- | :---------------------- |
+  | `--tessera-faint`, `--tessera-dim`, `--tessera-label`                               | `--tessera-muted`       |
+  | `--tessera-paper`, `--tessera-surface2`, `--tessera-card-bg`                        | `--tessera-card`        |
+  | `--tessera-surface3`                                                                | `--tessera-sunken`      |
+  | `--tessera-line2`, `--tessera-hair`, `--tessera-header-line`, `--tessera-card-line` | `--tessera-line`        |
+  | `--tessera-ok-bg-soft`                                                              | `--tessera-ok-bg`       |
+  | `--tessera-ok-ink`                                                                  | `--tessera-ok`          |
+  | `--tessera-danger-line-soft`                                                        | `--tessera-danger-line` |
+  | `--tessera-danger-ink`                                                              | `--tessera-danger`      |
+
+- Every default changes, to the cardano.org palette: Cardano Blue for the
+  accent, Obsidian ink, and new role colors. Text reaches 4.5:1 on the
+  surfaces it sits on in both schemes; the old `--tessera-dim` text was
+  2.7:1. The fonts default to Chivo, Chivo Mono, and Newsreader, still named
+  and never loaded.
+- `--tessera-role-drep` no longer follows `--tessera-accent`: a host that
+  re-skins the accent sets both.
+- The custom question's schema strip is drawn on `--tessera-sunken`, no
+  longer inverted on `--tessera-ink`.
+- Question prompts and the ineligible panel's title are `h2` instead of
+  `h3`, under the survey title's `h1`.
+
+### Removed
+
+- **Breaking:** `--tessera-schema-tag`, `--tessera-schema-tag-bg`, and
+  `--tessera-schema-uri`, with the inverted strip.
+
 ### Fixed
 
-- The points and custom-answer fields take their background from
-  `--tessera-paper`. They had none, so under a dark `color-scheme` the
-  browser painted its own grey.
+- The points, number, and custom-answer fields take their background from
+  `--tessera-card`. They had none, so under a dark `color-scheme` the browser
+  painted its own grey.
+- The picked role's label is `--tessera-on-accent`; it was the card color,
+  which is dark under a dark scheme.
 
 ## [0.8.0] - 2026-10-21
 

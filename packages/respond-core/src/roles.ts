@@ -49,7 +49,7 @@ export function roleLabel(role: number): string {
 }
 
 export function roleColors(role: number): readonly [string, string] {
-  return COLORS[role] ?? ["var(--tessera-muted)", "var(--tessera-surface3)"];
+  return COLORS[role] ?? ["var(--tessera-muted)", "var(--tessera-sunken)"];
 }
 
 /** Catalog key for a role's one-line explanation; undefined for an unknown role. */

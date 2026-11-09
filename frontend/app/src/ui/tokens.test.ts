@@ -1,5 +1,6 @@
 import { readFileSync, readdirSync } from "node:fs";
 import { describe, expect, it } from "vitest";
+import { COLORS as WIDGET_COLORS } from "cardano-tessera-respond/theme";
 
 import { BOUNDARY_PAIRS, TEXT_PAIRS, contrast } from "./tokens";
 
@@ -73,6 +74,23 @@ it("maps the same semantic names in both themes", () => {
       .props.map(([name]) => name)
       .sort();
   expect(names("dark")).toEqual(names("light"));
+});
+
+// The widget's defaults are what a third-party host gets, so they are this
+// file's semantic colours, held to the same pairs.
+describe("the widget's tokens", () => {
+  const colors = Object.entries(WIDGET_COLORS);
+  const light = declarations("light");
+
+  it.each(colors)("--tessera-%s maps onto its namesake", (name) => {
+    expect(light.get(`tessera-${name}`)).toBe(`var(--${name})`);
+  });
+
+  it.each(colors)("--tessera-%s defaults to its value", (name, pair) => {
+    expect(THEMES.map((theme) => resolve(declarations(theme), name))).toEqual(
+      pair,
+    );
+  });
 });
 
 describe("stylesheets outside tokens.css", () => {

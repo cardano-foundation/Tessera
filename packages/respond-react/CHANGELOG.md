@@ -9,6 +9,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 This package follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html);
 while `< 1.0.0`, breaking changes bump the **minor** version.
 
+## [Unreleased]
+
+### Changed
+
+- **Breaking:** follows `cardano-tessera-respond` 0.9.0, whose `--tessera-*`
+  color tokens are renamed (the `theme` prop's keys with them) and which turns
+  dark under a dark `color-scheme`. Its changelog has the rename table.
+
 ## [0.8.0] - 2026-10-21
 
 ### Added

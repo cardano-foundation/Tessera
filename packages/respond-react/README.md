@@ -7,7 +7,7 @@ The custom element needs two things React's JSX can't give it directly: its
 object-valued props must be set as DOM **properties** (React ≤18 writes
 unknown JSX props as HTML attributes), and its `tessera:*` `CustomEvent`s need
 real `addEventListener` calls on any React version. `<TesseraRespond>` does
-both through a ref — identically on React 18 and 19.
+both through a ref, identically on React 18 and 19.
 
 ```sh
 npm install cardano-tessera-respond-react cardano-tessera-respond
@@ -42,7 +42,7 @@ renders client-side).
 
 ## Props
 
-Every widget prop, with the same names, types, and semantics — see the
+Every widget prop, with the same names, types, and semantics; see the
 [widget README](https://github.com/mpizenberg/Tessera/tree/main/packages/respond-widget#props)
 for the full contract. The four required ones are `definition`, `surveyRef`,
 `responder`, and `tipEpoch`. On top of those:
@@ -55,14 +55,14 @@ for the full contract. The four required ones are `definition`, `surveyRef`,
 
 Callback details are fully typed (`RespondResult`, `RespondChangeDetail`,
 `RespondInvalidDetail` re-export from here). `className`, `id`, and `style`
-pass through to the host element — style the widget itself via its
+pass through to the host element; style the widget itself via its
 [`--tessera-*` design tokens](https://github.com/mpizenberg/Tessera/tree/main/packages/respond-widget#theming--fonts).
 `ref` exposes the underlying `TesseraRespondElement`.
 
 Keep object props (`definition`, `stash`, `translations`, `conditions`, …)
-the same object across renders — a module constant, state, or `useMemo` —
+the same object across renders (a module constant, state, or `useMemo`)
 rather than a literal in JSX. The widget skips a same-reference write, but a
-new object is read again: a faulty `translations`, `noneLabels` or
+new object is read again: a faulty `translations`, `noneLabels`, or
 `conditions` document logs its console warnings on every render.
 
 Note the widget announces progress as soon as it renders, so `onChange` fires

@@ -117,7 +117,7 @@ export const QuestionCard: Component<{
           </button>
         </Show>
       </div>
-      <h3
+      <h2
         id={promptId}
         ref={(el) => {
           prompt = el;
@@ -127,7 +127,7 @@ export const QuestionCard: Component<{
         class={cls.qPrompt}
       >
         {props.q.prompt || i18n.t("respond.noPrompt")}
-      </h3>
+      </h2>
 
       <Show
         when={!skipped()}

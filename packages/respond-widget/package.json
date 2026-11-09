@@ -20,6 +20,10 @@
       "types": "./src/element.tsx",
       "import": "./src/element.tsx"
     },
+    "./theme": {
+      "types": "./src/theme.ts",
+      "import": "./src/theme.ts"
+    },
     "./artifact": {
       "types": "./dist/tessera-respond.es.d.ts",
       "import": "./dist/tessera-respond.es.js"
