@@ -15,6 +15,27 @@ no dual-serving. A consumer compares majors and refuses a mismatch; it may warn
 on a minor it does not know. Every bump has a line here, and the README's
 Endpoints section changes in the same commit.
 
+## [Unreleased]
+
+`2.4`. A new status on an existing route is not covered by this changelog's
+rule; it is a minor because a `2.3` consumer already treats it as an error
+rather than misreading it.
+
+### Added
+
+- Content this website stops showing once a report is judged unlawful. A
+  hidden survey is absent from every selection of `GET /api/surveys`, from
+  its counts and from `GET /api/responded`; the change selection reports it
+  in `removed` while it stays hidden, and as a changed row once it is shown
+  again. `GET /api/surveys/{txHash}/{index}` answers `451` for it. Its
+  artifact stays served.
+- `redactions` on a bundle page: the `<txHash>:<responseIndex>` keys of the
+  page's hidden responses. Such a response is served without its `custom`
+  answer items and its `rationale`, and a sealed one with an empty
+  ciphertext; its other answers stay. Absent when the page has none.
+- A hidden governance action's `GovLink.title` is served as `null`, wherever
+  links are served; the surveys it links come back as changed rows.
+
 ## [2.3] - 2026-11-05
 
 `2.3`. A changed default is a major by this changelog's rule, but only

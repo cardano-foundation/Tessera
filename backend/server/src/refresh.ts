@@ -25,6 +25,7 @@ import {
 import type { ServerConfig } from "./config";
 import { finalizeClosedSurveys } from "./finalize";
 import { refreshGovLinks } from "./govLinks";
+import { publishHides } from "./hiding";
 import { integrateSegment } from "./integrate";
 import { upstreamMeter } from "./meter";
 import { pruneScriptLookupCache, pruneTxProofCache } from "./proofCache";
@@ -620,18 +621,23 @@ export async function refreshSnapshot(
       console.warn(`script lookup cache prune failed: ${String(err)}`),
     );
 
-    // Banked chip counts move only when rows changed or the epoch turned, so
-    // recompute the aggregate only then; every other run republishes the
-    // previous counts.
+    // Last of the stamps: what changed in the hide log since the previous
+    // envelope lands under this run's generation.
+    const hides = await publishHides(store, previous, startedAt);
+
+    // Banked chip counts move only when rows changed, the epoch turned or a
+    // survey was hidden or shown, so recompute the aggregate only then; every
+    // other run republishes the previous counts.
     const previousEpoch = previous ? snapshotTip(previous).epoch : null;
     const recount =
       rowChanges > 0 ||
       overlayChanges > 0 ||
+      hides.changed ||
       previousEpoch !== tip.epoch ||
       previous?.listCounts == null;
     const listCounts = recount
       ? await store
-          .surveyIndexCounts(tip.epoch, [], [])
+          .surveyIndexCounts(tip.epoch, [], [], hides.state.survey)
           .then((counts): string =>
             JSON.stringify({
               all: counts.all,
@@ -653,6 +659,8 @@ export async function refreshSnapshot(
       fetchedAt: startedAt,
       listCounts,
       settling: final.settling ? JSON.stringify(final.settling) : null,
+      hidden: hides.hidden,
+      hideSeq: hides.hideSeq,
     });
 
     // Read before recording: recording drains the meter.

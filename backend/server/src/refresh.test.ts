@@ -21,7 +21,7 @@ import {
   SETTLEMENT_MARGIN_SLOTS,
   wholeThroughSlot,
 } from "./refresh";
-import { snapshotTip, type ScanState } from "./store";
+import { NOTHING_HIDDEN, snapshotTip, type ScanState } from "./store";
 
 const state = (over: Partial<ScanState>): ScanState => ({
   cursor: { slot: 900_000, txHash: "cc" },
@@ -258,6 +258,8 @@ describe("snapshotTip", () => {
       fetchedAt: 1_750_000_000,
       listCounts: null,
       settling: null,
+      hidden: JSON.stringify(NOTHING_HIDDEN),
+      hideSeq: 0,
     };
 
     expect(snapshotTip(meta)).toEqual(tip);

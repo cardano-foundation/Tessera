@@ -97,9 +97,11 @@ import {
   parseChangesCursor,
 } from "./changes";
 import type { ServerConfig } from "./config";
+import { redactGovLinks, redactResponse, withoutHidden } from "./hiding";
 import { upstreamMeter } from "./meter";
 import {
   rowFinalState,
+  snapshotHidden,
   snapshotListCounts,
   snapshotTip,
   sumUpstream,
@@ -241,7 +243,10 @@ function surveyListBody(
     cancellations: rows.flatMap(
       (r) => JSON.parse(r.cancellations) as JsonSafe<CancellationRecord>[],
     ),
-    govLinks: rows.flatMap((r) => JSON.parse(r.govLinks) as GovLink[]),
+    govLinks: redactGovLinks(
+      rows.flatMap((r) => JSON.parse(r.govLinks) as GovLink[]),
+      snapshotHidden(meta).govAction,
+    ),
     tip: snapshotTip(meta),
     responseCounts: Object.fromEntries(
       rows.map((r) => [r.surveyKey, r.responseCount]),
@@ -467,7 +472,12 @@ export function createApp(config: ServerConfig, store: BackendStore): Hono {
         );
       const keys = refsOf(refsRaw);
       if (!keys) return c.json({ error: "malformed refs" }, 400);
-      return c.json(surveyListBody(await store.surveyRowsByKeys(keys), meta));
+      const rows = withoutHidden(
+        await store.surveyRowsByKeys(keys),
+        (r) => r.surveyKey,
+        snapshotHidden(meta).survey,
+      );
+      return c.json(surveyListBody(rows, meta));
     }
 
     const asked = limitOf(c);
@@ -517,6 +527,7 @@ export function createApp(config: ServerConfig, store: BackendStore): Hono {
         cursor,
         meta.fetchedAt,
         limit + 1,
+        snapshotHidden(meta).survey,
       );
       const body: JsonSafe<SurveyChangesPayload> = {
         ...surveyListBody(changes.rows.slice(0, limit), meta),
@@ -556,6 +567,7 @@ export function createApp(config: ServerConfig, store: BackendStore): Hono {
     const credentials = credentialsOf(c);
     if (!credentials) return c.json({ error: "too many credentials" }, 400);
     const searchTerms = searchTermsOf(c.req.query("q"));
+    const hidden = snapshotHidden(meta).survey;
 
     const tip = snapshotTip(meta);
     // Without a search, every chip but `mine` comes banked in the envelope
@@ -565,11 +577,11 @@ export function createApp(config: ServerConfig, store: BackendStore): Hono {
     const banked = searchTerms.length === 0 ? snapshotListCounts(meta) : null;
     const countsOf = () =>
       banked === null
-        ? store.surveyIndexCounts(tip.epoch, credentials, searchTerms)
+        ? store.surveyIndexCounts(tip.epoch, credentials, searchTerms, hidden)
         : credentials.length === 0
           ? { ...banked, mine: 0 }
           : store
-              .ownedSurveyCount(credentials)
+              .ownedSurveyCount(credentials, hidden)
               .then((mine) => ({ ...banked, mine }));
 
     // Each Explore section paged on its own: every section's first page in
@@ -580,6 +592,7 @@ export function createApp(config: ServerConfig, store: BackendStore): Hono {
       const closedLimit = asked ?? DEFAULT_CLOSED_SECTION_LIMIT;
       const q = {
         tipEpoch: tip.epoch,
+        hidden,
         filter,
         credentials,
         searchTerms,
@@ -655,6 +668,7 @@ export function createApp(config: ServerConfig, store: BackendStore): Hono {
     const [rows, counts] = await Promise.all([
       store.surveyIndexPage({
         tipEpoch: tip.epoch,
+        hidden,
         filter,
         credentials,
         searchTerms,
@@ -697,6 +711,14 @@ export function createApp(config: ServerConfig, store: BackendStore): Hono {
     const index = Number(c.req.param("index"));
     if (!/^[0-9a-f]{64}$/.test(txHash) || !Number.isInteger(index) || index < 0)
       return c.json({ error: "malformed survey ref" }, 404);
+    const key = `${txHash}:${index}`;
+    const hidden = snapshotHidden(meta);
+    // Before the validator: a hidden survey answers this at every generation
+    // it stays hidden, and an un-hidden one must not revalidate into it.
+    if (hidden.survey.includes(key)) {
+      c.header("Cache-Control", "no-cache");
+      return c.json({ error: `survey ${key} is unavailable here` }, 451);
+    }
     // One ETag for every page: a page is a function of the snapshot and of the
     // cursor, and the cursor travels in the URL the validator is stored against.
     if (notModified(c, `W/"survey-${meta.fetchedAt}"`))
@@ -709,7 +731,6 @@ export function createApp(config: ServerConfig, store: BackendStore): Hono {
     // the boundary would silently change a result. The collector restarts.
     const staleCursor =
       cursor?.generation !== undefined && cursor.generation !== meta.fetchedAt;
-    const key = `${txHash}:${index}`;
     const bundle = await store.surveyBundle(key, {
       cursor,
       // One extra row decides `nextCursor` without a second query.
@@ -727,15 +748,25 @@ export function createApp(config: ServerConfig, store: BackendStore): Hono {
       key,
       page.map((r) => r.txHash),
     );
+    const hiddenResponses = new Set(hidden.response);
+    const redactions = page
+      .map((r) => validationKey(r.txHash, r.responseIndex))
+      .filter((k) => hiddenResponses.has(k));
     const body: JsonSafe<SurveyBundlePayload> = {
       survey: JSON.parse(bundle.record) as JsonSafe<SurveyRecord>,
-      responses: page.map(
-        (r) => JSON.parse(r.record) as JsonSafe<ResponseRecord>,
-      ),
+      responses: page.map((r) => {
+        const record = JSON.parse(r.record) as JsonSafe<ResponseRecord>;
+        return hiddenResponses.has(validationKey(r.txHash, r.responseIndex))
+          ? redactResponse(record)
+          : record;
+      }),
       cancellations: JSON.parse(
         bundle.cancellations,
       ) as JsonSafe<CancellationRecord>[],
-      govLinks: JSON.parse(bundle.govLinks) as GovLink[],
+      govLinks: redactGovLinks(
+        JSON.parse(bundle.govLinks) as GovLink[],
+        hidden.govAction,
+      ),
       tip: snapshotTip(meta),
       // Decided credential-proof verdicts only — an omitted key is *pending*,
       // and the client must render it as such, never as failed. Scoped to this
@@ -746,6 +777,7 @@ export function createApp(config: ServerConfig, store: BackendStore): Hono {
           return r.proofOk !== null && pageKeys.has(k) ? [[k, r.proofOk]] : [];
         }),
       ),
+      ...(redactions.length > 0 && { redactions }),
       nextCursor:
         bundle.responses.length > RESPONSES_PER_PAGE && last
           ? encodeResponseCursor({
@@ -769,7 +801,11 @@ export function createApp(config: ServerConfig, store: BackendStore): Hono {
     const credentials = credentialsOf(c);
     if (!credentials) return c.json({ error: "too many credentials" }, 400);
     const body: RespondedPayload = {
-      surveyKeys: await store.respondedSurveyKeys(credentials),
+      surveyKeys: withoutHidden(
+        await store.respondedSurveyKeys(credentials),
+        (k) => k,
+        snapshotHidden(meta).survey,
+      ),
       fetchedAt: meta.fetchedAt,
     };
     return c.json(body);

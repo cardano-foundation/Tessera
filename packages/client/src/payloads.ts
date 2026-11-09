@@ -25,7 +25,7 @@ import type { Settling } from "./network.js";
  * and refuses a mismatch; it may warn on a minor it does not know. Every
  * change is a line in the backend's `CHANGELOG.md`.
  */
-export const API_VERSION = "2.3";
+export const API_VERSION = "2.4";
 
 /** The major of a `major.minor` contract version — the part a consumer must match. */
 export const apiMajor = (version: string): string =>
@@ -309,6 +309,14 @@ export interface SurveyBundlePayload extends SurveyBundle, SnapshotStamp {
   /** The chain tip the serving tier's snapshot was read at. */
   readonly tip: ChainTip;
   readonly verdicts?: ProofVerdicts;
+  /**
+   * The `<txHash>:<responseIndex>` keys of this page's responses whose content
+   * the serving tier withholds: their `custom` answer items, their
+   * `rationale` and, for a sealed one, the ciphertext, served empty. Their
+   * other answers are served, and every response still counts in the final
+   * result, which is computed from the chain. Absent when the page has none.
+   */
+  readonly redactions?: readonly string[];
   /**
    * The governance actions linked to this survey — the same relation
    * {@link SurveyListPayload.govLinks} carries for a page of surveys, so a
