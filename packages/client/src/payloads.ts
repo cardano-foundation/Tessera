@@ -310,11 +310,9 @@ export interface SurveyBundlePayload extends SurveyBundle, SnapshotStamp {
   readonly tip: ChainTip;
   readonly verdicts?: ProofVerdicts;
   /**
-   * The `<txHash>:<responseIndex>` keys of this page's responses whose content
-   * the serving tier withholds: their `custom` answer items, their
-   * `rationale` and, for a sealed one, the ciphertext, served empty. Their
-   * other answers are served, and every response still counts in the final
-   * result, which is computed from the chain. Absent when the page has none.
+   * Keys (`<txHash>:<responseIndex>`) of this page's hidden responses, served
+   * without `custom` answers, `rationale` or sealed ciphertext. They still
+   * count in the final result. Absent when none.
    */
   readonly redactions?: readonly string[];
   /**

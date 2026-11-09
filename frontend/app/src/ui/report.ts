@@ -1,15 +1,11 @@
-/**
- * Reporting content this website shows: a pre-filled email, read by a person.
- * The backend's `hide` script reads the page address it carries.
- */
+/** Reporting content: a pre-filled email whose page address `hide` accepts. */
 
 /** Where reports of unlawful content go. */
 export const REPORT_EMAIL = "reports@PLACEHOLDER.invalid";
 
 /**
- * The address of what is reported: the survey page, and for one of its
- * responses a `#response=<txHash>:<index>` fragment. The address names the
- * network, since each network has its own website.
+ * The reported page, with `#response=<txHash>:<index>` for a response. Its
+ * origin names the network.
  */
 export function reportedUrl(
   surveyKey: string,
@@ -22,11 +18,8 @@ export function reportedUrl(
 }
 
 /**
- * A `mailto:` link to {@link REPORT_EMAIL} about `url`, its body asking for
- * what a notice of illegal content must contain under the EU Digital Services
- * Act (Article 16(2)): the reasons, the exact location, the sender's name and
- * email, and a statement of good faith. In English whatever the interface
- * language, since the team reading reports works in English.
+ * A `mailto:` report about `url`, asking for what EU DSA Article 16(2)
+ * requires of a notice. In English, the reviewers' language.
  */
 export function reportHref(url: string): string {
   const subject = "Report of unlawful content on Tessera";

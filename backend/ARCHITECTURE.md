@@ -961,63 +961,35 @@ the reason costs more than reading it.
 
 ## 11. Hiding content
 
-Anyone can publish a survey or a response, and nothing here reviews it before
-it is shown. When a report is judged unlawful — personal data about someone
-else, content a court or authority ordered removed, illegal material — this
-website stops showing it. Nothing leaves the chain, and nothing a result is
-computed from changes: finalization reads the stored rows, never what a route
-serves, and an artifact carries no free text (custom questions are counts, a
-sealed artifact commits no answers). The artifact, its hash and the verifier's
-output are the same whether or not anything is hidden, and artifacts stay
-served.
+Nothing reviews a survey or response before it is shown. When a report is
+judged unlawful, this website stops showing it. The chain and every result are
+untouched: finalization reads the stored rows, and an artifact carries no free
+text.
 
-What can be hidden is whatever carries text:
+| Hidden          | Key                                 | Served as                                                                                       |
+| --------------- | ----------------------------------- | ----------------------------------------------------------------------------------------------- |
+| Survey          | `survey:<txHash>:<index>`           | absent from lists, counts and `/api/responded`; `removed` in the change selection; bundle `451` |
+| Response        | `response:<txHash>:<responseIndex>` | without `custom` answers, rationale or sealed ciphertext; named in `redactions`                 |
+| Governance link | `govAction:<gov_action1…>`          | `title: null`                                                                                   |
 
-| Element         | Text it carries                                                                       | Key                                 | Served as                                                                                                                            |
-| --------------- | ------------------------------------------------------------------------------------- | ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
-| Definition      | title, description, prompts, option labels, content anchor                            | `survey:<txHash>:<index>`           | absent from every list selection, the counts and `/api/responded`; `removed` in the change selection; its bundle route answers `451` |
-| Response        | `custom` answer values, rationale anchor, sealed ciphertext (the browser decrypts it) | `response:<txHash>:<responseIndex>` | in its bundle without those parts, named in `redactions`; its other answers stay                                                     |
-| Governance link | the action's CIP-108 title, a third party's document                                  | `govAction:<gov_action1…>`          | `title: null`                                                                                                                        |
+The `hide` script appends decisions to `hide_log`; a key's state is its latest
+row, and its case id points to the legal team's record. It runs from a
+reviewed workflow (OPERATIONS.md), so no HTTP route writes. Serving never reads
+the log: each refresh whose log position moved tombstones newly hidden
+surveys, restamps shown ones, and publishes the state in `snapshot_meta`. A
+decision takes effect with the next `fetchedAt`, ETags and change selection.
 
-A cancellation carries no text, and withholding one would misstate a survey's
-status.
+Costs: a quiet refresh adds one single-row read. A refresh publishing a change
+also recomputes the counts, and an action decision scans `survey_index` once,
+since no index finds a title inside `gov_links`. Serving reads nothing more:
+the list statements bind the hidden keys as one JSON array, and are unchanged
+when nothing is hidden. The envelope grows with the hidden set, fine at dozens;
+thousands would need a keyed table.
 
-**Decisions are a log, applied by the refresh.** The `hide` script appends one
-row per decision to `hide_log` (hide or unhide, the key, a case id, the time);
-a key's state is its latest row. The reason and the reporter stay in the legal
-team's case system, which the case id points to. The script runs from a
-manually dispatched workflow behind a reviewed environment (OPERATIONS.md), so
-every decision has a requester, an approver and a timestamp, and no HTTP route
-writes. Serving never reads the log. Each refresh compares the log's latest
-position with the one its previous envelope published; when they differ it
-reads the state, tombstones each newly hidden survey and restamps each shown
-one under its own generation, then publishes the state in `snapshot_meta`
-(`hidden`, `hide_seq`) with the envelope. A decision therefore takes effect at
-the next refresh, together with `fetchedAt`, the ETags and the change
-selection — never as new state behind a stale validator.
+Emergency direct-Koios mode shows everything. A mirror receives a hidden survey
+as a removal.
 
-**Costs.** A refresh that finds the log unchanged makes one single-row read. A
-refresh that publishes a change reads the log's state, which is as large as the
-decisions taken, and pays the chip-count recompute every changed run already
-pays (§9); a changed decision about a governance action also restamps the
-surveys whose links name it, which no index finds, so that one statement reads
-`survey_index` whole — on the rare run that publishes such a decision, never
-otherwise. Serving reads nothing more: the hidden set rides in the envelope
-every snapshot route reads first. The list statements bind the hidden survey
-keys as one JSON array, probed per row they already read, and are unchanged
-when nothing is hidden; responses and titles are redacted while the body is
-assembled. The envelope grows with the hidden set, which is fine at the dozens
-this is for; at thousands, a keyed table would replace it.
-
-**Scope.** Emergency direct-Koios mode (the app reading Koios itself while the
-backend is down) shows everything: this server is not the one serving then. A
-mirror built on the change selection receives a hidden survey as a removal;
-what it shows is its operator's decision.
-
-Not taken: an admin HTTP endpoint (the first authenticated write path on a
-read-only API); a hide list committed to the public repository (it would
-publish pointers to the very content it hides, and need a deploy per
-decision); decisions published on chain (public and permanent); a number of
-wallet-signed flags before a report can be sent (wallets are free, a victim of
-doxxing often has none, and the backend would gain its first write path,
-storing personal data).
+Not taken: an admin HTTP endpoint (a first write path); a hide list in the
+public repository (it points at what it hides, and needs a deploy); decisions
+on chain (public and permanent); wallet-signed flag thresholds (wallets are
+free, and a doxxing victim may have none).

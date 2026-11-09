@@ -713,8 +713,7 @@ export function createApp(config: ServerConfig, store: BackendStore): Hono {
       return c.json({ error: "malformed survey ref" }, 404);
     const key = `${txHash}:${index}`;
     const hidden = snapshotHidden(meta);
-    // Before the validator: a hidden survey answers this at every generation
-    // it stays hidden, and an un-hidden one must not revalidate into it.
+    // Before the validator, so a client holding an older ETag gets the 451.
     if (hidden.survey.includes(key)) {
       c.header("Cache-Control", "no-cache");
       return c.json({ error: `survey ${key} is unavailable here` }, 451);

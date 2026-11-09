@@ -913,10 +913,7 @@ export interface HideLogRow extends HideDecision {
   readonly seq: number;
 }
 
-/**
- * The decision log behind {@link SnapshotMeta.hidden}, and what publishing a
- * changed state writes. Serving never reads the log: a refresh publishes it.
- */
+/** The decision log, which a refresh publishes and serving never reads. */
 export interface HideStore {
   appendHideDecision(decision: HideDecision): Promise<void>;
   /** The whole log, oldest first — the script's `list`. */
@@ -926,10 +923,8 @@ export interface HideStore {
   /** The keys whose latest decision is `hide`, and the position read at. */
   hideState(): Promise<{ readonly seq: number; readonly hidden: Hidden }>;
   /**
-   * Make a published change visible to the change selection under
-   * `generation`: a newly hidden survey is tombstoned, an un-hidden one and
-   * every survey linked by a governance action whose title changed state are
-   * restamped.
+   * Stamps a published change for the change selection: tombstones newly
+   * hidden surveys, restamps shown ones and those linking a changed action.
    */
   stampHideChange(
     generation: number,

@@ -1,13 +1,7 @@
 /**
- * Hiding content (ARCHITECTURE.md §11): what this website stops showing once a
- * report is judged unlawful. Nothing leaves the chain, and nothing a result is
- * computed from changes — finalization reads the stored rows, never what is
- * served — so a hide is a serving-tier redaction and nothing else.
- *
- * Decisions are appended to `hide_log` by the `hide` script; a refresh
- * publishes the resulting state with its snapshot ({@link publishHides}), and
- * the routes read only that published state, so a hide moves with
- * `fetchedAt`, the ETags and the change selection.
+ * Hiding reported content (ARCHITECTURE.md §11), in serving only: results are
+ * computed from stored rows. Routes read the state a refresh published
+ * ({@link publishHides}), never `hide_log`.
  */
 
 import type { GovLink, ResponseRecord } from "cip-179/domain";
@@ -33,10 +27,8 @@ const minus = (a: readonly string[], b: readonly string[]): string[] => {
 };
 
 /**
- * The hide state to publish under `generation`. A refresh that finds the log
- * where the previous envelope read it republishes that state after one
- * single-row read; otherwise it reads the state, which costs what the log
- * holds, and stamps what changed for the change selection.
+ * The hide state to publish under `generation`: one read when the log has not
+ * moved, else the state read and its changes stamped for the change selection.
  */
 export async function publishHides(
   store: HideStore,
@@ -71,10 +63,8 @@ export async function publishHides(
 }
 
 /**
- * A hidden response as served: its non-custom answers stay, so the live view
- * still counts the choices it made, and everything that can carry text goes —
- * the custom answer values, the rationale anchor, and a sealed ciphertext,
- * which the browser would decrypt itself.
+ * A hidden response as served: its choices stay; custom answers, rationale and
+ * sealed ciphertext go.
  */
 export function redactResponse(
   record: JsonSafe<ResponseRecord>,
@@ -136,10 +126,9 @@ const targetOf = (kind: string, key: string): HideTarget | null => {
 };
 
 /**
- * The target a report names: a key in `<kind>:<key>` form, or the page URL a
- * report carries — a survey page (`/survey/<key>`, any screen under it), with
- * a `#response=<txHash>:<index>` fragment when it names one of its responses.
- * Null when it names nothing. Keys are lowercased, as stored.
+ * The target named by `<kind>:<key>` or a reported page URL (`/survey/<key>…`,
+ * with `#response=<txHash>:<index>` for a response). Keys are lowercased, as
+ * stored.
  */
 export function parseHideTarget(input: string): HideTarget | null {
   const raw = input.trim();

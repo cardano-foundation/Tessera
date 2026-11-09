@@ -154,10 +154,7 @@ export interface SurveySnapshot {
   readonly snap: Accessor<SurveyList | undefined>;
   readonly loading: Accessor<boolean>;
   readonly error: Accessor<unknown>;
-  /**
-   * The survey is on chain, but the backend no longer shows it: it was
-   * reported and judged unlawful. True only once a read without it is in.
-   */
+  /** Hidden by the backend after a report. True only once a read without it is in. */
   readonly withheld: Accessor<boolean>;
 }
 
@@ -548,9 +545,8 @@ export const AppProvider: ParentComponent = (props) => {
     );
     byKeyRefetches.add(refetch);
     onCleanup(() => byKeyRefetches.delete(refetch));
-    // A by-key read leaves out a survey the backend withholds just as it does
-    // an unknown one; only the bundle route tells them apart, with a 451. So a
-    // page that would say "no such survey" asks it once.
+    // A by-key read omits a hidden survey like an unknown one; only the bundle
+    // route's 451 tells them apart.
     const [withheld] = createResource(
       () => {
         const read = byKey.error ? undefined : byKey();

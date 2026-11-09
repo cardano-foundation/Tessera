@@ -17,24 +17,17 @@ Endpoints section changes in the same commit.
 
 ## [Unreleased]
 
-`2.4`. A new status on an existing route is not covered by this changelog's
-rule; it is a minor because a `2.3` consumer already treats it as an error
-rather than misreading it.
+`2.4`: a minor, since a `2.3` consumer already treats the new `451` as an
+error.
 
 ### Added
 
-- Content this website stops showing once a report is judged unlawful. A
-  hidden survey is absent from every selection of `GET /api/surveys`, from
-  its counts and from `GET /api/responded`; the change selection reports it
-  in `removed` while it stays hidden, and as a changed row once it is shown
-  again. `GET /api/surveys/{txHash}/{index}` answers `451` for it. Its
-  artifact stays served.
-- `redactions` on a bundle page: the `<txHash>:<responseIndex>` keys of the
-  page's hidden responses. Such a response is served without its `custom`
-  answer items and its `rationale`, and a sealed one with an empty
-  ciphertext; its other answers stay. Absent when the page has none.
-- A hidden governance action's `GovLink.title` is served as `null`, wherever
-  links are served; the surveys it links come back as changed rows.
+- Hidden content, after a report is judged unlawful. A hidden survey is absent
+  from `GET /api/surveys`, its counts and `GET /api/responded`, in `removed` on
+  the change selection, and `451` on `GET /api/surveys/{txHash}/{index}`.
+- `redactions` on a bundle page: its hidden responses' keys. They are served
+  without `custom` answers, `rationale` or sealed ciphertext.
+- A hidden governance action's `GovLink.title` is `null`.
 
 ## [2.3] - 2026-11-05
 

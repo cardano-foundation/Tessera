@@ -84,10 +84,8 @@ export class TesseraHttpError extends Error {
 }
 
 /**
- * A survey the backend no longer shows (`451`): content reported and judged
- * unlawful. It is still on chain and its result is still computed; this
- * backend withholds it. Show that it is unavailable here, not that it does
- * not exist.
+ * A survey the backend hides after a report (`451`). It is still on chain and
+ * counted: show it as unavailable, not nonexistent.
  */
 export class SurveyUnavailableError extends TesseraHttpError {
   constructor(url: string, body: string) {

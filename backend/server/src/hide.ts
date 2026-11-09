@@ -4,14 +4,9 @@
  *   hide <hide|unhide> <page URL or key> --case <id>
  *   hide list
  *
- * The target is the page URL a report carries, or `survey:<txHash>:<index>`,
- * `response:<txHash>:<index>` or `govAction:<gov_action1…>`. The decision takes
- * effect at the next refresh. Nothing printed names the target: the script runs
- * in a public repository's workflow, whose logs anyone can read.
- *
- * It writes to the Turso database named by `TURSO_DATABASE_URL`, or without it
- * to the local SQLite file of `NETWORK`. Read from the environment alone, never
- * from `.env`: a Turso URL left there would aim a local run at a deployment.
+ * Prints no key, since it runs in a public workflow. Writes to Turso when
+ * `TURSO_DATABASE_URL` is set, else to the SQLite file of `NETWORK`. Never
+ * reads `.env`, which may hold a deployment's Turso URL.
  */
 
 import { parseArgs } from "node:util";
@@ -89,8 +84,7 @@ async function run(store: BackendStore, args: string[]): Promise<string> {
     return `That ${NOUN[target.kind]} is already hidden. Nothing recorded.`;
   if (command === "unhide" && !hidden)
     return `That ${NOUN[target.kind]} is not hidden. Nothing recorded.`;
-  // A target this network never indexed is most likely a report from another
-  // network's website, run against the wrong database.
+  // Usually a report from another network's website.
   if (command === "hide" && !(await isStored(store, target)))
     throw new Error(
       `no such ${NOUN[target.kind]} on this network: check the network input`,

@@ -60,10 +60,8 @@ export class IndexerDataSource implements DataSource {
   }
 
   /**
-   * The whole bundle, less the responses whose text the backend withholds:
-   * what remains of one (its choices, without its custom answers) would read
-   * as a response that left those blank, and its absence is not a verdict.
-   * `redactions` still names them, so a screen can say how many are hidden.
+   * The whole bundle, less hidden responses, whose remains would read as blank
+   * answers. `redactions` still names them.
    */
   async surveyBundle(ref: SurveyRef): Promise<SurveyBundlePayload> {
     const bundle = this.ready(await this.client.wholeBundle(ref));

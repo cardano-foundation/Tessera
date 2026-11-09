@@ -249,56 +249,41 @@ absent re-derives from the floor on its next run whatever the constant says.
 
 ## Hide reported content
 
-A report of unlawful content arrives by email, at the address the terms page
-names, with the page URL. Once the legal team decides, a maintainer records
-the decision with the **Hide content** workflow (`.github/workflows/hide.yml`,
-Actions → Run workflow, from `main`):
+Reports arrive by email with the page URL. Once legal decides, record the
+decision with the **Hide content** workflow (Actions → Run workflow, from
+`main`):
 
-- `network`: the network of the website the URL is on. Preview and preprod
-  only: mainnet joins the list when its backend moves to Vercel and Turso;
-- `action`: `hide`, or `unhide` to reverse an earlier decision;
-- `target`: the page URL from the report as it is. A survey page hides the
-  survey; a URL ending in `#response=<txHash>:<index>`, which the Report link
-  on a response produces, hides that response. A governance action's title is
-  named as `govAction:<gov_action1…>`;
-- `case`: the case id in the legal team's case system. It is public on the run
-  page, so it must carry no name, email or excerpt.
+- `network`: the website's network (preview or preprod; mainnet once its
+  backend is on Vercel);
+- `action`: `hide` or `unhide`;
+- `target`: the reported URL as is; a `#response=…` URL names a response. A
+  governance action's title is `govAction:<gov_action1…>`;
+- `case`: the legal case id. It is public, so no names, emails or excerpts.
 
-The run waits for a reviewer of the `moderation` environment; whoever started
-it cannot approve it. It refuses a survey or response this network never
-indexed (usually the wrong `network`) and a decision already in force, and
-takes effect at the network's next refresh, within a few minutes: the survey
-leaves the list and its page reads "not shown on this website", or the
-response's text disappears. Check the page, then reply to the reporter.
+A `moderation` reviewer other than the starter approves the run. It refuses a
+target this network never indexed (usually the wrong `network`) and a no-op,
+and takes effect at the next refresh. Check the page, then reply to the
+reporter.
 
-The workflow never writes the target to its log; the run page shows the action,
-the network and the case id. `pnpm --filter cardano-tessera-backend hide list`
-prints the decision log (position, time, action, kind, case id) without keys.
-Run locally, the script reads `TURSO_DATABASE_URL` and `TURSO_AUTH_TOKEN` from
-the environment only, never from `.env`, and without them writes the local
+The run log never shows the target. `pnpm --filter cardano-tessera-backend hide list`
+prints the decisions without keys. Locally, the script reads the Turso
+credentials from the environment only, never `.env`; without them it writes the
 SQLite file of `NETWORK`.
 
-A point-in-time restore of a database (see Roll back) also rewinds its
-decision log. Re-apply every decision recorded after the restore point, from
-the case list or this workflow's run history.
+A point-in-time restore (see Roll back) rewinds the decision log too: re-apply
+the later decisions from the workflow's run history.
 
 ### Set up the moderation environment
 
 Once, by a repository admin:
 
-1. Create an organization team (for example `tessera-moderation`) with the
-   people who approve decisions; legal review belongs here. Changing who
-   approves is then a team membership change.
+1. Create an organization team of approvers (for example
+   `tessera-moderation`), legal included.
 2. Settings → Environments → New environment `moderation`:
-   - Required reviewers: that team. One approval releases a run. Turn on
-     "Prevent self-review", so the person who started a run cannot approve it.
-   - Deployment branches and tags: protected branches only, so the workflow
-     runs from `main`.
-   - Environment secrets `TURSO_AUTH_TOKEN_PREVIEW` and
-     `TURSO_AUTH_TOKEN_PREPROD`, and environment variables
-     `TURSO_DATABASE_URL_PREVIEW` and `TURSO_DATABASE_URL_PREPROD`, as in the
-     `testnets` environment. A token minted for this environment
-     (`turso db tokens create <db>`) can be revoked on its own.
-3. Starting a run needs write access to the repository. By default a
-   maintainer starts it on legal's request and the team approves; give legal
-   write access only if they should start runs too.
+   - Required reviewers: that team, with "Prevent self-review" on.
+   - Deployment branches: protected branches only.
+   - Secrets `TURSO_AUTH_TOKEN_PREVIEW`/`_PREPROD` and variables
+     `TURSO_DATABASE_URL_PREVIEW`/`_PREPROD`, as in `testnets`. A token minted
+     for it (`turso db tokens create <db>`) can be revoked alone.
+3. Starting a run needs write access; give it to legal only if they should
+   start runs.

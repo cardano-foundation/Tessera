@@ -64,10 +64,8 @@ function searchSql(terms: readonly string[]): SqlQuery {
 }
 
 /**
- * Leaves the published hidden surveys out: the set is bound as one JSON array
- * and probed per row read, so it costs what the set is, never what the table
- * is. TRUE when nothing is hidden, so the statement is the one it was before
- * hiding existed.
+ * Leaves the hidden surveys out, bound as one JSON array probed per row read.
+ * TRUE when nothing is hidden.
  */
 function visibleSql(hidden: readonly string[]): SqlQuery {
   if (hidden.length === 0) return { sql: "1", params: [] };
@@ -924,8 +922,7 @@ export const changedSurveysSql = (
 
 /**
  * The keys tombstoned after `position` that no visible row holds — a swept
- * survey that re-landed is not a removal, and needs no un-tombstoning to say
- * so; a hidden one is, for as long as it stays hidden.
+ * survey that re-landed is not a removal, a hidden one is.
  */
 export const removedSurveysSql = (
   position: AxisPosition,
@@ -949,13 +946,9 @@ export const removedSurveysSql = (
 };
 
 /**
- * What publishing a changed hide state writes under `generation`. A newly
- * hidden survey gets a tombstone, which the change selection reads as a
- * removal while the survey stays hidden; an un-hidden one is restamped, so it
- * comes back as a changed row. A governance action's title rides in the
- * `gov_links` of the surveys it links, which no index can find: restamping
- * them reads `survey_index` once, and only on a refresh that publishes a
- * changed decision about an action.
+ * Stamps a changed hide state under `generation`: tombstones newly hidden
+ * surveys, restamps shown ones and those linking a changed action. No index
+ * finds the latter, so an action decision scans `survey_index` once.
  */
 export const hideChangeSql = (
   generation: number,

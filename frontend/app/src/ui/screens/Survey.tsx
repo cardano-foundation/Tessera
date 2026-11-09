@@ -80,8 +80,7 @@ export const Survey: Component = () => {
   const retryBundle = (): void => {
     void Promise.resolve(refetchBundle()).catch(() => {});
   };
-  // Not shown by the backend: read without it, or, when the list loaded before
-  // the decision was published, its bundle answering 451.
+  // The bundle's 451 covers a list loaded before the hide.
   const withheld = (): boolean =>
     found.withheld() || bundle.error instanceof SurveyUnavailableError;
 
@@ -368,9 +367,8 @@ const FinalityNoticeCard: Component<{ notice: FinalityNotice }> = (props) => {
 };
 
 /**
- * Shown when the backend withholds some responses' text. They are left out of
- * everything below, which this browser computes; the final result is the
- * backend's, computed from the chain, and counts them.
+ * Hidden responses are left out of everything below; the final result, computed
+ * from the chain, still counts them.
  */
 const HiddenResponsesNote: Component<{ count: number }> = (props) => (
   <Note kind="warn" style={{ "margin-top": "14px" }}>

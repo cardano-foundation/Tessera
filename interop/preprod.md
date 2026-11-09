@@ -145,17 +145,13 @@ weighs two delegated DReps, and the verifier reproduces it from Koios.
   `e + govActionLifetime` (6 on preprod, reported in every `tip` payload), and
   a pair missing that alignment gets no link at all, not a weaker one. This is
   the constraint most likely to be missed by someone publishing a pair.
-- Content reported to Tessera and judged unlawful is withheld by the backend,
-  never removed from the chain. A survey it no longer shows answers `451` on
-  its bundle route (the client's `SurveyUnavailableError`), is absent from
-  every list selection and `refs`, and arrives in `removed` on the change
-  selection; a mirror stops showing it. A hidden response stays in its
-  bundle, named in `redactions`, with its `custom` answer items, its
-  `rationale` and, sealed, its ciphertext withheld: the host shows that its
-  content is hidden, never that the responder left it blank, and does not
-  pass it to `<tessera-respond>` as a prior response to prefill from. A
-  governance link can come with `title: null`, as it already could. The
-  final result counts every response either way.
+- Content judged unlawful after a report is hidden by the backend, not removed
+  from the chain. A hidden survey answers `451` on its bundle route
+  (`SurveyUnavailableError`), is absent from lists and `refs`, and arrives in
+  `removed` on the change selection. A hidden response is named in
+  `redactions` and served without its `custom` answers, `rationale` or sealed
+  ciphertext: show it as hidden, not blank, and do not prefill
+  `<tessera-respond>` from it. The final result still counts it.
 - A bundle serves its responses one page at a time. A host that only feeds
   `<tessera-respond>` needs page one, since the definition and the survey ref
   ride every page; a host that counts or displays responses itself follows

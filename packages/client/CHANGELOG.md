@@ -15,10 +15,10 @@ Speaks contract `2.4`.
 
 ### Added
 
-- `SurveyUnavailableError`, a `TesseraHttpError` with status `451`, thrown by
-  `bundle` and `wholeBundle` for a survey the backend no longer shows.
-- `SurveyBundlePayload.redactions`: the responses of a page whose text the
-  backend withholds. `collectSurveyBundle` merges them across pages.
+- `SurveyUnavailableError` (status `451`), thrown by `bundle` and
+  `wholeBundle` for a hidden survey.
+- `SurveyBundlePayload.redactions`: a page's hidden responses, merged across
+  pages by `collectSurveyBundle`.
 
 ## [0.7.0] - 2026-11-09
 

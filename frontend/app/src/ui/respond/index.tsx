@@ -71,8 +71,7 @@ export const Respond: Component = () => {
     () => indexed()?.record.ref,
     (ref) => app.source.surveyBundle(ref),
   );
-  // Not shown by the backend: read without it, or, when the list loaded before
-  // the decision was published, its bundle answering 451.
+  // The bundle's 451 covers a list loaded before the hide.
   const withheld = (): boolean =>
     found.withheld() || bundle.error instanceof SurveyUnavailableError;
   // External-content surveys: render labels from the off-chain presentation doc

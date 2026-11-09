@@ -188,9 +188,9 @@ Content-Security-Policy:
 Vite fingerprints asset filenames with a content hash, so `/assets/*` is served
 as immutable.
 
-Anyone can publish a survey, so survey pages earn no search ranking:
-`/survey/*` is served with `X-Robots-Tag: noindex`, and a link built from
-survey or response content carries `rel="ugc nofollow"`.
+So that publishing a survey earns no search ranking, `/survey/*` is served
+with `X-Robots-Tag: noindex`, and links from user content carry
+`rel="ugc nofollow"`.
 
 [cip179]: https://github.com/cardano-foundation/CIPs/tree/master/CIP-0179
 [drand]: https://drand.love/

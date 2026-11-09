@@ -1,16 +1,9 @@
 name: Hide content
 
-# Records a moderation decision: this website stops showing, or shows again,
-# a survey, a response or a governance action's title (backend/ARCHITECTURE.md
-# §11, the procedure in backend/server/OPERATIONS.md). The decision takes effect
-# at the network's next refresh, within a few minutes.
-#
-# The repository is public, and so are this workflow's runs. The target never
-# reaches a log: it is read from the event payload, masked before anything else
-# runs, and the script prints no key. The run name and the case id are public;
-# a case id carries no personal data. The `moderation` environment holds the
-# database credentials and requires a reviewer, so each decision waits for an
-# approver other than whoever started it.
+# Records a moderation decision (backend/server/OPERATIONS.md). Runs are
+# public: the target is masked before use and never logged; the run name shows
+# only the action, network and case id. The `moderation` environment holds the
+# credentials and requires a reviewer.
 on:
   workflow_dispatch:
     inputs:
