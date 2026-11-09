@@ -108,7 +108,7 @@ const ResponseCard: Component<{
                 <a
                   href={href()}
                   target="_blank"
-                  rel="noopener noreferrer"
+                  rel="ugc nofollow noopener noreferrer"
                   title={t("survey.responseRationaleTitle")}
                   class={`${kit.link} ${css.responseRationale}`}
                 >
