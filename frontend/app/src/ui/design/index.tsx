@@ -34,6 +34,7 @@ import { BOUNDARY_PAIRS, TEXT_PAIRS, contrast } from "~/ui/tokens";
 import { usePageTitle } from "~/ui/pageTitle";
 import kit from "~/ui/kit.module.css";
 import { DetailMock } from "./DetailMock";
+import { TimeLeftMock } from "./TimeLeftMock";
 import { SAMPLE } from "./sample";
 import { forceStates } from "./states";
 import css from "./design.module.css";
@@ -71,6 +72,10 @@ export default function Design(): JSX.Element {
 
       <Section title="Disclosures">
         <Themes>{() => <DetailMock />}</Themes>
+      </Section>
+
+      <Section title="Time left (candidates)">
+        <Themes>{() => <TimeLeftMock />}</Themes>
       </Section>
 
       <Section title="Questions">
@@ -481,6 +486,12 @@ const Surfaces: Component = () => (
         <VisGlyph status="cancelled" />
         <FormMosaic count={5} />
         <RoleChips roles={ROLE_VALUES} />
+      </div>
+
+      <div class={css.row}>
+        <p class={kit.small}>Closed:</p>
+        <FormMosaic count={5} muted />
+        <RoleChips roles={ROLE_VALUES} muted />
       </div>
 
       <Note kind="ok">Published: the survey is on chain.</Note>
