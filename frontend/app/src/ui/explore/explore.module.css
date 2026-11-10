@@ -446,34 +446,23 @@
 .legend {
   display: flex;
   align-items: center;
-  gap: 9px;
+  flex-wrap: wrap;
+  gap: 6px 18px;
   margin-top: 14px;
   padding: 0 2px;
-  flex-wrap: wrap;
-}
-
-.legendText {
   font-size: 12px;
   color: var(--muted);
 }
 
-.legendGroup {
+.legendItem {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  margin-left: 10px;
-}
-
-.legendMark {
-  display: inline-flex;
-  margin-left: 6px;
 }
 
 .legendCheck {
-  margin-left: 10px;
   color: var(--ok);
   font-weight: 600;
-  font-size: 12px;
 }
 
 /* ===== pager ===== */

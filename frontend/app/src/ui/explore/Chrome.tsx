@@ -101,23 +101,25 @@ export const GridNotice: Component<{ text: string; tone?: "danger" }> = (
 
 export const Legend: Component = () => (
   <div class={css.legend}>
-    <FormMosaic count={4} size={14} />
-    <span class={css.legendText}>{t("explore.legendForm")}</span>
-    <span class={css.legendGroup}>
-      <span class={css.legendMark}>
-        <VisGlyph status="public" />
-      </span>
-      <span class={css.legendText}>{t("explore.legendPublic")}</span>
-      <span class={css.legendMark}>
-        <VisGlyph status="sealed" />
-      </span>
-      <span class={css.legendText}>{t("explore.legendSealed")}</span>
+    <span class={css.legendItem}>
+      <FormMosaic count={4} size={14} />
+      {t("explore.legendForm")}
+    </span>
+    <span class={css.legendItem}>
+      <VisGlyph status="public" />
+      {t("explore.legendPublic")}
+    </span>
+    <span class={css.legendItem}>
+      <VisGlyph status="sealed" />
+      {t("explore.legendSealed")}
+    </span>
+    <span class={css.legendItem}>
       <span class={css.legendCheck}>✓</span>
-      <span class={css.legendText}>{t("explore.legendAnswered")}</span>
-      <span class={css.legendMark}>
-        <EpochGauge seconds={250} secondsPerEpoch={100} />
-      </span>
-      <span class={css.legendText}>{t("explore.legendEpochs")}</span>
+      {t("explore.legendAnswered")}
+    </span>
+    <span class={css.legendItem}>
+      <EpochGauge seconds={350} secondsPerEpoch={100} />
+      {t("explore.legendEpochs")}
     </span>
   </div>
 );

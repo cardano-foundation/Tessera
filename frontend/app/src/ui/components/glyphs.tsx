@@ -98,7 +98,7 @@ const LEVEL_COLOR = ["var(--danger)", "var(--warn)", "var(--ok)"];
 export const EpochGauge: Component<{
   seconds: number;
   secondsPerEpoch: number;
-  /** Sets the width; the cells share it, past 13px each. */
+  /** A width past the natural one, which the cells share. */
   class?: string;
 }> = (props) => {
   const gauge = () => epochGauge(props.seconds, props.secondsPerEpoch);

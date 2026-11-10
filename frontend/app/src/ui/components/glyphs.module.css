@@ -117,7 +117,8 @@
 }
 
 .cell {
-  flex: 1 0 13px;
+  flex: 1 0 auto;
+  width: 13px;
   height: 7px;
   border-radius: 2px;
   box-sizing: border-box;
