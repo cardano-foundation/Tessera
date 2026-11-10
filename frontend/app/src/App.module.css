@@ -5,7 +5,14 @@
   min-height: 100dvh;
 }
 
-/* A block, not a flex container, so a screen's centred <main> keeps its width. */
+/* A column, so a short screen's bottom bar can rest on the footer. Screens
+   centre themselves with auto margins, which in flex layout shrink an
+   auto-width box to its content: the full width is restored explicitly. */
 .content {
   flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
+}
+.content > * {
+  width: 100%;
 }
