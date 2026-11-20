@@ -10,7 +10,7 @@ on:
       network:
         description: Network whose website the report is about
         type: choice
-        options: [preview, preprod]
+        options: [preview, preprod, mainnet]
       action:
         description: Hide, or show again
         type: choice
@@ -60,7 +60,7 @@ jobs:
           CASE_ID: ${{ inputs.case }}
           TURSO_DATABASE_URL: ${{ vars[format('TURSO_DATABASE_URL_{0}', inputs.network)] }}
           # Named statically: a computed secret name sends every secret.
-          TURSO_AUTH_TOKEN: ${{ inputs.network == 'preview' && secrets.TURSO_AUTH_TOKEN_PREVIEW || inputs.network == 'preprod' && secrets.TURSO_AUTH_TOKEN_PREPROD || '' }}
+          TURSO_AUTH_TOKEN: ${{ inputs.network == 'preview' && secrets.TURSO_AUTH_TOKEN_PREVIEW || inputs.network == 'preprod' && secrets.TURSO_AUTH_TOKEN_PREPROD || inputs.network == 'mainnet' && secrets.TURSO_AUTH_TOKEN_MAINNET || '' }}
         run: |
           : "${TURSO_DATABASE_URL:?no TURSO_DATABASE_URL_* variable for $NETWORK in the moderation environment}"
           target=$(jq -r .inputs.target "$GITHUB_EVENT_PATH")
