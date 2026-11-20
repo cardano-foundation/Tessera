@@ -26,8 +26,7 @@ named after it (`<net>` is `preview`, `preprod` or `mainnet`).
    secrets `VERCEL_TOKEN_BACKEND_<NET>`, `VERCEL_TOKEN_APP_<NET>` and
    `TURSO_AUTH_TOKEN_<NET>`, and the variables `VERCEL_PROJECT_ID_BACKEND_<NET>`,
    `VERCEL_PROJECT_ID_APP_<NET>`, `TURSO_DATABASE_URL_<NET>` and
-   `VERCEL_ORG_ID` (upper case `<NET>`). Then add `<net>` to `on_vercel` in
-   `.github/workflows/deploy.yml`.
+   `VERCEL_ORG_ID` (upper case `<NET>`).
 
 A merge to `main` then migrates the database and deploys the backend, then the
 app, on every network. A manual run deploys the networks it is given, from the
@@ -253,8 +252,7 @@ Reports arrive by email with the page URL. Once legal decides, record the
 decision with the **Hide content** workflow (Actions → Run workflow, from
 `main`):
 
-- `network`: the website's network (preview or preprod; mainnet once its
-  backend is on Vercel);
+- `network`: the website's network;
 - `action`: `hide` or `unhide`;
 - `target`: the reported URL as is; a `#response=…` URL names a response. A
   governance action's title is `govAction:<gov_action1…>`;
@@ -282,8 +280,8 @@ Once, by a repository admin:
 2. Settings → Environments → New environment `moderation`:
    - Required reviewers: that team, with "Prevent self-review" on.
    - Deployment branches: protected branches only.
-   - Secrets `TURSO_AUTH_TOKEN_PREVIEW`/`_PREPROD` and variables
-     `TURSO_DATABASE_URL_PREVIEW`/`_PREPROD`, as in `testnets`. A token minted
-     for it (`turso db tokens create <db>`) can be revoked alone.
+   - Secrets `TURSO_AUTH_TOKEN_<NET>` and variables `TURSO_DATABASE_URL_<NET>`
+     for each network, as in `testnets` and `production`. A token minted for
+     it (`turso db tokens create <db>`) can be revoked alone.
 3. Starting a run needs write access; give it to legal only if they should
    start runs.

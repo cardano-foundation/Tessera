@@ -59,8 +59,7 @@ jobs:
           ACTOR: ${{ github.event.comment.user.login }}
           PR: ${{ github.event.issue.number }}
         run: |
-          # Mainnet still runs on Cloudflare.
-          on_vercel=(preview preprod)
+          known=(preview preprod mainnet)
           sha=$GITHUB_SHA
           from_main=false
           case "$GITHUB_EVENT_NAME" in
@@ -75,19 +74,19 @@ jobs:
               wanted=($(head -n1 <<< "$BODY" | tr -d '\r' | sed -nE 's#^/deploy[[:space:]]+([a-z]+)[[:space:]]*$#\1#p'))
               sha=$(gh pr view "$PR" --repo "$GITHUB_REPOSITORY" --json headRefOid --jq .headRefOid) ;;
             workflow_dispatch)
-              if [ "$INPUT" = all ]; then wanted=("${on_vercel[@]}"); else wanted=("$INPUT"); fi
+              if [ "$INPUT" = all ]; then wanted=("${known[@]}"); else wanted=("$INPUT"); fi
               if [ "$GITHUB_REF" = refs/heads/main ]; then from_main=true; fi ;;
             push)
-              wanted=("${on_vercel[@]}")
+              wanted=("${known[@]}")
               from_main=true ;;
           esac
           networks=()
           for net in "${wanted[@]}"; do
             if [ "$net" = mainnet ] && [ "$from_main" != true ]; then continue; fi
-            if printf '%s\n' "${on_vercel[@]}" | grep -qx -- "$net"; then networks+=("$net"); fi
+            if printf '%s\n' "${known[@]}" | grep -qx -- "$net"; then networks+=("$net"); fi
           done
           if [ ${#networks[@]} -eq 0 ]; then
-            msg="Nothing to deploy for '${wanted[*]}'. On Vercel: ${on_vercel[*]}; mainnet only from main."
+            msg="Nothing to deploy for '${wanted[*]}'. Networks: ${known[*]}; mainnet only from main."
             echo "::error::$msg"
             if [ "$GITHUB_EVENT_NAME" = issue_comment ]; then gh pr comment "$PR" --repo "$GITHUB_REPOSITORY" --body "$msg"; fi
             exit 1
