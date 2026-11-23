@@ -21,4 +21,11 @@ pnpm --filter tessera-moderation-eval export <backend URL> <network>
 
 # Validate every data file and print coverage
 pnpm --filter tessera-moderation-eval check
+
+# Review a language: edit data/review-<lang>.md, then import it
+pnpm --filter tessera-moderation-eval review export <lang>
+pnpm --filter tessera-moderation-eval review import data/review-<lang>.md <your name>
 ```
+
+Reviews are kept in `data/reviews.jsonl`, apart from the item files, so
+regenerating or re-exporting items never drops one.

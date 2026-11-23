@@ -10,6 +10,7 @@
   "scripts": {
     "export": "tsx src/export.ts",
     "check": "tsx src/check.ts",
+    "review": "tsx src/review.ts",
     "type-check": "tsc -p tsconfig.json",
     "test": "vitest run"
   },

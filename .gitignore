@@ -5,3 +5,4 @@ plans/
 snapshots/
 target/
 temp/
+backend/moderation-eval/data/

@@ -86,3 +86,21 @@ function compact(fields: Fields): Fields {
     ),
   ) as Fields;
 }
+
+/**
+ * The item as one plain text, the form a classifier is given: one line per
+ * field, an option per line under its question.
+ */
+export function renderFields(fields: Fields): string {
+  const lines: string[] = [];
+  if (fields.title) lines.push(`Title: ${fields.title}`);
+  if (fields.description) lines.push(`Description: ${fields.description}`);
+  for (const q of fields.questions ?? []) {
+    lines.push(`Question: ${q.prompt}`);
+    for (const option of q.options) lines.push(`- ${option}`);
+  }
+  for (const a of fields.answers ?? [])
+    lines.push(`Answer to "${a.prompt}": ${a.value}`);
+  for (const link of fields.links ?? []) lines.push(`Link: ${link}`);
+  return lines.join("\n");
+}
