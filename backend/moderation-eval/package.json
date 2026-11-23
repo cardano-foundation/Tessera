@@ -1,0 +1,26 @@
+{
+  "name": "tessera-moderation-eval",
+  "version": "0.0.0",
+  "description": "An evaluation set for automated moderation of Tessera's free text: on-chain surveys and responses plus synthetic probes, labelled by harm category and severity. The items stay out of git.",
+  "type": "module",
+  "private": true,
+  "engines": {
+    "node": ">=22.5"
+  },
+  "scripts": {
+    "export": "tsx src/export.ts",
+    "check": "tsx src/check.ts",
+    "type-check": "tsc -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "cardano-tessera-client": "workspace:*",
+    "cip-179": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2",
+    "vitest": "^5.1.0"
+  }
+}
