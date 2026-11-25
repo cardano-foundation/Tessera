@@ -11,6 +11,7 @@ import { loadSet } from "./data.js";
 import { renderFields } from "./fields.js";
 import type { Provider } from "./provider.js";
 import { baseline } from "./providers/baseline.js";
+import { jev } from "./providers/jev.js";
 import {
   appendLine,
   latest,
@@ -20,7 +21,7 @@ import {
   type RunMeta,
 } from "./run.js";
 
-const PROVIDERS: Record<string, () => Provider> = { baseline };
+const PROVIDERS: Record<string, () => Provider> = { baseline, jev };
 
 const [name, ...langs] = process.argv.slice(2);
 const make = name ? PROVIDERS[name] : undefined;

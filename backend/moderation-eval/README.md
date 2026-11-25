@@ -40,7 +40,9 @@ regenerating or re-exporting items never drops one.
 
 Each candidate is an adapter in `src/providers/`, mapping its categories onto
 this set's taxonomy; `baseline` flags nothing and is the floor to read others
-against. Every provider sees the same rendering of an item.
+against. Every provider sees the same rendering of an item. API keys come from
+the environment or from a git-ignored `.env` in this package
+(`TYPESAFE_API_KEY` for `jev`).
 
 ```sh
 # Score the labelled items (optionally only some languages) into data/runs/
