@@ -15,6 +15,11 @@ a language and a set of labels, each label a harm category with a severity
 names the categories an acceptable item resembles: the false positives a
 classifier must avoid.
 
+On-chain items hold only on-chain text: a survey whose text lives in its
+content-anchor document appears as its link alone. A production check must
+fetch that document first; the architecture document records it as an open
+item.
+
 ```sh
 # Every survey and response with free text from one backend, labels kept by id
 pnpm --filter tessera-moderation-eval export <backend URL> <network>

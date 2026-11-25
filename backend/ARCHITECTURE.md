@@ -909,6 +909,19 @@ outside the hash, so the verdict ignores them.
   seam exists to prevent. Until it exists, the honest MVP for a host is a compact
   summary plus a deep link, not a partial renderer that silently mishandles the
   methods it does not cover.
+- **Automated moderation must read anchored survey text** — a survey may keep
+  its title, description, prompts and option labels in its content-anchor
+  document rather than in the definition. The browser fetches and
+  hash-verifies that document (`cip-179/content`) and renders it as the
+  survey; the server never fetches it, so a classifier fed the indexed
+  definition has nothing to judge. Before any automated check runs, the server
+  must fetch and verify the document itself and classify the definition with
+  the document applied, and a survey whose document no fetch has reached must
+  count as unclassified, not acceptable. The document is hash-fixed, so one
+  verified fetch classifies it for good, as §5.2 banks governance anchors by
+  hash. Hiding needs nothing new: the survey key already covers its anchored
+  text (§11). Response rationale documents are only linked from results, so
+  there the URI is what gets judged.
 - **Container/compose packaging** — the self-hostable process runs (§3); the
   reproducible image and stack around it are not built.
 - **Optional IPFS pin of the artifact bytes** from the frontend, reusing
