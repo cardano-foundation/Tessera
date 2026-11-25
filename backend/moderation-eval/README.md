@@ -35,3 +35,21 @@ pnpm --filter tessera-moderation-eval review import <lang> <your name>
 
 Reviews are kept in `data/reviews.jsonl`, apart from the item files, so
 regenerating or re-exporting items never drops one.
+
+## Scoring a classifier
+
+Each candidate is an adapter in `src/providers/`, mapping its categories onto
+this set's taxonomy; `baseline` flags nothing and is the floor to read others
+against. Every provider sees the same rendering of an item.
+
+```sh
+# Score the labelled items (optionally only some languages) into data/runs/
+pnpm --filter tessera-moderation-eval score <provider> [lang…]
+
+# Error rates of a run: thresholds to hide and to queue, a sweep, and splits
+pnpm --filter tessera-moderation-eval report data/runs/<file>.jsonl [--target 0.95] [--at 0.5]
+```
+
+A run can be interrupted and started again: an item already scored on its
+current text is skipped, and a failed call is retried. The report holds
+aggregates only, never item text.

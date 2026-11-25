@@ -11,6 +11,8 @@
     "export": "tsx src/export.ts",
     "check": "tsx src/check.ts",
     "review": "tsx src/review.ts",
+    "score": "tsx src/score.ts",
+    "report": "tsx src/report.ts",
     "type-check": "tsc -p tsconfig.json",
     "test": "vitest run"
   },
