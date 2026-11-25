@@ -61,7 +61,9 @@ import {
 } from "cardano-tessera-client";
 import {
   aggregateSurveyList,
+  applyPresentation,
   pageSurveySections,
+  parsePresentation,
   surveyListSlice,
   type DataSource,
 } from "cardano-tessera-core";
@@ -93,10 +95,6 @@ import { loadCart, storeCart } from "~/wallet/cart";
 import { plan, type PlannedTx } from "~/wallet/plan";
 import type { BuiltTx } from "~/wallet/submit";
 import type { ConnectedWallet, InstalledWallet } from "~/wallet/types";
-import {
-  applyPresentation,
-  parsePresentation,
-} from "~/enrichment/presentation";
 import { loadAllDocs, putDoc } from "~/enrichment/docStore";
 import type { SurveyDefinition } from "cip-179";
 

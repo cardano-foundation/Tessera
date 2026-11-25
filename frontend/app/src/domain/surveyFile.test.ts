@@ -3,7 +3,7 @@ import { describe, expect, test } from "vitest";
 import { Role, encodePayload, type SurveyDefinition } from "cip-179";
 import { blake2b256 } from "cip-179/content";
 
-import { parsePresentation } from "~/enrichment/presentation";
+import { parsePresentation } from "cardano-tessera-core";
 import {
   PLACEHOLDER_ANCHOR,
   buildDefinition,

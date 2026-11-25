@@ -1,7 +1,7 @@
 {
   "name": "cardano-tessera-core",
   "version": "0.1.0",
-  "description": "Tessera application core: the DataSource read seam, in-memory keyset paging over a full survey list, the list-aggregation adapter, and the read configuration. The HTTP contract lives in cardano-tessera-client and the reusable domain + tally surface in cip-179; both are imported directly, never re-exported here. No I/O, no runtime coupling.",
+  "description": "Tessera application core: the DataSource read seam, in-memory keyset paging over a full survey list, the list-aggregation adapter, the read configuration, and parsing and applying the external-content presentation document. The HTTP contract lives in cardano-tessera-client and the reusable domain + tally surface in cip-179; both are imported directly, never re-exported here. No I/O, no runtime coupling.",
   "type": "module",
   "private": true,
   "exports": {

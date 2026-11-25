@@ -12,14 +12,10 @@
 import { createResource, type Accessor } from "solid-js";
 import type { SurveyDefinition } from "cip-179";
 import { fetchAnchorJson } from "cip-179/content";
+import { applyPresentation, parsePresentation } from "cardano-tessera-core";
 
 import { useApp } from "~/state";
-import {
-  applyPresentation,
-  displayDefinitionFor,
-  parsePresentation,
-  presentationUnavailable,
-} from "./presentation";
+import { displayDefinitionFor, presentationUnavailable } from "./presentation";
 
 export interface PresentationState {
   /** Display definition: enriched when available, else the on-chain one. */

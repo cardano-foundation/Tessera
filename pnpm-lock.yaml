@@ -17,6 +17,9 @@ importers:
       cardano-tessera-client:
         specifier: workspace:*
         version: link:../../packages/client
+      cardano-tessera-core:
+        specifier: workspace:*
+        version: link:../../packages/core
       cip-179:
         specifier: workspace:*
         version: link:../../packages/cip179

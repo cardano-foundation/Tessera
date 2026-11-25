@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "cardano-tessera-client": "workspace:*",
+    "cardano-tessera-core": "workspace:*",
     "cip-179": "workspace:*"
   },
   "devDependencies": {

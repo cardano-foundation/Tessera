@@ -15,10 +15,11 @@ a language and a set of labels, each label a harm category with a severity
 names the categories an acceptable item resembles: the false positives a
 classifier must avoid.
 
-On-chain items hold only on-chain text: a survey whose text lives in its
-content-anchor document appears as its link alone. A production check must
-fetch that document first; the architecture document records it as an open
-item.
+A survey whose text lives in its content-anchor document is exported with
+that document fetched, verified and applied, as the app shows it. The export
+lists any survey whose document it could not fetch, and any item whose text
+changed since the last export: its labels and review were made for the old
+text.
 
 ```sh
 # Every survey and response with free text from one backend, labels kept by id

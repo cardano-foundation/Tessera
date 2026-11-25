@@ -16,9 +16,10 @@ import { blake2b256 } from "cip-179/content";
 import {
   PRESENTATION_KIND,
   parsePresentation,
-  sameHash,
   type Presentation,
-} from "~/enrichment/presentation";
+} from "cardano-tessera-core";
+
+import { sameHash } from "~/enrichment/presentation";
 import { PLACEHOLDER_ANCHOR, type PresentationDoc } from "~/domain/create";
 import {
   fromDetailedJson,

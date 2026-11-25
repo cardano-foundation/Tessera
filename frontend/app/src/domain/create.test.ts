@@ -12,7 +12,7 @@ import {
 } from "cip-179";
 import { QUICKNET_CHAIN_HASH, maxPlaintextSize } from "cip-179/tlock";
 
-import type { Presentation } from "~/enrichment/presentation";
+import type { Presentation } from "cardano-tessera-core";
 import {
   buildDefinition,
   buildPresentationDoc,

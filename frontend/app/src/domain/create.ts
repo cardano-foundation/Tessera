@@ -31,7 +31,7 @@ import {
   PRESENTATION_KIND,
   applyPresentation,
   type Presentation,
-} from "~/enrichment/presentation";
+} from "cardano-tessera-core";
 import { METADATA_INT_MAX } from "~/domain/detailedJson";
 import { QUICKNET_CHAIN_HASH, maxPlaintextSize } from "cip-179/tlock";
 

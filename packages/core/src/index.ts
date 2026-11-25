@@ -5,8 +5,9 @@
  *
  * Owns the Tessera seam only: the `DataSource` read interface (`source.ts`),
  * in-memory keyset paging over a full list payload (`page.ts`), the
- * survey-list aggregation adapter (`surveyList.ts`), and the read
- * configuration (`config.ts`). The HTTP contract's payload types and
+ * survey-list aggregation adapter (`surveyList.ts`), the read
+ * configuration (`config.ts`), and the external-content presentation document
+ * (`presentation.ts`). The HTTP contract's payload types and
  * constants, the client over it and the network calendar are the published
  * `cardano-tessera-client`; the reusable, cross-implementation surface —
  * on-chain record shapes + pure domain semantics, and the count/stake-weighted
@@ -21,3 +22,4 @@ export * from "./source";
 export * from "./surveyList";
 export * from "./page";
 export * from "./config";
+export * from "./presentation";
