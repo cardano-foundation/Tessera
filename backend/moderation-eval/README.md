@@ -24,7 +24,7 @@ pnpm --filter tessera-moderation-eval check
 
 # Review a language: edit data/review-<lang>.md, then import it
 pnpm --filter tessera-moderation-eval review export <lang>
-pnpm --filter tessera-moderation-eval review import data/review-<lang>.md <your name>
+pnpm --filter tessera-moderation-eval review import <lang> <your name>
 ```
 
 Reviews are kept in `data/reviews.jsonl`, apart from the item files, so
