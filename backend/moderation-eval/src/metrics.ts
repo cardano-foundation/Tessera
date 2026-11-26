@@ -140,6 +140,33 @@ export function threshold(
   return t !== undefined && t > 0 ? t : undefined;
 }
 
+/** The cases a provider gets wrong at threshold `t`, to read one by one. */
+export interface Mistakes {
+  /** Harmful items whose top score stays below `t`. */
+  readonly missed: Case[];
+  /** Harmful items flagged, but with a category they carry scoring below `t`. */
+  readonly misfiled: Case[];
+  /** Acceptable items flagged. */
+  readonly falseFlags: Case[];
+}
+
+export function mistakes(cases: readonly Case[], t: number): Mistakes {
+  const harmful = cases.filter((c) => severity(c) !== "acceptable");
+  return {
+    missed: harmful.filter((c) => top(c) < t),
+    misfiled: harmful.filter(
+      (c) =>
+        top(c) >= t &&
+        Object.keys(c.item.labels).some(
+          (k) => (c.scores[k as Category] ?? 0) < t,
+        ),
+    ),
+    falseFlags: cases.filter(
+      (c) => severity(c) === "acceptable" && top(c) >= t,
+    ),
+  };
+}
+
 /** Rates per group, at threshold `t`. An item may sit in several groups. */
 export function split(
   cases: readonly Case[],

@@ -50,8 +50,12 @@ pnpm --filter tessera-moderation-eval score <provider> [lang…]
 
 # Error rates of a run: thresholds to hide and to queue, a sweep, and splits
 pnpm --filter tessera-moderation-eval report data/runs/<file>.jsonl [--target 0.95] [--at 0.5]
+
+# The same, plus every item wrong at --at with its text, into data/reports/
+pnpm --filter tessera-moderation-eval report data/runs/<file>.jsonl --mistakes
 ```
 
 A run can be interrupted and started again: an item already scored on its
-current text is skipped, and a failed call is retried. The report holds
-aggregates only, never item text.
+current text is skipped, and a failed call is retried. The printed report
+holds aggregates only, never item text; with `--mistakes` it goes to a file
+in `data/` instead, since it quotes the items.

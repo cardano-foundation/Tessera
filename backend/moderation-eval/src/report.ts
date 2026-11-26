@@ -4,18 +4,29 @@
  * reading threshold, rates per category, language, tag and review status, and
  * translation consistency. Aggregates only, never item text.
  *
- *   pnpm --filter tessera-moderation-eval report <run file> [--target 0.95] [--at 0.5]
+ * With `--mistakes`, the report also lists every item wrong at that threshold,
+ * with its text, so it goes to a file under the git-ignored data folder
+ * instead of the terminal.
+ *
+ *   pnpm --filter tessera-moderation-eval report <run file> [--target 0.95] [--at 0.5] [--mistakes]
  */
-import { loadSet } from "./data.js";
-import { CATEGORIES } from "./item.js";
+import { mkdirSync, writeFileSync } from "node:fs";
+import { basename, join } from "node:path";
+import { DATA_DIR, loadSet } from "./data.js";
+import { renderFields } from "./fields.js";
+import { CATEGORIES, type Category } from "./item.js";
 import {
   casesOf,
   categoryRates,
   consistency,
+  mistakes,
   quantile,
   rates,
+  severity,
   split,
   threshold,
+  top,
+  type Case,
   type Rates,
   type Share,
 } from "./metrics.js";
@@ -30,9 +41,12 @@ const option = (flag: string, fallback: number) => {
 };
 const target = option("--target", 0.95);
 const at = option("--at", 0.5);
-const [file] = args;
+const withMistakes = args.includes("--mistakes");
+const [file] = args.filter((a) => a !== "--mistakes");
 if (!file || !(target > 0 && target <= 1) || !(at > 0 && at <= 1)) {
-  console.error("usage: report <run file> [--target 0.95] [--at 0.5]");
+  console.error(
+    "usage: report <run file> [--target 0.95] [--at 0.5] [--mistakes]",
+  );
   process.exit(2);
 }
 
@@ -156,4 +170,92 @@ out.push(
   ),
 );
 
-console.log(out.join("\n\n"));
+if (!withMistakes) {
+  console.log(out.join("\n\n"));
+  process.exit(0);
+}
+
+/** A code fence longer than any backtick run in the text. */
+const fenced = (text: string) => {
+  const longest = Math.max(
+    2,
+    ...[...text.matchAll(/`+/g)].map((m) => m[0].length),
+  );
+  const fence = "`".repeat(longest + 1);
+  return `${fence}text\n${text}\n${fence}`;
+};
+
+const describe = (c: Case) => {
+  const { item } = c;
+  const labels = Object.entries(item.labels).map(([k, s]) => `${k} ${s}`);
+  const scores = Object.entries(c.scores)
+    .filter(([, p]) => p >= 0.05)
+    .sort(([, a], [, b]) => b - a)
+    .map(([k, p]) => `${k} ${p.toFixed(2)}`);
+  return [
+    `#### ${item.id}`,
+    [
+      `${item.source}${item.network ? ` ${item.network}` : ""} ${item.kind}, ${item.lang}`,
+      ...(item.tags ? [`tags: ${item.tags.join(", ")}`] : []),
+      item.reviewedBy ? `reviewed by ${item.reviewedBy}` : "author only",
+    ].join("; "),
+    `Labels: ${labels.length > 0 ? labels.join(", ") : "acceptable"}` +
+      (item.nearMiss ? `; near miss: ${item.nearMiss.join(", ")}` : ""),
+    `Scores: ${scores.length > 0 ? scores.join(", ") : "all below 0.05"}`,
+    ...(item.note ? [`Note: ${item.note}`] : []),
+    fenced(renderFields(item.fields)),
+  ].join("\n\n");
+};
+
+const ORDER = { unlawful: 0, policy: 1, acceptable: 2 };
+const section = (
+  title: string,
+  of: readonly Case[],
+  group: (c: Case) => Category,
+  order: (a: Case, b: Case) => number,
+) => {
+  out.push(`## ${title} at ${at} (${of.length})`);
+  for (const category of CATEGORIES) {
+    const inGroup = of.filter((c) => group(c) === category).sort(order);
+    if (inGroup.length === 0) continue;
+    out.push(`### ${category} (${inGroup.length})`, ...inGroup.map(describe));
+  }
+};
+const firstLabel = (c: Case, below = false) =>
+  CATEGORIES.find(
+    (k) => k in c.item.labels && (!below || (c.scores[k] ?? 0) < at),
+  )!;
+const bySeverityThenScore = (a: Case, b: Case) =>
+  ORDER[severity(a)] - ORDER[severity(b)] || top(a) - top(b);
+
+const m = mistakes(cases, at);
+out.push(
+  "# Mistakes",
+  "Missed: harmful items whose top score stays below the threshold, by their first label. " +
+    "Flagged under another category: harmful items flagged, by the first label whose own score is below it. " +
+    "False flags: acceptable items flagged, by their top category.",
+);
+section("Missed", m.missed, (c) => firstLabel(c), bySeverityThenScore);
+section(
+  "Flagged under another category",
+  m.misfiled,
+  (c) => firstLabel(c, true),
+  bySeverityThenScore,
+);
+section(
+  "False flags",
+  m.falseFlags,
+  (c) =>
+    CATEGORIES.reduce((best, k) =>
+      (c.scores[k] ?? 0) > (c.scores[best] ?? 0) ? k : best,
+    ),
+  (a, b) => top(b) - top(a),
+);
+
+const path = join(DATA_DIR, "reports", `${basename(file, ".jsonl")}.md`);
+mkdirSync(join(DATA_DIR, "reports"), { recursive: true });
+writeFileSync(path, out.join("\n\n") + "\n");
+console.log(
+  `${m.missed.length} missed, ${m.misfiled.length} under another category, ` +
+    `${m.falseFlags.length} false flags at ${at} → ${path}`,
+);

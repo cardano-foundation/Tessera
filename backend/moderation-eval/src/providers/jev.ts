@@ -100,9 +100,13 @@ export function jev(): Provider {
         throw new Error(`${response.status} ${await response.text()}`);
       const body = (await response.json()) as Response;
       if (body.model !== MODEL) throw new Error(`answered by ${body.model}`);
+      const missing = CATEGORIES.filter(
+        (c) => typeof body.answers[c]?.noul !== "number",
+      );
+      if (missing.length > 0) throw new Error(`no answer for ${missing}`);
       return {
         scores: Object.fromEntries(
-          CATEGORIES.map((c) => [c, body.answers[c]?.noul ?? 0]),
+          CATEGORIES.map((c) => [c, body.answers[c]!.noul]),
         ),
         raw: body,
         cost: body.usage.input_tokens * USD_PER_INPUT_TOKEN,

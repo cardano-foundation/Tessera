@@ -5,6 +5,7 @@ import {
   casesOf,
   categoryRates,
   consistency,
+  mistakes,
   quantile,
   rates,
   split,
@@ -89,6 +90,16 @@ describe("rates", () => {
       acceptable: { k: 1, n: 2 },
       nearMiss: { k: 1, n: 1 },
     });
+  });
+});
+
+describe("mistakes", () => {
+  test("splits missed, misfiled and false flags", () => {
+    const m = mistakes(cases, 0.5);
+    const ids = (of: readonly Case[]) => of.map((c) => c.item.id);
+    expect(ids(m.missed)).toEqual(["t1"]);
+    expect(ids(m.misfiled)).toEqual(["u2"]);
+    expect(ids(m.falseFlags)).toEqual(["a2"]);
   });
 });
 
