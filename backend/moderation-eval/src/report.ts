@@ -8,17 +8,21 @@
  * with its text, so it goes to a file under the git-ignored data folder
  * instead of the terminal.
  *
- *   pnpm --filter tessera-moderation-eval report <run file> [--target 0.95] [--at 0.5] [--mistakes]
+ * With `--subset`, it reads only the items of that subset.
+ *
+ *   pnpm --filter tessera-moderation-eval report <run file> [--target 0.95] [--at 0.5] [--subset <name>] [--mistakes]
  */
 import { mkdirSync, writeFileSync } from "node:fs";
 import { basename, join } from "node:path";
-import { DATA_DIR, loadSet } from "./data.js";
+import { options } from "./args.js";
+import { DATA_DIR, loadSet, readSubset } from "./data.js";
 import { renderFields } from "./fields.js";
 import { CATEGORIES, type Category } from "./item.js";
 import {
   casesOf,
   categoryRates,
   consistency,
+  halves,
   mistakes,
   quantile,
   rates,
@@ -32,27 +36,25 @@ import {
 } from "./metrics.js";
 import { latest, readRun } from "./run.js";
 
-const args = process.argv.slice(2);
-const option = (flag: string, fallback: number) => {
-  const i = args.indexOf(flag);
-  if (i === -1) return fallback;
-  const [value] = args.splice(i, 2).slice(1);
-  return Number(value);
-};
-const target = option("--target", 0.95);
-const at = option("--at", 0.5);
-const withMistakes = args.includes("--mistakes");
-const [file] = args.filter((a) => a !== "--mistakes");
+const o = options(process.argv.slice(2));
+const target = o.number("--target", 0.95);
+const at = o.number("--at", 0.5);
+const subsetName = o.string("--subset");
+const withMistakes = o.flag("--mistakes");
+const [file] = o.args;
 if (!file || !(target > 0 && target <= 1) || !(at > 0 && at <= 1)) {
   console.error(
-    "usage: report <run file> [--target 0.95] [--at 0.5] [--mistakes]",
+    "usage: report <run file> [--target 0.95] [--at 0.5] [--subset <name>] [--mistakes]",
   );
   process.exit(2);
 }
 
 const { meta, lines } = readRun(file);
 const byId = latest(lines);
-const { items } = loadSet();
+const subset = subsetName ? readSubset(subsetName) : undefined;
+const all = loadSet().items;
+const half = halves(all);
+const items = all.filter((i) => subset === undefined || subset.has(i.id));
 const { cases, unscored, failed } = casesOf(items, byId);
 
 const pct = ({ k, n }: Share) =>
@@ -80,7 +82,7 @@ const RATE_HEAD = [
 const out: string[] = [];
 const uncovered = CATEGORIES.filter((c) => !meta.covers.includes(c));
 out.push(
-  `# ${meta.provider} ${meta.model}`,
+  `# ${meta.provider} ${meta.model}${subsetName ? `, subset ${subsetName}` : ""}`,
   `${cases.length} items scored, ${unscored} not scored on their current text, ${failed} failed. ` +
     `Not covered: ${uncovered.length > 0 ? uncovered.join(", ") : "none"}.`,
 );
@@ -133,6 +135,7 @@ const splitTable = (title: string, groups: Parameters<typeof split>[1]) =>
 splitTable("language", (c) => [c.item.lang]);
 splitTable("tag", (c) => c.item.tags ?? ["(none)"]);
 splitTable("review", (c) => [c.item.reviewedBy ? "reviewed" : "author only"]);
+splitTable("half", (c) => [half(c.item)]);
 
 out.push(
   `## Translations flagged as their original at ${at}`,
@@ -252,7 +255,11 @@ section(
   (a, b) => top(b) - top(a),
 );
 
-const path = join(DATA_DIR, "reports", `${basename(file, ".jsonl")}.md`);
+const path = join(
+  DATA_DIR,
+  "reports",
+  `${basename(file, ".jsonl")}${subsetName ? `-${subsetName}` : ""}.md`,
+);
 mkdirSync(join(DATA_DIR, "reports"), { recursive: true });
 writeFileSync(path, out.join("\n\n") + "\n");
 console.log(

@@ -13,6 +13,8 @@
     "review": "tsx src/review.ts",
     "score": "tsx --env-file-if-exists=.env src/score.ts",
     "report": "tsx src/report.ts",
+    "subset": "tsx src/subset.ts",
+    "compare": "tsx src/compare.ts",
     "type-check": "tsc -p tsconfig.json",
     "test": "vitest run"
   },

@@ -53,7 +53,19 @@ pnpm --filter tessera-moderation-eval report data/runs/<file>.jsonl [--target 0.
 
 # The same, plus every item wrong at --at with its text, into data/reports/
 pnpm --filter tessera-moderation-eval report data/runs/<file>.jsonl --mistakes
+
+# Tuning items near the decision in one run, as a named subset in data/subsets/
+pnpm --filter tessera-moderation-eval subset data/runs/<file>.jsonl <name> [--low 0.2] [--high 0.8]
+
+# Two runs side by side, and every item whose grade changed
+pnpm --filter tessera-moderation-eval compare <run A> <run B> [--subset <name>]
 ```
+
+`score` and `report` take `--subset <name>` too. The set splits into a
+tuning half and a held-out half, keeping each translation with its original
+and each label in both halves; a subset holds tuning items only, so a
+provider adjusted on it is checked once on the held-out half (`report`
+splits its rates by half).
 
 A run can be interrupted and started again: an item already scored on its
 current text is skipped, and a failed call is retried. The printed report

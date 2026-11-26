@@ -4,10 +4,11 @@
  * interrupted or rate-limited run continues where it stopped; a failed call
  * is kept as an error line and tried again next time.
  *
- *   pnpm --filter tessera-moderation-eval score <provider> [lang…]
+ *   pnpm --filter tessera-moderation-eval score <provider> [--subset <name>] [lang…]
  */
 import { existsSync } from "node:fs";
-import { loadSet } from "./data.js";
+import { options } from "./args.js";
+import { loadSet, readSubset } from "./data.js";
 import { renderFields } from "./fields.js";
 import type { Provider } from "./provider.js";
 import { baseline } from "./providers/baseline.js";
@@ -23,12 +24,17 @@ import {
 
 const PROVIDERS: Record<string, () => Provider> = { baseline, jev };
 
-const [name, ...langs] = process.argv.slice(2);
+const o = options(process.argv.slice(2));
+const subsetName = o.string("--subset");
+const [name, ...langs] = o.args;
 const make = name ? PROVIDERS[name] : undefined;
 if (!make) {
-  console.error(`usage: score <${Object.keys(PROVIDERS).join("|")}> [lang…]`);
+  console.error(
+    `usage: score <${Object.keys(PROVIDERS).join("|")}> [--subset <name>] [lang…]`,
+  );
   process.exit(2);
 }
+const subset = subsetName ? readSubset(subsetName) : undefined;
 const provider = make();
 
 const { items, problems } = loadSet();
@@ -59,6 +65,7 @@ if (existsSync(file)) {
 const chosen = items.filter(
   (item) =>
     item.labels !== undefined &&
+    (subset === undefined || subset.has(item.id)) &&
     (langs.length === 0 || langs.includes(item.lang)),
 );
 let scored = 0;

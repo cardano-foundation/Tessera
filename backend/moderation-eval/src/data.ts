@@ -22,6 +22,21 @@ export const DATA_DIR = new URL("../data/", import.meta.url).pathname;
  */
 export const REVIEWS = join(DATA_DIR, "reviews.jsonl");
 
+/** Named lists of item ids, one per line, to score and report on part of the set. */
+const SUBSETS_DIR = join(DATA_DIR, "subsets");
+
+export function readSubset(name: string): Set<string> {
+  const file = join(SUBSETS_DIR, `${name}.txt`);
+  return new Set(readFileSync(file, "utf8").split("\n").filter(Boolean));
+}
+
+export function writeSubset(name: string, ids: readonly string[]): string {
+  const file = join(SUBSETS_DIR, `${name}.txt`);
+  mkdirSync(SUBSETS_DIR, { recursive: true });
+  writeFileSync(file, ids.map((id) => id + "\n").join(""));
+  return file;
+}
+
 export interface Review {
   readonly id: string;
   readonly labels: Partial<Record<Category, Severity>>;

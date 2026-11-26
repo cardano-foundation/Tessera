@@ -167,6 +167,107 @@ export function mistakes(cases: readonly Case[], t: number): Mistakes {
   };
 }
 
+export type Half = "tune" | "holdout";
+
+/**
+ * Splits the set in two: `tune` to adjust a provider against, `holdout` to
+ * check it on once the tuning is done. A translation goes with its original,
+ * so the same content never sits in both halves. Within each stratum (most
+ * severe label, or near miss and source for an acceptable item) groups are
+ * dealt out largest first to the half holding fewer groups, then fewer
+ * items: a stratum can have as few as four groups, and a random split would
+ * leave one half without its distinct texts. The split depends on the whole
+ * set: adding items can move others.
+ */
+export function halves(items: readonly Item[]): (item: Item) => Half {
+  const byId = new Map(items.map((i) => [i.id, i]));
+  const root = (i: Item) => i.pairOf ?? i.id;
+  const stratum = (i: Item) => {
+    const labels = Object.entries(i.labels ?? {});
+    const worst =
+      labels.find(([, s]) => s === "unlawful") ??
+      labels.find(([, s]) => s === "policy");
+    return worst
+      ? worst.join(":")
+      : `acceptable:${i.nearMiss?.[0] ?? "-"}:${i.source}`;
+  };
+  const groups = new Map<string, number>();
+  for (const i of items) groups.set(root(i), (groups.get(root(i)) ?? 0) + 1);
+  const strata = new Map<string, [string, number][]>();
+  for (const [id, size] of groups) {
+    const key = stratum(byId.get(id) ?? items.find((i) => root(i) === id)!);
+    strata.set(key, [...(strata.get(key) ?? []), [id, size]]);
+  }
+  const half = new Map<string, Half>();
+  for (const members of strata.values()) {
+    const groupsIn = { tune: 0, holdout: 0 };
+    const itemsIn = { tune: 0, holdout: 0 };
+    members.sort(
+      ([a, x], [b, y]) => y - x || textHash(a).localeCompare(textHash(b)),
+    );
+    for (const [id, size] of members) {
+      const to: Half =
+        groupsIn.tune < groupsIn.holdout ||
+        (groupsIn.tune === groupsIn.holdout && itemsIn.tune <= itemsIn.holdout)
+          ? "tune"
+          : "holdout";
+      half.set(id, to);
+      groupsIn[to]++;
+      itemsIn[to] += size;
+    }
+  }
+  return (i) => half.get(root(i)) ?? "tune";
+}
+
+/**
+ * The cases near the decision: top score, or the own score of a category the
+ * item carries, within [low, high]; plus every mistake at `t`, however
+ * confident.
+ */
+export function boundary(
+  cases: readonly Case[],
+  low: number,
+  high: number,
+  t: number,
+): Case[] {
+  const near = (p: number) => p >= low && p <= high;
+  const m = mistakes(cases, t);
+  const wrong = new Set([...m.missed, ...m.misfiled, ...m.falseFlags]);
+  return cases.filter(
+    (c) =>
+      wrong.has(c) ||
+      near(top(c)) ||
+      Object.keys(c.item.labels).some((k) =>
+        near(c.scores[k as Category] ?? 0),
+      ),
+  );
+}
+
+/**
+ * How right a case is at `t`: 2 when flagged as it should be, and under every
+ * category it carries; 1 when flagged, but not under all of them; 0 when wrong.
+ */
+export function grade(c: Case, t: number): 0 | 1 | 2 {
+  if (severity(c) === "acceptable") return top(c) < t ? 2 : 0;
+  if (top(c) < t) return 0;
+  return Object.keys(c.item.labels).every(
+    (k) => (c.scores[k as Category] ?? 0) >= t,
+  )
+    ? 2
+    : 1;
+}
+
+/**
+ * Mean squared distance of the top score from 1 for a harmful item and 0 for
+ * an acceptable one. It moves before a decision flips, so it shows progress a
+ * threshold hides.
+ */
+export const brier = (cases: readonly Case[]): number =>
+  cases.reduce(
+    (sum, c) => sum + (top(c) - (severity(c) === "acceptable" ? 0 : 1)) ** 2,
+    0,
+  ) / cases.length;
+
 /** Rates per group, at threshold `t`. An item may sit in several groups. */
 export function split(
   cases: readonly Case[],

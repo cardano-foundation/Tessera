@@ -4,7 +4,11 @@ import type { Category, Item } from "./item.js";
 import {
   casesOf,
   categoryRates,
+  boundary,
+  brier,
   consistency,
+  grade,
+  halves,
   mistakes,
   quantile,
   rates,
@@ -101,6 +105,47 @@ describe("mistakes", () => {
     expect(ids(m.misfiled)).toEqual(["u2"]);
     expect(ids(m.falseFlags)).toEqual(["a2"]);
   });
+});
+
+describe("boundary", () => {
+  test("keeps scores in the band and every mistake", () => {
+    const ids = boundary(cases, 0.2, 0.8, 0.5).map((c) => c.item.id);
+    expect(ids).toEqual(["u2", "p1", "a2", "t1"]);
+  });
+});
+
+describe("grade", () => {
+  test("tells right, flagged under another category, and wrong", () => {
+    const of = Object.fromEntries(cases.map((c) => [c.item.id, grade(c, 0.5)]));
+    expect(of).toEqual({ u1: 2, u2: 1, p1: 2, a1: 2, a2: 0, t1: 0 });
+  });
+});
+
+test("brier", () => {
+  const [u1, a1] = [cases[0]!, cases[3]!];
+  expect(brier([u1, a1])).toBeCloseTo((0.1 ** 2 + 0.1 ** 2) / 2);
+});
+
+test("halves keep translations with their original and split each stratum", () => {
+  const scam = { labels: { scam: "unlawful" } } as const;
+  const set = [
+    item("big", scam),
+    ...["de", "fr", "ja"].map((lang) =>
+      item(`big-${lang}`, { ...scam, lang, pairOf: "big" }),
+    ),
+    ...["s1", "s2", "s3"].map((id) => item(id, scam)),
+    item("a1"),
+    item("a2"),
+  ];
+  const half = halves(set);
+  const of = (prefix: string) =>
+    set.filter((i) => i.id.startsWith(prefix)).map(half);
+  expect(new Set(of("big")).size).toBe(1);
+  const scamGroups = ["big", "s1", "s2", "s3"].map((id) =>
+    half(set.find((i) => i.id === id)!),
+  );
+  expect(scamGroups.filter((h) => h === "tune")).toHaveLength(2);
+  expect(new Set(of("a"))).toEqual(new Set(["tune", "holdout"]));
 });
 
 describe("threshold", () => {
