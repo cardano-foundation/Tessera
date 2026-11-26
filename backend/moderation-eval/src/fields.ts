@@ -69,10 +69,18 @@ function question(q: Cip179Question): Question {
   }
 }
 
-/** The text strings inside a metadatum, depth first; bytes and integers are not text. */
+/**
+ * The texts inside a metadatum, depth first; bytes and integers are not text.
+ * An array of strings only is `chunked_text`, one text split at 64 bytes, so
+ * its chunks are joined as they are.
+ */
 function strings(value: Metadatum): string[] {
   if (typeof value === "string") return value ? [value] : [];
-  if (Array.isArray(value)) return value.flatMap(strings);
+  if (Array.isArray(value)) {
+    if (value.length > 0 && value.every((v) => typeof v === "string"))
+      return strings(value.join(""));
+    return value.flatMap(strings);
+  }
   if (value instanceof Map)
     return [...value].flatMap(([k, v]) => [...strings(k), ...strings(v)]);
   return [];

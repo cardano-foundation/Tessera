@@ -90,6 +90,23 @@ describe("responseFields", () => {
     });
   });
 
+  test("chunked text is joined as written, keeping its own newlines", () => {
+    const answer = (value: unknown) =>
+      responseFields(
+        response({
+          type: "public",
+          answers: [{ type: "custom", questionIndex: 1, value }],
+        } as unknown as SurveyResponse["answers"]),
+        definition,
+      ).answers;
+    expect(answer(["a long ans", "wer\nnext line"])).toEqual([
+      { prompt: "Why?", value: "a long answer\nnext line" },
+    ]);
+    expect(answer(new Map([[0n, ["one ", "text"]]]))).toEqual([
+      { prompt: "Why?", value: "one text" },
+    ]);
+  });
+
   test("a sealed response has no text", () => {
     expect(
       responseFields(
