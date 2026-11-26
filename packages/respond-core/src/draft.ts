@@ -14,13 +14,11 @@
 
 import {
   SPEC_VERSION,
-  decodeChunkedText,
   encodeChunkedText,
   utf8ByteLength,
   type AnswerItem,
   type ContentAnchor,
   type Credential,
-  type Metadatum,
   type NumericConstraints,
   type OptionsOrCount,
   type Question,
@@ -30,7 +28,7 @@ import {
   type SurveyResponse,
 } from "cip-179";
 
-import { credentialKey, refKey } from "cip-179/domain";
+import { credentialKey, customAnswerText, refKey } from "cip-179/domain";
 
 /** Options a question offers (inline labels or an external count). */
 export function optionCount(opts: OptionsOrCount): number {
@@ -412,17 +410,5 @@ function valueFromAnswer(q: Question, a: AnswerItem): DraftValue | null {
       return a.type === "custom"
         ? { type: "custom", text: customAnswerText(a.value) ?? "" }
         : null;
-  }
-}
-
-/**
- * A custom answer's text, as this module encodes it (`chunked_text`); null for
- * any other value, which some other method schema must have produced.
- */
-export function customAnswerText(value: Metadatum): string | null {
-  try {
-    return decodeChunkedText(value);
-  } catch {
-    return null;
   }
 }

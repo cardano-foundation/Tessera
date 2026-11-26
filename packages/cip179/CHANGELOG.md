@@ -6,6 +6,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 This package follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html);
 while `< 1.0.0`, breaking changes bump the **minor** version.
 
+## [Unreleased]
+
+### Added
+
+- `customAnswerText(value)`, in `cip-179/domain`: a custom answer's text,
+  from a string or from `chunked_text`; null for any other value.
+
+### Fixed
+
+- `humanizeAnswer` and `serializeAnswer` rendered a custom answer longer than
+  64 bytes, which is encoded as `chunked_text`, as a placeholder; they now
+  render its text.
+
 ## [0.7.0] - 2026-11-09
 
 ### Changed

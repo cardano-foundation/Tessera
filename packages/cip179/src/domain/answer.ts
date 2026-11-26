@@ -4,7 +4,21 @@
  * results screen. No framework, no I/O; unit-testable in isolation.
  */
 
-import type { AnswerItem, Question } from "../index.js";
+import type { AnswerItem, Metadatum, Question } from "../index.js";
+import { decodeChunkedText } from "../metadatum.js";
+
+/**
+ * A custom answer's text: a string, or one split into 64-byte chunks
+ * (`chunked_text`); null for any other value, which only its method schema
+ * can interpret.
+ */
+export function customAnswerText(value: Metadatum): string | null {
+  try {
+    return decodeChunkedText(value);
+  } catch {
+    return null;
+  }
+}
 
 /**
  * Stable, machine-readable serialization of one answer item for CSV export.
@@ -27,7 +41,7 @@ export function serializeAnswer(a: AnswerItem): string {
     case "rating":
       return a.ratings.map((r) => `${r.optionIndex}:${r.rating}`).join("|");
     case "custom":
-      return typeof a.value === "string" ? a.value : "[custom]";
+      return customAnswerText(a.value) ?? "[custom]";
   }
 }
 
@@ -68,6 +82,6 @@ export function humanizeAnswer(a: AnswerItem, q: Question | undefined): string {
         .map((r) => `${optionLabelOf(q, r.optionIndex)}: ${r.rating}`)
         .join(",  ");
     case "custom":
-      return typeof a.value === "string" ? a.value : "[custom value]";
+      return customAnswerText(a.value) ?? "[custom value]";
   }
 }

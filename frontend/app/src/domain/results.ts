@@ -31,7 +31,7 @@ import type {
   SurveyResponse,
 } from "cip-179";
 
-import { credentialKey, optionLabelOf } from "cip-179/domain";
+import { credentialKey, customAnswerText, optionLabelOf } from "cip-179/domain";
 import {
   toArtifactQuestions,
   weightedTallySurvey,
@@ -40,7 +40,6 @@ import {
   type TallyArtifact,
   type WeightedResponder,
 } from "cip-179/tally";
-import { customAnswerText } from "cardano-tessera-respond-core";
 
 // ---------------------------------------------------------------------------
 // Exact integers to display values

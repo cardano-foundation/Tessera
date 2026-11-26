@@ -60,7 +60,23 @@ describe("serializeAnswer", () => {
     ).toBe("free text");
   });
 
-  it("falls back to a placeholder for non-string custom values", () => {
+  it("joins a custom answer split into 64-byte chunks", () => {
+    expect(
+      serializeAnswer({
+        type: "custom",
+        questionIndex: 0,
+        value: ["a long ans", "wer\nnext"],
+      }),
+    ).toBe("a long answer\nnext");
+    expect(
+      humanizeAnswer(
+        { type: "custom", questionIndex: 0, value: ["a long ans", "wer"] },
+        undefined,
+      ),
+    ).toBe("a long answer");
+  });
+
+  it("falls back to a placeholder for non-text custom values", () => {
     expect(
       serializeAnswer({ type: "custom", questionIndex: 0, value: 7n }),
     ).toBe("[custom]");
