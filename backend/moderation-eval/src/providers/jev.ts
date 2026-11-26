@@ -7,63 +7,156 @@ const URL = "https://api.typesafe.ai/v1/systemone";
 const USD_PER_INPUT_TOKEN = 0.042 / 1e6;
 
 const CONTEXT =
-  "The text is a survey or a survey response published on a public survey platform for Cardano governance.";
+  "A survey or a survey response published on a public survey platform for Cardano governance.";
 
 /**
- * The policy, one yes/no question per category, so each category gets an
- * independent probability and an item can score high on several. Written as
- * an operator would write it, from general trust & safety practice.
+ * One judgment per question: Jev answers a compound question less reliably,
+ * so a category with several kinds of harm asks one question per kind and
+ * scores the highest. `no` states the plain negative first, then the
+ * look-alikes that stay allowed, so the two sides are complements.
  */
-const POLICY: Record<Category, { yes: string; no: string }> = {
+interface Rule {
+  readonly ask: string;
+  readonly yes: string;
+  readonly no: string;
+}
+
+const PROTECTED =
+  "race, ethnicity, nationality, religion, sex, gender identity, sexual orientation, disability or age";
+
+const POLICY: Record<Category, Record<string, Rule>> = {
   "personal-data": {
-    yes: "It discloses private personal information about an identifiable individual without their evident consent: a home address, a private phone number or email, identity or account numbers, health records, or similar.",
-    no: "Public contact details of organisations or public roles, a respondent's own details where the survey asks for them, names alone, wallet addresses and other on-chain identifiers, or discussion of privacy.",
+    disclose: {
+      ask: "Does `text` disclose private personal information about an identifiable person?",
+      yes: "It gives private details tied to a person who can be identified: a home address, a private phone number or email, identity, bank or account numbers, health records, or similar.",
+      no: "It discloses no private details about an identifiable person. This includes public contact details of organisations or public roles, a respondent's own details where the survey asks for them, names alone, wallet addresses and other on-chain identifiers, and discussion of privacy.",
+    },
   },
   scam: {
-    yes: "It tries to defraud readers: phishing, fake giveaways or airdrops, requests for recovery phrases, private keys or payments under false pretences, impersonation of a project or official, or investment fraud.",
-    no: "Accusing a project of being a scam, warning about scams, discussing security practice, or ordinary links to real projects.",
+    fraud: {
+      ask: "Does `text` try to defraud its readers?",
+      yes: "Phishing, fake giveaways or airdrops, requests for recovery phrases, private keys or payments under false pretences, impersonation of a project or official, or promises of guaranteed returns.",
+      no: "It does not try to defraud anyone. This includes accusing a project of being a scam, warning about scams, discussing security practice, and ordinary links to real projects.",
+    },
   },
   violence: {
-    yes: "It threatens, incites or glorifies violence against people, or depicts violence graphically.",
-    no: "Figurative speech, news or historical discussion, clearly framed fiction, or discussion of safety and security.",
+    threat: {
+      ask: "Does any part of `text` threaten or call for physical harm to people?",
+      yes: "A threat or a call to hurt or kill people, explicit or veiled: an implied threat that never names the harm, slang for killing or beating someone, or a threat placed among unrelated text or written with altered spelling.",
+      no: "Nothing in it threatens or calls for harm to people. This includes figurative idioms about attacking or tearing apart an idea or proposal, harsh criticism, news or history, clearly framed fiction, and discussion of safety.",
+    },
+    graphic: {
+      ask: "Does `text` glorify violence against people or describe it in graphic detail?",
+      yes: "Praise of violence done to people, or a graphic, gory description of it.",
+      no: "It neither glorifies violence nor describes it graphically. This includes factual mentions of violence in news, history or safety discussion.",
+    },
   },
   hate: {
-    yes: "It attacks, dehumanises or incites hatred against people for a protected characteristic: race, ethnicity, nationality, religion, sex, gender identity, sexual orientation, disability or age.",
-    no: "Criticism of ideas, institutions, governments or organisations, discussion of discrimination, or quoting hate speech to condemn it.",
+    attack: {
+      ask: `Does \`text\` attack, dehumanise or call for excluding people because of their ${PROTECTED}?`,
+      yes: "Dehumanising language, incitement to hatred, discrimination or violence, or calls to exclude or expel people for a protected characteristic, including in a question's options.",
+      no: "It attacks no one for a protected characteristic. This includes criticism of ideas, institutions, governments or organisations, discussion of discrimination, and quoting hate speech to condemn it.",
+    },
+    generalise: {
+      ask: `Does \`text\` make a demeaning generalisation about people because of their ${PROTECTED}?`,
+      yes: "A claim that a group defined by a protected characteristic is inferior, stupid, dishonest, dangerous or otherwise lesser.",
+      no: "It makes no demeaning claim about such a group. This includes neutral or positive mentions of identity, inclusive or anti-discrimination statements, and friendly regional teasing.",
+    },
+    slur: {
+      ask: `Does \`text\` use a slur for people of a given ${PROTECTED}?`,
+      yes: "A slur for a group defined by a protected characteristic, aimed at anyone, including slang, abbreviated or casual insults built on such a slur, such as ableist slurs used as everyday insults.",
+      no: "It uses no such slur. This includes ordinary insults that refer to no protected characteristic, and a slur quoted to condemn it.",
+    },
   },
   harassment: {
-    yes: "It insults, demeans, intimidates or bullies a specific person or a group of individuals.",
-    no: "Criticism or satire of public figures' public conduct, criticism of organisations, disagreement, or sarcasm about ideas.",
+    insult: {
+      ask: "Does `text` insult, demean, intimidate or bully a specific person or specific people?",
+      yes: "Insults, name-calling, demeaning remarks or intimidation aimed at an identifiable person or people, including the reader or another participant.",
+      no: "It attacks no one personally. This includes criticism of a public role's decisions or votes, however harsh; criticism of organisations, communities or leadership in general; disagreement; idioms; and friendly teasing among people evidently on good terms.",
+    },
   },
   sexual: {
-    yes: "It contains sexually explicit content, sexual solicitation, or links to pornography.",
-    no: "Sex education, health, relationships or gender discussed without explicit content.",
+    intimate: {
+      ask: "Does `text` share, threaten to share, or offer intimate images or videos of a person without their consent?",
+      yes: "Intimate or sexual images of someone published, offered or threatened to be published without their consent, including to extort them.",
+      no: "It involves no intimate images of anyone without consent. This includes discussion of image-based abuse and how to report it.",
+    },
+    explicit: {
+      ask: "Does `text` contain sexually explicit content, sexual solicitation, or promotion of pornography?",
+      yes: "Explicit sexual descriptions, offers or requests of sex, or promotion of or links to adult content.",
+      no: "It has no explicit sexual content or solicitation. This includes sex education, health, relationships and gender discussed without explicit content.",
+    },
   },
   minors: {
-    yes: "It sexualises minors, seeks contact with minors for sexual purposes, or otherwise endangers children.",
-    no: "Child protection, parenting, education, or questions about age.",
+    endanger: {
+      ask: "Does `text` sexualise minors, seek contact with minors for sexual purposes, or otherwise endanger children?",
+      yes: "Any sexualisation of minors, grooming, or content that puts children at risk.",
+      no: "It does not endanger children. This includes child protection, parenting, education and questions about age.",
+    },
   },
   "self-harm": {
-    yes: "It encourages, instructs in or graphically depicts suicide, self-harm or disordered eating.",
-    no: "Mental health support, seeking help, prevention resources, or a non-graphic account of one's own experience.",
+    encourage: {
+      ask: "Does `text` encourage or tell anyone to kill or harm themselves, or present suicide as a solution?",
+      yes: "Urging, daring or telling someone to kill or hurt themselves, as advice, as an insult or as a joke, or presenting suicide or self-harm as a good way out.",
+      no: "It encourages no one to harm themselves. This includes prevention messages, support and figures of speech.",
+    },
+    instruct: {
+      ask: "Does `text` give instructions or methods for suicide or self-harm?",
+      yes: "Methods, means or instructions for killing or harming oneself.",
+      no: "It gives no such instructions. This includes general discussion of mental health and prevention.",
+    },
+    disclose: {
+      ask: "Does the writer of `text` say they think about suicide, wish they were dead, or harm themselves?",
+      yes: "The writer expresses suicidal thoughts, a wish to die or not to go on living, or says they hurt themselves, even in passing.",
+      no: "The writer expresses no such thoughts. This includes sadness, stress or losses without them, figures of speech about dying of laughter or working oneself to death, and talking about mental health or prevention.",
+    },
+    graphic: {
+      ask: "Does `text` describe suicide or self-harm in graphic detail?",
+      yes: "A graphic description of injuries, methods or acts of suicide or self-harm.",
+      no: "It has no graphic description of suicide or self-harm.",
+    },
   },
   terrorism: {
-    yes: "It supports, glorifies, recruits for or incites terrorism or violent extremism, including through coded references to extremist groups or attacks.",
-    no: "News, historical, academic or policy discussion of terrorism, or counter-extremism.",
+    glorify: {
+      ask: "Does any part of `text` praise, justify or celebrate a terrorist attack or its perpetrators?",
+      yes: "Calling an attack or its perpetrators deserved, heroic or admirable, openly, in passing among unrelated text, or through coded references.",
+      no: "It praises no attack. This includes news, historical, academic or policy discussion of terrorism, and mentions of attacks to discuss security.",
+    },
+    support: {
+      ask: "Does `text` recruit for, raise funds for, or support a terrorist or violent extremist group?",
+      yes: "Recruitment, fundraising or other support for a group that uses violence for political, religious or ideological ends, openly or in disguised wording.",
+      no: "It supports no such group. This includes counter-extremism, compliance and anti-terrorism-financing topics, and historical armed resistance discussed without praise of terrorism.",
+    },
+    incite: {
+      ask: "Does `text` call for or hint at violent action for political or ideological ends?",
+      yes: "A call or a veiled suggestion that attacks or violence are needed against a system, an institution or a group, even hedged or tossed off.",
+      no: "It suggests no political violence. This includes peaceful protest, strikes, voting, calls for reform, and hyperbole such as a vote being a bombshell or an attack in the technical sense.",
+    },
   },
   spam: {
-    yes: "It is spam: unsolicited advertising, repetitive or off-topic promotion, link farming, or meaningless filler unrelated to the survey.",
-    no: "Self-promotion the survey asks for, relevant links, or short or low-effort but genuine answers.",
+    promote: {
+      ask: "Is `text` advertising or promotion that the survey did not ask for?",
+      yes: "Unsolicited advertising of products, services, tokens, channels or adult content, repeated promotion, keyword stuffing, or link dumps.",
+      no: "It promotes nothing unasked. This includes links to or descriptions of one's own project in answer to a question that asks for them, a survey's own questions and options even when they list products, tools or projects, relevant links and announcements, test entries, jokes, enthusiasm, and short or low-effort genuine answers.",
+    },
   },
 };
 
+const RULES = CATEGORIES.flatMap((category) =>
+  Object.entries(POLICY[category]).map(([kind, rule]) => ({
+    name: `${category}_${kind}`,
+    category,
+    rule,
+  })),
+);
+
 const QUESTIONS = Object.fromEntries(
-  CATEGORIES.map((c) => [
-    c,
+  RULES.map(({ name, rule }) => [
+    name,
     {
       type: "noul",
-      instructions: `${CONTEXT} Does it break this rule? ${POLICY[c].yes}`,
-      criteria: { true: POLICY[c].yes, false: POLICY[c].no },
+      instructions: rule.ask,
+      criteria: { true: rule.yes, false: rule.no },
     },
   ]),
 );
@@ -79,7 +172,7 @@ export function jev(): Provider {
   const key = process.env["TYPESAFE_API_KEY"];
   if (!key) throw new Error("TYPESAFE_API_KEY is not set");
   return {
-    name: "jev",
+    name: "jev-v3",
     model: MODEL,
     covers: CATEGORIES,
     async classify(text) {
@@ -91,7 +184,7 @@ export function jev(): Provider {
         },
         body: JSON.stringify({
           model: MODEL,
-          state: text,
+          state: { context: CONTEXT, text },
           questions: QUESTIONS,
         }),
         signal: AbortSignal.timeout(60_000),
@@ -100,14 +193,19 @@ export function jev(): Provider {
         throw new Error(`${response.status} ${await response.text()}`);
       const body = (await response.json()) as Response;
       if (body.model !== MODEL) throw new Error(`answered by ${body.model}`);
-      const missing = CATEGORIES.filter(
-        (c) => typeof body.answers[c]?.noul !== "number",
+      const missing = RULES.filter(
+        ({ name }) => typeof body.answers[name]?.noul !== "number",
       );
-      if (missing.length > 0) throw new Error(`no answer for ${missing}`);
+      if (missing.length > 0)
+        throw new Error(`no answer for ${missing.map((r) => r.name)}`);
+      const scores: Partial<Record<Category, number>> = {};
+      for (const { name, category } of RULES)
+        scores[category] = Math.max(
+          scores[category] ?? 0,
+          body.answers[name]!.noul,
+        );
       return {
-        scores: Object.fromEntries(
-          CATEGORIES.map((c) => [c, body.answers[c]!.noul]),
-        ),
+        scores,
         raw: body,
         cost: body.usage.input_tokens * USD_PER_INPUT_TOKEN,
       };
